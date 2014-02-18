@@ -1,7 +1,5 @@
 using System;
 
-// hello; testing git
-
 namespace _2ME3_Checkers
 {
 #if WINDOWS || XBOX
