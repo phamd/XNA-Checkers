@@ -10,11 +10,12 @@ namespace _2ME3_Checkers
         //variable declarations
         private int column;
         private int row;
-        private string pieceType; // NORMAL, KING, NULL
+        public enum typeState { NORMAL, KING, NULL };
+        private typeState pieceType;
 
         // CONSTRUCTORS
 
-        public Piece(int column, int row, string pieceType)
+        public Piece(int column, int row, typeState pieceType)
         {
             this.column = column;
             this.row = row;
@@ -24,7 +25,7 @@ namespace _2ME3_Checkers
         // METHODS
 
         //getters
-        public string getType() { return pieceType; }
+        public typeState getType() { return pieceType; }
         public int getLocationX() { return this.column; }
         public int getLocationY() { return this.row; }
         
@@ -35,7 +36,7 @@ namespace _2ME3_Checkers
         }
 
         //setters
-        public void setType(string newType) { this.pieceType = newType; } // king piece vs normal piece
+        public void setType(typeState newType) { this.pieceType = newType; } // king piece vs normal piece
         public void setLocation(int column, int row) { this.column = column; this.row = row; }
     }
 }

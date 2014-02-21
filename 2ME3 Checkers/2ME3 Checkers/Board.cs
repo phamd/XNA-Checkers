@@ -17,23 +17,33 @@ namespace _2ME3_Checkers
         /// </summary>
         public Board()
         {
-            for (int i = 0; i < 8; i++)
+            for (int col = 0; col < 8; col++)
             {
-                for (int g = 0; g < 8; g++)
+                for (int row = 0; row < 8; row++)
                 {
-                    if ((i%2 == 0 && (g == 0 || g == 2)) || (i%2 != 0 && g == 1))
-                        pieceArray[i, g] = new Piece(i, g, "1");
-                    else if ((i % 2 == 0 && (g == 5 || g == 7)) || (i % 2 != 0 && g == 6))
-                        pieceArray[i, g] = new Piece(i, g, "2");
+                    if ((col % 2 == 0 && (row == 0 || row == 2)) || (col % 2 != 0 && row == 1)) // bottom player's area
+                        pieceArray[col, row] = new Piece(col, row, Piece.typeState.NORMAL);
+                    else if ((col % 2 == 0 && (row == 5 || row == 7)) || (col % 2 != 0 && row == 6)) // top player's area
+                        pieceArray[col, row] = new Piece(col, row, Piece.typeState.NORMAL);
                     else
-                        pieceArray[i, g] = new Piece(i, g, "_");
+                        pieceArray[col, row] = new Piece(col, row, Piece.typeState.NULL);
                 }
             }
         }
 
         //getters
-        public bool getOccupied(int column, int row) { return pieceArray[column, row].getType() != "NULL"; }
-        public string getOccupiedBy(int column, int row) { return pieceArray[column, row].getType(); }
+        public bool getOccupied(int column, int row) { return pieceArray[column, row].getType() != Piece.typeState.NULL; }
+        public Piece.typeState getOccupiedBy(int column, int row) 
+        {
+            if (pieceArray[column, row] != null)
+            {
+                return pieceArray[column, row].getType();
+            }
+            else
+            {
+                return Piece.typeState.NULL;
+            }
+        }
         public Piece getPiece(int column, int row) { return pieceArray[column, row]; }
 
         //setters
@@ -47,11 +57,11 @@ namespace _2ME3_Checkers
         /// </summary>
         public void clear()
         {
-            for (int i = 0; i < 8; i++)
+            for (int col = 0; col < 8; col++)
             {
-                for (int g = 0; g < 8; g++)
+                for (int row = 0; row < 8; row++)
                 {
-                    pieceArray[i, g] = new Piece(i, g, "NULL");
+                    pieceArray[col, row] = new Piece(col, row, Piece.typeState.NULL);
                 }
             }
         }

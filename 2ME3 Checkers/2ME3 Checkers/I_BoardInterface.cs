@@ -10,7 +10,7 @@ namespace _2ME3_Checkers
         //getters
         Piece getPiece(int column, int row);
         bool getOccupied(int column, int row);
-        string getOccupiedBy(int column, int row);
+        Piece.typeState getOccupiedBy(int column, int row); // Piece.typeState is an enum of possible states
 
         //setters
         void setLocation(int column, int row, Piece newPiece);

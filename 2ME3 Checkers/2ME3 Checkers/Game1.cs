@@ -50,7 +50,7 @@ namespace _2ME3_Checkers
                 for (int col = 0; col < 8; col++)
                 {
                     
-                    Console.Write(board.getOccupiedBy(col,row));
+                    Console.Write(board.getOccupiedBy(col,row) + " ");
                     if (col == 7)
                         Console.WriteLine();
                 }
