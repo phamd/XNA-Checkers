@@ -12,6 +12,11 @@ using Microsoft.Xna.Framework.Media;
 namespace _2ME3_Checkers
 {
     /// <summary>
+    /// Currently:
+    ///   * The three states work by keyboard hotkeys = { M, P, S }
+    ///   * Going between P (playing) and M (menu) doesn't reset the board
+    ///   * Pressing S (setup) will reset the board
+    ///   
     /// TODO: 
     ///   * Add mouse control (added drag and drop mechanics)
     ///   * Distinguish between the two players (in Piece.cs/Board.cs and in the graphics)
@@ -19,7 +24,6 @@ namespace _2ME3_Checkers
     ///   
     /// Thoughts:
     ///   * Maybe instead of tiling each square of the board, we just hardcode a single image in?
-    ///   * 
     /// </summary>
     
     
@@ -61,7 +65,7 @@ namespace _2ME3_Checkers
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
-            graphics.PreferredBackBufferWidth = 800;
+            graphics.PreferredBackBufferWidth = 800; // resolution isn't a big deal, since we can scale the game to the viewport
             graphics.PreferredBackBufferHeight = 600;
             Content.RootDirectory = "Content";
             Window.Title = "Checkers";
@@ -103,7 +107,7 @@ namespace _2ME3_Checkers
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // TODO: use this.Content to load your game content 
-            Board_SquareBlack = this.Content.Load<Texture2D>("textures/Board_SquareBlack"); // make sure these two squares are the same size
+            Board_SquareBlack = this.Content.Load<Texture2D>("textures/Board_SquareBlack"); // make sure these two squares are the same pixel size
             Board_SquareWhite = this.Content.Load<Texture2D>("textures/Board_SquareWhite"); 
             board_squareScale = board_SquareSize / Board_SquareBlack.Height; // calculate the percent scaling we need to get the right square size
             Piece_Normal = this.Content.Load<Texture2D>("textures/Piece_Normal");
@@ -167,7 +171,11 @@ namespace _2ME3_Checkers
             else if (currentState == STATE.SETUP)
             {
                 // draw setup
-                spriteBatch.Draw(Piece_Normal, new Vector2(0, 0), Color.White);
+                // set up new board, then switch to STATE.PLAYING to use it
+                //board = new Board("A1=W, C1=W, E1=W, G1=W, A7=B, B8=B");
+                pieceList.Clear(); // clear the board first
+                piecesDrawn = false; // reset pieces
+
             }
 
             else if (currentState == STATE.PLAYING)
@@ -188,11 +196,12 @@ namespace _2ME3_Checkers
                         }
 
                         // draw tiles
+                        
                         spriteBatch.Draw(tile, new Vector2(32 + board_SquareSize * col, 32 + board_SquareSize * row), // the 32 is the gap to the left and top of the board
                                 null, Color.White, 0f, new Vector2(0, 0), board_squareScale, SpriteEffects.None, 0);
 
                         // create pieces
-                        if (piecesDrawn == false) { // we only want to _create_ the pieces once // If we want to reset the board, set this to true
+                        if (piecesDrawn == false) { // we only want to _create_ the pieces once // If we want to reset the board, set this to false
                             if (board.getOccupiedBy(col, 7 - row) == Piece.typeState.NORMAL) // looks at the board array
                             {
                                 // we wrap each piece in a class called View_Pieces so we can add the intersect function

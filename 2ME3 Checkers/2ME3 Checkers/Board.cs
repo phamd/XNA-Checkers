@@ -31,6 +31,12 @@ namespace _2ME3_Checkers
             }
         }
 
+        public Board(String input)
+        {
+            // sample input string: "A1=W, C1=W, E1=W, G1=W, A7=B, B8=B"
+            // parse this into the pieceArray[,]
+        }
+
         //getters
         public bool getOccupied(int column, int row) { return pieceArray[column, row].getType() != Piece.typeState.NULL; }
         public Piece.typeState getOccupiedBy(int column, int row) 
