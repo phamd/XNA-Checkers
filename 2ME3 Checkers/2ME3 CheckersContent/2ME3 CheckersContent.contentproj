@@ -54,15 +54,20 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="textures\Piece_Normal.png">
-      <Name>Piece_Normal</Name>
+    <Compile Include="textures\Menu_ButtonPlay.bmp">
+      <Name>Menu_ButtonPlay</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="textures\Menu_ButtonPlay.bmp">
-      <Name>Menu_ButtonPlay</Name>
+    <Compile Include="textures\Piece_BlackNormal.png">
+      <Name>Piece_BlackNormal</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="textures\Piece_WhiteNormal.png">
+      <Name>Piece_WhiteNormal</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>

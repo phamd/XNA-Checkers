@@ -13,13 +13,17 @@ namespace _2ME3_Checkers
         public enum typeState { NORMAL, KING, NULL };
         private typeState pieceType;
 
+        public enum player { BLACK, WHITE, NULL }; //probably shouldn't have a null player, but it simplifies things for now
+        private player owner;
+
         // CONSTRUCTORS
 
-        public Piece(int column, int row, typeState pieceType)
+        public Piece(int column, int row, typeState pieceType, player owner)
         {
             this.column = column;
             this.row = row;
             this.pieceType = pieceType;
+            this.owner = owner;
         }
 
         // METHODS
@@ -28,7 +32,8 @@ namespace _2ME3_Checkers
         public typeState getType() { return pieceType; }
         public int getLocationX() { return this.column; }
         public int getLocationY() { return this.row; }
-        
+        public player getOwner() { return this.owner; } // I ADDED THIS WITHOUT CHANGING THE INTERFACE
+
         public bool getValidMovement(int column, int row) 
         {
             //TODO Setup this function for assignment 2

@@ -46,7 +46,8 @@ namespace _2ME3_Checkers
         /// </summary>
         Texture2D Board_SquareWhite; // square == tile
         Texture2D Board_SquareBlack;
-        Texture2D Piece_Normal;
+        Texture2D Piece_BlackNormal;
+        Texture2D Piece_WhiteNormal;
         Texture2D Menu_ButtonPlay;
 
         List<View_Pieces> pieceList = new List<View_Pieces>(); // list of pieces
@@ -110,7 +111,8 @@ namespace _2ME3_Checkers
             Board_SquareBlack = this.Content.Load<Texture2D>("textures/Board_SquareBlack"); // make sure these two squares are the same pixel size
             Board_SquareWhite = this.Content.Load<Texture2D>("textures/Board_SquareWhite"); 
             board_squareScale = board_SquareSize / Board_SquareBlack.Height; // calculate the percent scaling we need to get the right square size
-            Piece_Normal = this.Content.Load<Texture2D>("textures/Piece_Normal");
+            Piece_BlackNormal = this.Content.Load<Texture2D>("textures/Piece_BlackNormal");
+            Piece_WhiteNormal = this.Content.Load<Texture2D>("textures/Piece_WhiteNormal");
             Menu_ButtonPlay = this.Content.Load<Texture2D>("textures/Menu_ButtonPlay");
             base.LoadContent();
         }
@@ -205,8 +207,17 @@ namespace _2ME3_Checkers
                             if (board.getOccupiedBy(col, 7 - row) == Piece.typeState.NORMAL) // looks at the board array
                             {
                                 // we wrap each piece in a class called View_Pieces so we can add the intersect function
-                                pieceList.Add(new View_Pieces(Piece_Normal, new Vector2(32 + board_SquareSize * col + board_SquareSize / 2 - Piece_Normal.Width / 2,
-                                    32 + board_SquareSize * row + board_SquareSize / 2 - Piece_Normal.Height / 2), Color.White, 1f)); // 32 offsets again, maybe put these into a variable
+                                Texture2D pieceTexture;
+                                if (board.getPiece(col, 7 - row).getOwner() == Piece.player.BLACK) {
+                                    pieceTexture = Piece_BlackNormal;
+                                }    
+                                else
+                                {
+                                    pieceTexture = Piece_WhiteNormal;
+                                }
+                                
+                                pieceList.Add(new View_Pieces(pieceTexture, new Vector2(32 + board_SquareSize * col + board_SquareSize / 2 - Piece_BlackNormal.Width / 2,
+                                    32 + board_SquareSize * row + board_SquareSize / 2 - Piece_BlackNormal.Height / 2), Color.White, 1f)); // 32 offsets again, maybe put these into a variable
                             }
                         }
                     }
