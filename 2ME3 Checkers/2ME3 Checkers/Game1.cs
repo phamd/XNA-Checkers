@@ -12,7 +12,11 @@ using Microsoft.Xna.Framework.Media;
 namespace _2ME3_Checkers
 {
     /// <summary>
-    /// This is the main type for your game
+    /// TODO: 
+    ///   * Add mouse control
+    /// 
+    /// Thoughts:
+    ///   * Maybe instead of tiling each square of the board, we just hardcode a single image in?
     /// </summary>
     
     
@@ -20,6 +24,7 @@ namespace _2ME3_Checkers
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+
         /// <summary>
         /// Variable declarations
         /// </summary>
@@ -29,10 +34,26 @@ namespace _2ME3_Checkers
 
         private Board board = new Board();
 
+        /// <summary>
+        /// Textures/Graphics
+        /// </summary>
+        Texture2D Board_SquareWhite; // square == tile
+        Texture2D Board_SquareBlack;
+        Texture2D Piece_Normal;
+        Texture2D Menu_ButtonPlay;
+
+        private int board_SquareSize = 64; // pixel width to upscale to // keep it a multiple of the actual image
+        private float board_squareScale;
+ 
+
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
+            graphics.PreferredBackBufferWidth = 800;
+            graphics.PreferredBackBufferHeight = 600;
             Content.RootDirectory = "Content";
+            Window.Title = "Checkers";
+ 
         }
 
         /// <summary>
@@ -68,7 +89,13 @@ namespace _2ME3_Checkers
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            // TODO: use this.Content to load your game content here
+            // TODO: use this.Content to load your game content 
+            Board_SquareBlack = this.Content.Load<Texture2D>("textures/Board_SquareBlack"); // make sure these two squares are the same size
+            Board_SquareWhite = this.Content.Load<Texture2D>("textures/Board_SquareWhite"); 
+            board_squareScale = board_SquareSize / Board_SquareBlack.Height; // calculate the percent scaling we need to get the right square size
+            Piece_Normal = this.Content.Load<Texture2D>("textures/Piece_Normal");
+            Menu_ButtonPlay = this.Content.Load<Texture2D>("textures/Menu_ButtonPlay");
+            base.LoadContent();
         }
 
         /// <summary>
@@ -78,6 +105,9 @@ namespace _2ME3_Checkers
         protected override void UnloadContent()
         {
             // TODO: Unload any non ContentManager content here
+            
+            spriteBatch.Dispose();
+            base.UnloadContent();
         }
 
         /// <summary>
@@ -90,7 +120,7 @@ namespace _2ME3_Checkers
             // Allows the game to exit
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
                 this.Exit();
-            // Update keyboard state
+            // Change state using the keyboard
             keyState = Keyboard.GetState();
             if (keyState.IsKeyDown(Keys.M))
                 currentState = STATE.MENU;
@@ -105,15 +135,53 @@ namespace _2ME3_Checkers
         }
 
         /// <summary>
-        /// This is called when the game should draw itself.
+        /// The game draws different things depending on $currentState.
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            // TODO: Add your drawing code here
+            spriteBatch.Begin(); // drawing goes after this line
 
+            if (currentState == STATE.MENU) 
+            {
+                // draw menu
+                spriteBatch.Draw(Menu_ButtonPlay, new Vector2(GraphicsDevice.Viewport.Width / 2 - Menu_ButtonPlay.Width / 2,
+                    GraphicsDevice.Viewport.Height * 1/3), Color.White);
+            }
+            else if (currentState == STATE.SETUP)
+            {
+                // draw setup
+                spriteBatch.Draw(Piece_Normal, new Vector2(0, 0), Color.White);
+            }
+            else if (currentState == STATE.PLAYING)
+            {
+                // draw board
+                for (int row = 7; row >= 0; row--) // drawing from bottom up; (since 0,0 is top left corner)
+                {
+                    for (int col = 0; col < 8; col++) // drawing from left to right 
+                    {
+                        Texture2D tile;
+                        if ((row % 2 == 0 && col % 2 == 0) || (row % 2 != 0 && col % 2 != 0)) // alternating between black and white; tiled pattern
+                        {
+                            tile = Board_SquareBlack;
+                        }
+                        else
+                        {
+                            tile = Board_SquareWhite;
+                        }
+
+                        // draw tile
+                        spriteBatch.Draw(tile, new Vector2(32 + board_SquareSize * row, 32 + board_SquareSize * col), // the 32 is the gap to the left and top of the board
+                                null, Color.White, 0f, new Vector2(0, 0), board_squareScale, SpriteEffects.None, 0);
+                        // draw pieces on tile
+                               
+                    }
+                }
+            }
+
+            spriteBatch.End(); // drawing goes before this line
             base.Draw(gameTime);
         }
     }
