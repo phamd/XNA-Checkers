@@ -13,10 +13,13 @@ namespace _2ME3_Checkers
 {
     /// <summary>
     /// TODO: 
-    ///   * Add mouse control
-    /// 
+    ///   * Add mouse control (added drag and drop mechanics)
+    ///   * Distinguish between the two players (in Piece.cs/Board.cs and in the graphics)
+    ///   * Board parser using E3=W, A4=B notation.
+    ///   
     /// Thoughts:
     ///   * Maybe instead of tiling each square of the board, we just hardcode a single image in?
+    ///   * 
     /// </summary>
     
     
@@ -42,9 +45,18 @@ namespace _2ME3_Checkers
         Texture2D Piece_Normal;
         Texture2D Menu_ButtonPlay;
 
+        List<View_Pieces> pieceList = new List<View_Pieces>(); // list of pieces
+        bool piecesDrawn = false;
         private int board_SquareSize = 64; // pixel width to upscale to // keep it a multiple of the actual image
         private float board_squareScale;
- 
+
+        /// <summary>
+        /// Mouse stuff
+        /// </summary>
+        private MouseState mouseStateCurrent;
+        private MouseState mouseStatePrev;
+        View_Pieces mouseClickedPiece = null; // the current clicked on piece for dragging
+        Vector2 mouseOffset; // Offset from where mouse is dragged
 
         public Game1()
         {
@@ -77,6 +89,7 @@ namespace _2ME3_Checkers
                 }
             }
 
+            this.IsMouseVisible = true;
             base.Initialize();
         }
 
@@ -150,11 +163,13 @@ namespace _2ME3_Checkers
                 spriteBatch.Draw(Menu_ButtonPlay, new Vector2(GraphicsDevice.Viewport.Width / 2 - Menu_ButtonPlay.Width / 2,
                     GraphicsDevice.Viewport.Height * 1/3), Color.White);
             }
+
             else if (currentState == STATE.SETUP)
             {
                 // draw setup
                 spriteBatch.Draw(Piece_Normal, new Vector2(0, 0), Color.White);
             }
+
             else if (currentState == STATE.PLAYING)
             {
                 // draw board
@@ -165,21 +180,71 @@ namespace _2ME3_Checkers
                         Texture2D tile;
                         if ((row % 2 == 0 && col % 2 == 0) || (row % 2 != 0 && col % 2 != 0)) // alternating between black and white; tiled pattern
                         {
-                            tile = Board_SquareBlack;
+                            tile = Board_SquareWhite;
                         }
                         else
                         {
-                            tile = Board_SquareWhite;
+                            tile = Board_SquareBlack;
                         }
 
-                        // draw tile
-                        spriteBatch.Draw(tile, new Vector2(32 + board_SquareSize * row, 32 + board_SquareSize * col), // the 32 is the gap to the left and top of the board
+                        // draw tiles
+                        spriteBatch.Draw(tile, new Vector2(32 + board_SquareSize * col, 32 + board_SquareSize * row), // the 32 is the gap to the left and top of the board
                                 null, Color.White, 0f, new Vector2(0, 0), board_squareScale, SpriteEffects.None, 0);
-                        // draw pieces on tile
-                               
+
+                        // create pieces
+                        if (piecesDrawn == false) { // we only want to _create_ the pieces once // If we want to reset the board, set this to true
+                            if (board.getOccupiedBy(col, 7 - row) == Piece.typeState.NORMAL) // looks at the board array
+                            {
+                                // we wrap each piece in a class called View_Pieces so we can add the intersect function
+                                pieceList.Add(new View_Pieces(Piece_Normal, new Vector2(32 + board_SquareSize * col + board_SquareSize / 2 - Piece_Normal.Width / 2,
+                                    32 + board_SquareSize * row + board_SquareSize / 2 - Piece_Normal.Height / 2), Color.White, 1f)); // 32 offsets again, maybe put these into a variable
+                            }
+                        }
+                    }
+                }
+
+
+                // draw pieces
+                foreach (View_Pieces sprite in pieceList) // we tell each piece to draw // actually, we can do this in the loop up there, too
+                {
+                    sprite.Draw(spriteBatch);
+                }
+
+                piecesDrawn = true;
+            } // END OF PLAYING STATE
+
+            ///////////////////////////////////////////////////////http://xboxforums.create.msdn.com/forums/t/53705.aspx
+            // Mouse Update Stuff
+            mouseStatePrev = mouseStateCurrent;
+            mouseStateCurrent = Mouse.GetState();
+
+            Vector2 mouseHit = new Vector2(mouseStateCurrent.X, mouseStateCurrent.Y);
+
+            // If the mouse button is up, drop whatever we have (if anything).  
+            if (mouseStateCurrent.LeftButton == ButtonState.Released) mouseClickedPiece = null;
+            // Was the mouse button pressed this frame?  
+            bool mouseDown = mouseStateCurrent.LeftButton == ButtonState.Pressed && mouseStatePrev.LeftButton == ButtonState.Released;
+
+            if (mouseDown)
+            {
+                // Test each MouseSprite  
+                foreach (View_Pieces sprite in pieceList)
+                {
+                    if (sprite.Intersect(mouseHit))
+                    {
+                        // We have a hit.  
+                        mouseClickedPiece = sprite;
+                        mouseOffset = sprite.position - mouseHit;
+                        break;
                     }
                 }
             }
+            // If dragging, update the position of the sprite.  
+            if (mouseClickedPiece != null)
+            {
+                mouseClickedPiece.position = mouseHit + mouseOffset;
+            }
+            //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
             spriteBatch.End(); // drawing goes before this line
             base.Draw(gameTime);

@@ -23,7 +23,7 @@ namespace _2ME3_Checkers
                 {
                     if ((col % 2 == 0 && (row == 0 || row == 2)) || (col % 2 != 0 && row == 1)) // bottom player's area
                         pieceArray[col, row] = new Piece(col, row, Piece.typeState.NORMAL);
-                    else if ((col % 2 == 0 && (row == 5 || row == 7)) || (col % 2 != 0 && row == 6)) // top player's area
+                    else if ((col % 2 != 0 && (row == 5 || row == 7)) || (col % 2 == 0 && row == 6)) // top player's area
                         pieceArray[col, row] = new Piece(col, row, Piece.typeState.NORMAL);
                     else
                         pieceArray[col, row] = new Piece(col, row, Piece.typeState.NULL);
