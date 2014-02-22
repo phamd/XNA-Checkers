@@ -31,13 +31,86 @@ namespace _2ME3_Checkers
             }
         }
 
+
         public Board(String input)
         {
-            // sample input string: "A1=W, C1=W, E1=W, G1=W, A7=B, B8=B"
+            // sample input string: "A1=W, C1=W, E1=W, G1=WK, A7=B, B8=B"
             // parse this into the pieceArray[,]
-            //  * split1 on commas, split2 again on equal sign, split3 left side again to 1 character
-            //  * coord.x = split3[0], coord.y = split3[1], owner = split2[1]
 
+            clear();
+
+            string[] splitCommas = input.Split(','); // need to remove whitespace too
+            string[] splitEquals;
+            int coordCol;
+            int coordRow;
+            Piece.player player;
+            Piece.typeState type;
+            for (int i = 0; i < splitCommas.Length; i++)
+            {
+                splitEquals = splitCommas[i].Split('=');
+                splitEquals[0].Substring(0, 1);
+                coordRow = Convert.ToInt16(splitEquals[0].Substring(1, 1)); // need to add a check to see if it's actually an int in range 1-8
+                // internally 0-7 instead of 1-8 so we subtract 1
+                coordRow -= 1;
+
+                switch (splitEquals[0].Substring(0,1).ToUpper()) { // associate the column names with its index
+                    case("A"):
+                        coordCol = 0;
+                        break;
+                    case("B"):
+                        coordCol = 1;
+                        break;
+                    case ("C"):
+                        coordCol = 2;
+                        break;
+                    case ("D"):
+                        coordCol = 3;
+                        break;
+                    case ("E"):
+                        coordCol = 4;
+                        break;
+                    case ("F"):
+                        coordCol = 5;
+                        break;
+                    case ("G"):
+                        coordCol = 6;
+                        break;
+                    case ("H"):
+                        coordCol = 7;
+                        break;
+                    default:
+                        coordCol = -99; // make this throw an error
+                        break;
+                }
+
+                switch (splitEquals[1])
+                {
+                    case("B"):
+                        player = Piece.player.BLACK;
+                        type = Piece.typeState.NORMAL;
+                        break;
+                    case("W"):
+                        player = Piece.player.WHITE;
+                        type = Piece.typeState.NORMAL;
+                        break;
+                    case ("BK"):
+                        player = Piece.player.BLACK;
+                        type = Piece.typeState.KING;
+                        break;
+                    case ("WK"):
+                        player = Piece.player.WHITE;
+                        type = Piece.typeState.KING;
+                        break;
+                    default:
+                        player = Piece.player.NULL;
+                        type = Piece.typeState.NULL;
+                        break;
+                }
+
+                pieceArray[coordCol, coordRow] = new Piece(coordCol, coordRow, type, player);
+
+
+            }
 
         }
 

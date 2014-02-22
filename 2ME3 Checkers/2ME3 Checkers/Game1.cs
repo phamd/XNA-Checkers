@@ -178,6 +178,17 @@ namespace _2ME3_Checkers
                 pieceList.Clear(); // clear the board first
                 piecesDrawn = false; // reset pieces
 
+                // the console spams if we use it here
+                //Console.WriteLine("Input a board in the format of A1=W,C1=W,E1=W,G1=WK,A7=B,B8=B");
+                //string input = Console.ReadLine();
+
+                string input = "A1=W,C1=W,E1=W,G1=WK,A7=B,B8=B"; // sample input
+
+                if (input != null)
+                {
+                    board = new Board(input);
+                }
+
             }
 
             else if (currentState == STATE.PLAYING)
