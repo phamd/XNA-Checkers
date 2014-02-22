@@ -38,6 +38,7 @@ namespace _2ME3_Checkers
         private enum STATE { MENU, SETUP, PLAYING };
         private STATE currentState = STATE.MENU;
         private KeyboardState keyState;
+        private string input;
 
         private Board board = new Board();
 
@@ -81,8 +82,6 @@ namespace _2ME3_Checkers
         /// </summary>
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
-
             for (int row = 7; row >= 0; row--)
             {
                 for (int col = 0; col < 8; col++)
@@ -96,6 +95,7 @@ namespace _2ME3_Checkers
 
             this.IsMouseVisible = true;
             base.Initialize();
+            Console.Title = "Checkers Console";
         }
 
         /// <summary>
@@ -179,15 +179,10 @@ namespace _2ME3_Checkers
                 piecesDrawn = false; // reset pieces
 
                 // the console spams if we use it here
-                //Console.WriteLine("Input a board in the format of A1=W,C1=W,E1=W,G1=WK,A7=B,B8=B");
-                //string input = Console.ReadLine();
-
-                string input = "A1=W,C1=W,E1=W,G1=WK,A7=B,B8=B"; // sample input
-
-                if (input != null)
-                {
-                    board = new Board(input);
-                }
+                
+                if(input == null)
+                    parseInput();
+                
 
             }
 
@@ -279,6 +274,22 @@ namespace _2ME3_Checkers
 
             spriteBatch.End(); // drawing goes before this line
             base.Draw(gameTime);
+        }
+        /// <summary>
+        /// This function will ask the user for a string to parse as the board setup
+        /// There are no arguments
+        /// The input string will be null before entering the function
+        /// TODO: Add exception handling
+        /// </summary>
+        void parseInput()
+        {
+            //TODO: ADD EXCEPTION HANDLING FOR MALFORMED INPUTS
+            input = "setup board"; // if the input is not null the function will not be called every frame
+            Console.WriteLine("Input a board in the format of A1=W,C1=W,E1=W,G1=WK,A7=B,B8=B");
+            input = Console.ReadLine();
+            Console.WriteLine(input);
+            //input = "A1=W,C1=W,E1=W,G1=WK,A7=B,B8=B"; // sample input
+            board = new Board(input);
         }
     }
 }
