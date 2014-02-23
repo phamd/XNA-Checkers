@@ -14,6 +14,6 @@ namespace _2ME3_Checkers
 
         //setters
         void setLocation(int column, int row, Piece newPiece);
-        void clear();
+        void clear(); // removes all pieces from the board
     }
 }

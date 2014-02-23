@@ -30,10 +30,9 @@ namespace _2ME3_Checkers
 
         //getters
         public typeState getType() { return pieceType; }
+        public player getOwner() { return this.owner; }
         public int getLocationX() { return this.column; }
         public int getLocationY() { return this.row; }
-        public player getOwner() { return this.owner; } // I ADDED THIS WITHOUT CHANGING THE INTERFACE
-
         public bool getValidMovement(int column, int row) 
         {
             //TODO Setup this function for assignment 2
