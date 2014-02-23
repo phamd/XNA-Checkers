@@ -219,36 +219,40 @@ namespace _2ME3_Checkers
 
                         // create pieces
                         if (piecesDrawn == false) { // we only want to _create_ the pieces once // If we want to reset the board, set this to false
-                            if (board.getOccupiedBy(col, 7 - row) == Piece.typeState.NORMAL) // looks at the board array
+                            if (board.getOccupiedBy(col, 7 - row) != Piece.typeState.NULL) // looks at the board array
                             {
                                 // we wrap each piece in a class called View_Pieces so we can add the intersect function
                                 Texture2D pieceTexture;
                                 if (board.getPiece(col, 7 - row).getOwner() == Piece.player.BLACK) {
-                                    pieceTexture = Piece_BlackNormal;
+                                    switch (board.getOccupiedBy(col, 7 - row))
+                                    {
+                                        case (Piece.typeState.NORMAL):
+                                            pieceTexture = Piece_BlackNormal;
+                                            break;
+                                        case (Piece.typeState.KING):
+                                            pieceTexture = Piece_BlackKing;
+                                            break;
+                                        default:
+                                            throw new Exception("No way");
+                                    }
                                 }    
                                 else
                                 {
-                                    pieceTexture = Piece_WhiteNormal;
+                                    switch (board.getOccupiedBy(col, 7 - row))
+                                    {
+                                        case (Piece.typeState.NORMAL):
+                                            pieceTexture = Piece_WhiteNormal;
+                                            break;
+                                        case (Piece.typeState.KING):
+                                            pieceTexture = Piece_WhiteKing;
+                                            break;
+                                        default:
+                                            throw new Exception("No way");
+                                    }
                                 }
                                 
                                 pieceList.Add(new View_Pieces(pieceTexture, new Vector2(32 + board_SquareSize * col + board_SquareSize / 2 - Piece_BlackNormal.Width / 2,
                                     32 + board_SquareSize * row + board_SquareSize / 2 - Piece_BlackNormal.Height / 2), Color.White, 1f)); // 32 offsets again, maybe put these into a variable
-                            }
-                            else if (board.getOccupiedBy(col, 7 - row) == Piece.typeState.KING) // looks at the board array
-                            {
-                                // we wrap each piece in a class called View_Pieces so we can add the intersect function
-                                Texture2D pieceTexture;
-                                if (board.getPiece(col, 7 - row).getOwner() == Piece.player.BLACK)
-                                {
-                                    pieceTexture = Piece_BlackKing;
-                                }
-                                else
-                                {
-                                    pieceTexture = Piece_WhiteKing;
-                                }
-
-                                pieceList.Add(new View_Pieces(pieceTexture, new Vector2(32 + board_SquareSize * col + board_SquareSize / 2 - Piece_BlackKing.Width / 2,
-                                    32 + board_SquareSize * row + board_SquareSize / 2 - Piece_BlackKing.Height / 2), Color.White, 1f)); // 32 offsets again, maybe put these into a variable
                             }
                         }
                     }
@@ -261,7 +265,8 @@ namespace _2ME3_Checkers
                     sprite.Draw(spriteBatch);
                 }
 
-                piecesDrawn = true;
+                piecesDrawn = true; // We set true to tell the PLAYING state to not create brand new copies of our pieces every frame
+                input = null; // We reset the SETUP state so we can set up an new board
             } // END OF PLAYING STATE
 
             ///////////////////////////////////////////////////////http://xboxforums.create.msdn.com/forums/t/53705.aspx

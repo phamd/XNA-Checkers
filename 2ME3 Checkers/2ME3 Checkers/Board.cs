@@ -37,14 +37,14 @@ namespace _2ME3_Checkers
         /// Throws an exceptions on all malformed inputs. This whole constructor will be within a try catch statement in the main file. 
         /// If the constructor has an exception, the main file will know the input is invalid
         /// </summary>
-        public Board(String input)
+        public Board (String input)
         {
             // sample input string: "A1=W, C1=W, E1=W, G1=WK, A7=B, B8=B"
             // parse this into the pieceArray[,]
 
             clear();
 
-            string[] splitCommas = input.Split(','); // need to remove whitespace too
+            string[] splitCommas = input.Split(','); // splits "A1=W,C1=W" on the comma
             string[] splitEquals;
             int coordCol;
             int coordRow;
@@ -54,17 +54,18 @@ namespace _2ME3_Checkers
             Piece.typeState type;
             for (int i = 0; i < splitCommas.Length; i++)
             {
-                splitEquals = splitCommas[i].Split('=');
-                splitEquals[0].Substring(0, 1);
-                coordRow = Convert.ToInt16(splitEquals[0].Substring(1, 1)); // need to add a check to see if it's actually an int in range 1-8
+                splitEquals = splitCommas[i].Split('='); // split "A1=W" on the equals sign
+                
+                if (splitEquals[0].Length != 2) throw new Exception(); // if left side is not "A1", but "A12" or "AA1" then error
+                coordRow = Convert.ToInt16(splitEquals[0].Substring(1, 1)); // convert the row number an int
                 // internally 0-7 instead of 1-8 so we subtract 1
                 coordRow -= 1;
 
                 switch (splitEquals[0].Substring(0,1).ToUpper()) { // associate the column names with its index
-                    case("A"):
+                    case ("A"):
                         coordCol = 0;
                         break;
-                    case("B"):
+                    case ("B"):
                         coordCol = 1;
                         break;
                     case ("C"):
@@ -90,14 +91,14 @@ namespace _2ME3_Checkers
                         throw new Exception();
                 }
 
-                switch (splitEquals[1])
+                switch (splitEquals[1]) // the right side of the equal sign in A1=W
                 {
-                    case("B"):
+                    case ("B"):
                         player = Piece.player.BLACK;
                         type = Piece.typeState.NORMAL;
                         numBlackPieces++;
                         break;
-                    case("W"):
+                    case ("W"):
                         player = Piece.player.WHITE;
                         type = Piece.typeState.NORMAL;
                         numWhitePieces++;
