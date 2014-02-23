@@ -182,12 +182,9 @@ namespace _2ME3_Checkers
             else if (currentState == STATE.SETUP)
             {
                 // draw setup
-                // set up new board, then switch to STATE.PLAYING to use it
-                //board = new Board("A1=W, C1=W, E1=W, G1=W, A7=B, B8=B");
+                // set up new board
                 pieceList.Clear(); // clear the board first
                 piecesDrawn = false; // reset pieces
-
-                // the console spams if we use it here
                 
                 if(input == null)
                     takeInput();
@@ -197,6 +194,7 @@ namespace _2ME3_Checkers
 
             else if (currentState == STATE.PLAYING)
             {
+                
                 // draw board
                 for (int row = 7; row >= 0; row--) // drawing from bottom up; (since 0,0 is top left corner)
                 {
@@ -280,7 +278,7 @@ namespace _2ME3_Checkers
             if (mouseStateCurrent.LeftButton == ButtonState.Released) mouseClickedPiece = null;
             // Was the mouse button pressed this frame?  
             bool mouseDown = mouseStateCurrent.LeftButton == ButtonState.Pressed && mouseStatePrev.LeftButton == ButtonState.Released;
-
+            
             if (mouseDown)
             {
                 // Test each MouseSprite  
@@ -316,11 +314,14 @@ namespace _2ME3_Checkers
             Console.WriteLine("Input a board in the format of A1=W,C1=W,E1=W,G1=WK,A7=B,B8=B");
             Console.WriteLine("No more that 12 of each colour, and only place on solid squares");
             input = Console.ReadLine();
-            Console.WriteLine("Setting up board: "+input);
             //input = "A1=W,C1=W,E1=W,G1=WK,A7=B,B8=B"; // sample input
             try
             {
-                board = new Board(input);
+                board = new Board(input); // this construction is able to throw exceptions 
+                // the following code only runs if there were no exceptions above
+                Console.WriteLine("Setting up board: " + input);
+                Console.WriteLine("Enjoy your game");
+                currentState = STATE.PLAYING;
             }
             catch
             {
