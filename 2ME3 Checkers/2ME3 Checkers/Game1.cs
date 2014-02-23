@@ -82,7 +82,7 @@ namespace _2ME3_Checkers
         /// </summary>
         protected override void Initialize()
         {
-            for (int row = 7; row >= 0; row--)
+            /*for (int row = 7; row >= 0; row--)
             {
                 for (int col = 0; col < 8; col++)
                 {
@@ -91,11 +91,12 @@ namespace _2ME3_Checkers
                     if (col == 7)
                         Console.WriteLine();
                 }
-            }
+            }*/
 
             this.IsMouseVisible = true;
             base.Initialize();
             Console.Title = "Checkers Console";
+            Console.WriteLine("Welcome to Checkers");
         }
 
         /// <summary>
@@ -181,7 +182,7 @@ namespace _2ME3_Checkers
                 // the console spams if we use it here
                 
                 if(input == null)
-                    parseInput();
+                    takeInput();
                 
 
             }
@@ -279,17 +280,23 @@ namespace _2ME3_Checkers
         /// This function will ask the user for a string to parse as the board setup
         /// There are no arguments
         /// The input string will be null before entering the function
-        /// TODO: Add exception handling
         /// </summary>
-        void parseInput()
+        void takeInput()
         {
-            //TODO: ADD EXCEPTION HANDLING FOR MALFORMED INPUTS
             input = "setup board"; // if the input is not null the function will not be called every frame
             Console.WriteLine("Input a board in the format of A1=W,C1=W,E1=W,G1=WK,A7=B,B8=B");
             input = Console.ReadLine();
-            Console.WriteLine(input);
+            Console.WriteLine("Setting up board: "+input);
             //input = "A1=W,C1=W,E1=W,G1=WK,A7=B,B8=B"; // sample input
-            board = new Board(input);
+            try
+            {
+                board = new Board(input);
+            }
+            catch
+            {
+                Console.WriteLine("Malformed input. Please format the input correctly");
+                takeInput();
+            }
         }
     }
 }

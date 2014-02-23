@@ -31,7 +31,11 @@ namespace _2ME3_Checkers
             }
         }
 
-
+        /// <summary>
+        /// Custom setup of the board
+        /// <param name="input"> the input string which will be interpreted as the piece locations </param>
+        /// Throws an exception automatically when input.Split(',') does not work, and manually when there is an input not matching the case statements
+        /// </summary>
         public Board(String input)
         {
             // sample input string: "A1=W, C1=W, E1=W, G1=WK, A7=B, B8=B"
@@ -79,8 +83,8 @@ namespace _2ME3_Checkers
                         coordCol = 7;
                         break;
                     default:
-                        coordCol = -99; // make this throw an error
-                        break;
+                        //if the input isn't recognized, then throw an exception
+                        throw new Exception();
                 }
 
                 switch (splitEquals[1])
@@ -102,14 +106,10 @@ namespace _2ME3_Checkers
                         type = Piece.typeState.KING;
                         break;
                     default:
-                        player = Piece.player.NULL;
-                        type = Piece.typeState.NULL;
-                        break;
+                        //if the input isn't recognized, then throw an exception
+                        throw new Exception();
                 }
-
                 pieceArray[coordCol, coordRow] = new Piece(coordCol, coordRow, type, player);
-
-
             }
 
         }
