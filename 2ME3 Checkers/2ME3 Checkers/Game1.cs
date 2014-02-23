@@ -49,7 +49,10 @@ namespace _2ME3_Checkers
         Texture2D Board_SquareBlack;
         Texture2D Piece_BlackNormal;
         Texture2D Piece_WhiteNormal;
+        Texture2D Piece_BlackKing;
+        Texture2D Piece_WhiteKing;
         Texture2D Menu_ButtonPlay;
+        Texture2D Menu_ButtonCustom;
 
         List<View_Pieces> pieceList = new List<View_Pieces>(); // list of pieces
         bool piecesDrawn = false;
@@ -114,7 +117,10 @@ namespace _2ME3_Checkers
             board_squareScale = board_SquareSize / Board_SquareBlack.Height; // calculate the percent scaling we need to get the right square size
             Piece_BlackNormal = this.Content.Load<Texture2D>("textures/Piece_BlackNormal");
             Piece_WhiteNormal = this.Content.Load<Texture2D>("textures/Piece_WhiteNormal");
+            Piece_BlackKing = this.Content.Load<Texture2D>("textures/Piece_BlackKing");
+            Piece_WhiteKing = this.Content.Load<Texture2D>("textures/Piece_WhiteKing");
             Menu_ButtonPlay = this.Content.Load<Texture2D>("textures/Menu_ButtonPlay");
+            Menu_ButtonCustom = this.Content.Load<Texture2D>("textures/Menu_ButtonCustom");
             base.LoadContent();
         }
 
@@ -169,6 +175,8 @@ namespace _2ME3_Checkers
                 // draw menu
                 spriteBatch.Draw(Menu_ButtonPlay, new Vector2(GraphicsDevice.Viewport.Width / 2 - Menu_ButtonPlay.Width / 2,
                     GraphicsDevice.Viewport.Height * 1/3), Color.White);
+                spriteBatch.Draw(Menu_ButtonCustom, new Vector2(GraphicsDevice.Viewport.Width / 2 - Menu_ButtonCustom.Width / 2,
+                    GraphicsDevice.Viewport.Height * 2 / 3), Color.White);
             }
 
             else if (currentState == STATE.SETUP)
@@ -225,6 +233,22 @@ namespace _2ME3_Checkers
                                 
                                 pieceList.Add(new View_Pieces(pieceTexture, new Vector2(32 + board_SquareSize * col + board_SquareSize / 2 - Piece_BlackNormal.Width / 2,
                                     32 + board_SquareSize * row + board_SquareSize / 2 - Piece_BlackNormal.Height / 2), Color.White, 1f)); // 32 offsets again, maybe put these into a variable
+                            }
+                            else if (board.getOccupiedBy(col, 7 - row) == Piece.typeState.KING) // looks at the board array
+                            {
+                                // we wrap each piece in a class called View_Pieces so we can add the intersect function
+                                Texture2D pieceTexture;
+                                if (board.getPiece(col, 7 - row).getOwner() == Piece.player.BLACK)
+                                {
+                                    pieceTexture = Piece_BlackKing;
+                                }
+                                else
+                                {
+                                    pieceTexture = Piece_WhiteKing;
+                                }
+
+                                pieceList.Add(new View_Pieces(pieceTexture, new Vector2(32 + board_SquareSize * col + board_SquareSize / 2 - Piece_BlackKing.Width / 2,
+                                    32 + board_SquareSize * row + board_SquareSize / 2 - Piece_BlackKing.Height / 2), Color.White, 1f)); // 32 offsets again, maybe put these into a variable
                             }
                         }
                     }
@@ -285,6 +309,7 @@ namespace _2ME3_Checkers
         {
             input = "setup board"; // if the input is not null the function will not be called every frame
             Console.WriteLine("Input a board in the format of A1=W,C1=W,E1=W,G1=WK,A7=B,B8=B");
+            Console.WriteLine("No more that 12 of each colour, and only place on solid squares");
             input = Console.ReadLine();
             Console.WriteLine("Setting up board: "+input);
             //input = "A1=W,C1=W,E1=W,G1=WK,A7=B,B8=B"; // sample input
@@ -294,7 +319,8 @@ namespace _2ME3_Checkers
             }
             catch
             {
-                Console.WriteLine("Malformed input. Please format the input correctly");
+                Console.WriteLine("Please format the input correctly");
+                Console.WriteLine();
                 takeInput();
             }
         }

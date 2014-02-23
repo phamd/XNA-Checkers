@@ -34,7 +34,8 @@ namespace _2ME3_Checkers
         /// <summary>
         /// Custom setup of the board
         /// <param name="input"> the input string which will be interpreted as the piece locations </param>
-        /// Throws an exception automatically when input.Split(',') does not work, and manually when there is an input not matching the case statements
+        /// Throws an exceptions on all malformed inputs. This whole constructor will be within a try catch statement in the main file. 
+        /// If the constructor has an exception, the main file will know the input is invalid
         /// </summary>
         public Board(String input)
         {
@@ -47,6 +48,8 @@ namespace _2ME3_Checkers
             string[] splitEquals;
             int coordCol;
             int coordRow;
+            int numWhitePieces = 0;
+            int numBlackPieces = 0;
             Piece.player player;
             Piece.typeState type;
             for (int i = 0; i < splitCommas.Length; i++)
@@ -92,22 +95,43 @@ namespace _2ME3_Checkers
                     case("B"):
                         player = Piece.player.BLACK;
                         type = Piece.typeState.NORMAL;
+                        numBlackPieces++;
                         break;
                     case("W"):
                         player = Piece.player.WHITE;
                         type = Piece.typeState.NORMAL;
+                        numWhitePieces++;
                         break;
                     case ("BK"):
                         player = Piece.player.BLACK;
                         type = Piece.typeState.KING;
+                        numBlackPieces++;
                         break;
                     case ("WK"):
                         player = Piece.player.WHITE;
                         type = Piece.typeState.KING;
+                        numWhitePieces++;
                         break;
                     default:
                         //if the input isn't recognized, then throw an exception
                         throw new Exception();
+                }
+
+                //Too many pieces check
+                if(numBlackPieces > 12 || numWhitePieces > 12) {
+                    Console.Write("You can only have up to 12 of one kind of piece and ");
+                    if (numWhitePieces > numBlackPieces)
+                        Console.WriteLine("you had " + numWhitePieces + " white pieces");
+                    else
+                        Console.WriteLine("you had " + numBlackPieces + " black pieces");
+                    throw new Exception();
+                }
+                
+                //Invalid placement check
+                if (coordCol % 2 != coordRow % 2)
+                {
+                    Console.WriteLine("Invalid placement. Only place on solid board squares");
+                    throw new Exception();
                 }
                 pieceArray[coordCol, coordRow] = new Piece(coordCol, coordRow, type, player);
             }
