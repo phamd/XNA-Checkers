@@ -23,19 +23,23 @@ namespace _2ME3_Checkers
         /// Majority of the code modified from here http://xboxforums.create.msdn.com/forums/t/53705.aspx
         /// Feel free to refactor the class name View_Pieces to something else. ~ Don
         /// </summary>
-        public Vector2 position;
+        public Vector2 position; // this should be private 
         private Texture2D texture;
         private Vector2 size;
         private Color color;
         private float scale;
+        private bool draw; // whether or not the sprite should get drawn in the playing state
+        private string buttonName;
 
-        // c'tor  
-        public View_Pieces(Texture2D texture, Vector2 position, Color color, float scale)
+        // constructor  
+        public View_Pieces(Texture2D texture, Vector2 position, Color color, float scale, bool draw = true, string buttonName = "")
         {
             this.texture = texture;
             this.position = position;
             this.color = color;
             this.scale = scale;
+            this.draw = draw;
+            this.buttonName = buttonName;
 
             size = new Vector2(texture.Width, texture.Height);
         }
@@ -59,6 +63,21 @@ namespace _2ME3_Checkers
         public void Draw(SpriteBatch batch)
         {
             batch.Draw(texture, position, null, color, 0f, new Vector2(0, 0), scale, SpriteEffects.None, 0);
+        }
+
+        public bool getDrawable()
+        {
+            return this.draw;
+        }
+
+        public void setDrawable(bool draw)
+        {
+            this.draw = draw;
+        }
+
+        public string getButtonName()
+        {
+            return this.buttonName;
         }
     }
 }

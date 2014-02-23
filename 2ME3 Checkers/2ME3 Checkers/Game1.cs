@@ -154,9 +154,7 @@ namespace _2ME3_Checkers
                 currentState = STATE.SETUP;
             else if (keyState.IsKeyDown(Keys.P))
                 currentState = STATE.PLAYING;
-            // TODO: Add your update logic here
             
-            //Console.WriteLine(currentState.ToString());
             base.Update(gameTime);
         }
 
@@ -177,6 +175,12 @@ namespace _2ME3_Checkers
                     GraphicsDevice.Viewport.Height * 1/3), Color.White);
                 spriteBatch.Draw(Menu_ButtonCustom, new Vector2(GraphicsDevice.Viewport.Width / 2 - Menu_ButtonCustom.Width / 2,
                     GraphicsDevice.Viewport.Height * 2 / 3), Color.White);
+                
+                // Add the menu items to the pieceList (this way they can be clicked). Their draw state is set to false to make sure they don't draw in the PLAYING state. 
+                pieceList.Add(new View_Pieces(Menu_ButtonPlay, new Vector2(GraphicsDevice.Viewport.Width / 2 - Menu_ButtonPlay.Width / 2,
+                    GraphicsDevice.Viewport.Height * 1 / 3), Color.White, 1f, false, "PLAY"));
+                pieceList.Add(new View_Pieces(Menu_ButtonCustom, new Vector2(GraphicsDevice.Viewport.Width / 2 - Menu_ButtonCustom.Width / 2,
+                    GraphicsDevice.Viewport.Height * 2 / 3), Color.White, 1f, false, "CUSTOM"));
             }
 
             else if (currentState == STATE.SETUP)
@@ -194,7 +198,6 @@ namespace _2ME3_Checkers
 
             else if (currentState == STATE.PLAYING)
             {
-                
                 // draw board
                 for (int row = 7; row >= 0; row--) // drawing from bottom up; (since 0,0 is top left corner)
                 {
@@ -260,7 +263,8 @@ namespace _2ME3_Checkers
                 // draw pieces
                 foreach (View_Pieces sprite in pieceList) // we tell each piece to draw // actually, we can do this in the loop up there, too
                 {
-                    sprite.Draw(spriteBatch);
+                    if(sprite.getDrawable()) // if the sprite should be drawn in the PLAYING state
+                        sprite.Draw(spriteBatch);
                 }
 
                 piecesDrawn = true; // We set true to tell the PLAYING state to not create brand new copies of our pieces every frame
@@ -286,7 +290,11 @@ namespace _2ME3_Checkers
                 {
                     if (sprite.Intersect(mouseHit))
                     {
-                        // We have a hit.  
+                        // We have a hit.
+                        if (sprite.getButtonName() == "CUSTOM")
+                            currentState = STATE.SETUP;
+                        else if (sprite.getButtonName() == "PLAY")
+                            currentState = STATE.PLAYING;
                         mouseClickedPiece = sprite;
                         mouseOffset = sprite.position - mouseHit;
                         break;
