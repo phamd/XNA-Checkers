@@ -14,7 +14,7 @@ namespace _2ME3_Checkers
 {
 
     
-    class View_Pieces
+    class View_Clickable
     {
 
         /// <summary>
@@ -23,61 +23,42 @@ namespace _2ME3_Checkers
         /// Majority of the code modified from here http://xboxforums.create.msdn.com/forums/t/53705.aspx
         /// Feel free to refactor the class name View_Pieces to something else. ~ Don
         /// </summary>
-        public Vector2 position; // this should be private 
+        private Vector2 position;
         private Texture2D texture;
         private Vector2 size;
         private Color color;
         private float scale;
-        private bool draw; // whether or not the sprite should get drawn in the playing state
-        private string buttonName;
 
         // constructor  
-        public View_Pieces(Texture2D texture, Vector2 position, Color color, float scale, bool draw = true, string buttonName = "")
+        public View_Clickable(Texture2D texture, Vector2 position, Color color, float scale)
         {
             this.texture = texture;
             this.position = position;
             this.color = color;
             this.scale = scale;
-            this.draw = draw;
-            this.buttonName = buttonName;
 
             size = new Vector2(texture.Width, texture.Height);
         }
 
         public bool Intersect(Vector2 mouseHit)
         {
-            Vector2 min = position;
-            Vector2 max = position + size;
+            Vector2 topLeft = position;
+            Vector2 bottomRight = position + size;
 
-            bool result = false;
-
-            if (mouseHit.X >= min.X && mouseHit.X <= max.X
-                && mouseHit.Y >= min.Y && mouseHit.Y <= max.Y)
-            {
-                result = true;
-            }
-
-            return result;
+            return (mouseHit.X >= topLeft.X && mouseHit.X <= bottomRight.X && mouseHit.Y >= topLeft.Y && mouseHit.Y <= bottomRight.Y);
         }
 
         public void Draw(SpriteBatch batch)
         {
             batch.Draw(texture, position, null, color, 0f, new Vector2(0, 0), scale, SpriteEffects.None, 0);
         }
-
-        public bool getDrawable()
+        public Vector2 getPosition()
         {
-            return this.draw;
+            return this.position;
         }
-
-        public void setDrawable(bool draw)
+        public void setPosition(Vector2 pos)
         {
-            this.draw = draw;
-        }
-
-        public string getButtonName()
-        {
-            return this.buttonName;
+            this.position = pos;
         }
     }
 }

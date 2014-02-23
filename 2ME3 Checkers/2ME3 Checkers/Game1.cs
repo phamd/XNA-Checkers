@@ -54,8 +54,13 @@ namespace _2ME3_Checkers
         Texture2D Menu_ButtonPlay;
         Texture2D Menu_ButtonCustom;
 
-        List<View_Pieces> pieceList = new List<View_Pieces>(); // list of pieces
-        bool piecesDrawn = false;
+        List<View_Clickable> pieceList = new List<View_Clickable>(); // list of pieces
+
+        // buttons
+        View_Clickable clickable_PlayButton;
+        View_Clickable clickable_CustomButton;
+
+        bool piecesCreated = false;
         private int board_SquareSize = 64; // pixel width to upscale to // keep it a multiple of the actual image
         private float board_squareScale;
 
@@ -64,7 +69,7 @@ namespace _2ME3_Checkers
         /// </summary>
         private MouseState mouseStateCurrent;
         private MouseState mouseStatePrev;
-        View_Pieces mouseClickedPiece = null; // the current clicked on piece for dragging
+        View_Clickable mouseClickedPiece = null; // the current clicked on piece for dragging
         Vector2 mouseOffset; // Offset from where mouse is dragged
 
         public Game1()
@@ -121,7 +126,12 @@ namespace _2ME3_Checkers
             Piece_WhiteKing = this.Content.Load<Texture2D>("textures/Piece_WhiteKing");
             Menu_ButtonPlay = this.Content.Load<Texture2D>("textures/Menu_ButtonPlay");
             Menu_ButtonCustom = this.Content.Load<Texture2D>("textures/Menu_ButtonCustom");
-            base.LoadContent();
+            base.LoadContent(); // not sure if this line should be at the end of the method
+
+            clickable_PlayButton = new View_Clickable(Menu_ButtonPlay, new Vector2(GraphicsDevice.Viewport.Width / 2 - Menu_ButtonPlay.Width / 2,
+                GraphicsDevice.Viewport.Height * 1 / 3), Color.White, 1f);             // create play button
+            clickable_CustomButton = new View_Clickable(Menu_ButtonCustom, new Vector2(GraphicsDevice.Viewport.Width / 2 - Menu_ButtonCustom.Width / 2,
+                GraphicsDevice.Viewport.Height * 2 / 3), Color.White, 1f);            // create setup button
         }
 
         /// <summary>
@@ -154,9 +164,48 @@ namespace _2ME3_Checkers
                 currentState = STATE.SETUP;
             else if (keyState.IsKeyDown(Keys.P))
                 currentState = STATE.PLAYING;
-            
+
+
+            // Mouse Update Stuff
+            mouseStatePrev = mouseStateCurrent;
+            mouseStateCurrent = Mouse.GetState();
+
+            Vector2 mouseHit = new Vector2(mouseStateCurrent.X, mouseStateCurrent.Y);
+
+            // If the mouse button is up, drop whatever we have (if anything).  
+            if (mouseStateCurrent.LeftButton == ButtonState.Released) mouseClickedPiece = null;
+            // Was the mouse button pressed this frame?  
+            bool mouseDown = mouseStateCurrent.LeftButton == ButtonState.Pressed && mouseStatePrev.LeftButton == ButtonState.Released;
+
+            if (mouseDown)
+            {
+                // Test each MouseSprite  
+                foreach (View_Clickable sprite in pieceList)
+                {
+                    if (sprite.Intersect(mouseHit))
+                    {
+                        // We have a hit.
+                        mouseClickedPiece = sprite;
+                        mouseOffset = sprite.getPosition() - mouseHit;
+                        break;
+                    }
+                }
+
+                // MENU buttons events // another option is to put all buttons in a buttonList and loop through
+                if (currentState == STATE.MENU) {
+                    if (clickable_CustomButton.Intersect(mouseHit))
+                            currentState = STATE.SETUP;
+                    if (clickable_PlayButton.Intersect(mouseHit))
+                            currentState = STATE.PLAYING;
+                }    
+
+            }
+            // If dragging, update the position of the sprite.  
+            if (mouseClickedPiece != null) mouseClickedPiece.setPosition(mouseHit + mouseOffset);
+
             base.Update(gameTime);
         }
+
 
         /// <summary>
         /// The game draws different things depending on $currentState.
@@ -171,16 +220,10 @@ namespace _2ME3_Checkers
             if (currentState == STATE.MENU) 
             {
                 // draw menu
-                spriteBatch.Draw(Menu_ButtonPlay, new Vector2(GraphicsDevice.Viewport.Width / 2 - Menu_ButtonPlay.Width / 2,
-                    GraphicsDevice.Viewport.Height * 1/3), Color.White);
-                spriteBatch.Draw(Menu_ButtonCustom, new Vector2(GraphicsDevice.Viewport.Width / 2 - Menu_ButtonCustom.Width / 2,
-                    GraphicsDevice.Viewport.Height * 2 / 3), Color.White);
-                
-                // Add the menu items to the pieceList (this way they can be clicked). Their draw state is set to false to make sure they don't draw in the PLAYING state. 
-                pieceList.Add(new View_Pieces(Menu_ButtonPlay, new Vector2(GraphicsDevice.Viewport.Width / 2 - Menu_ButtonPlay.Width / 2,
-                    GraphicsDevice.Viewport.Height * 1 / 3), Color.White, 1f, false, "PLAY"));
-                pieceList.Add(new View_Pieces(Menu_ButtonCustom, new Vector2(GraphicsDevice.Viewport.Width / 2 - Menu_ButtonCustom.Width / 2,
-                    GraphicsDevice.Viewport.Height * 2 / 3), Color.White, 1f, false, "CUSTOM"));
+
+                clickable_PlayButton.Draw(spriteBatch);
+                clickable_CustomButton.Draw(spriteBatch);
+
             }
 
             else if (currentState == STATE.SETUP)
@@ -188,7 +231,7 @@ namespace _2ME3_Checkers
                 // draw setup
                 // set up new board
                 pieceList.Clear(); // clear the board first
-                piecesDrawn = false; // reset pieces
+                piecesCreated = false; // reset pieces
                 
                 if(input == null)
                     takeInput();
@@ -214,12 +257,11 @@ namespace _2ME3_Checkers
                         }
 
                         // draw tiles
-                        
                         spriteBatch.Draw(tile, new Vector2(32 + board_SquareSize * col, 32 + board_SquareSize * row), // the 32 is the gap to the left and top of the board
                                 null, Color.White, 0f, new Vector2(0, 0), board_squareScale, SpriteEffects.None, 0);
 
                         // create pieces
-                        if (piecesDrawn == false) { // we only want to _create_ the pieces once // If we want to reset the board, set this to false
+                        if (piecesCreated == false) { // we only want to _create_ the pieces once // If we want to reset the board, set this to false
                             if (board.getOccupiedBy(col, 7 - row) != Piece.typeState.NULL) // looks at the board array
                             {
                                 // we wrap each piece in a class called View_Pieces so we can add the intersect function
@@ -252,61 +294,22 @@ namespace _2ME3_Checkers
                                     }
                                 }
                                 
-                                pieceList.Add(new View_Pieces(pieceTexture, new Vector2(32 + board_SquareSize * col + board_SquareSize / 2 - Piece_BlackNormal.Width / 2,
+                                pieceList.Add(new View_Clickable(pieceTexture, new Vector2(32 + board_SquareSize * col + board_SquareSize / 2 - Piece_BlackNormal.Width / 2,
                                     32 + board_SquareSize * row + board_SquareSize / 2 - Piece_BlackNormal.Height / 2), Color.White, 1f)); // 32 offsets again, maybe put these into a variable
                             }
                         }
                     }
                 }
 
-
                 // draw pieces
-                foreach (View_Pieces sprite in pieceList) // we tell each piece to draw // actually, we can do this in the loop up there, too
+                foreach (View_Clickable sprite in pieceList) // we tell each piece to draw // actually, we can do this in the loop up there, too
                 {
-                    if(sprite.getDrawable()) // if the sprite should be drawn in the PLAYING state
-                        sprite.Draw(spriteBatch);
+                    sprite.Draw(spriteBatch);
                 }
 
-                piecesDrawn = true; // We set true to tell the PLAYING state to not create brand new copies of our pieces every frame
+                piecesCreated = true; // We set true to tell the PLAYING state to not create brand new copies of our pieces every frame
                 input = null; // We reset the SETUP state so we can set up an new board
             } // END OF PLAYING STATE
-
-            ///////////////////////////////////////////////////////http://xboxforums.create.msdn.com/forums/t/53705.aspx
-            // Mouse Update Stuff
-            mouseStatePrev = mouseStateCurrent;
-            mouseStateCurrent = Mouse.GetState();
-
-            Vector2 mouseHit = new Vector2(mouseStateCurrent.X, mouseStateCurrent.Y);
-
-            // If the mouse button is up, drop whatever we have (if anything).  
-            if (mouseStateCurrent.LeftButton == ButtonState.Released) mouseClickedPiece = null;
-            // Was the mouse button pressed this frame?  
-            bool mouseDown = mouseStateCurrent.LeftButton == ButtonState.Pressed && mouseStatePrev.LeftButton == ButtonState.Released;
-            
-            if (mouseDown)
-            {
-                // Test each MouseSprite  
-                foreach (View_Pieces sprite in pieceList)
-                {
-                    if (sprite.Intersect(mouseHit))
-                    {
-                        // We have a hit.
-                        if (sprite.getButtonName() == "CUSTOM")
-                            currentState = STATE.SETUP;
-                        else if (sprite.getButtonName() == "PLAY")
-                            currentState = STATE.PLAYING;
-                        mouseClickedPiece = sprite;
-                        mouseOffset = sprite.position - mouseHit;
-                        break;
-                    }
-                }
-            }
-            // If dragging, update the position of the sprite.  
-            if (mouseClickedPiece != null)
-            {
-                mouseClickedPiece.position = mouseHit + mouseOffset;
-            }
-            //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
             spriteBatch.End(); // drawing goes before this line
             base.Draw(gameTime);
