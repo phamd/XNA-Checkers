@@ -11,7 +11,6 @@ using Microsoft.Xna.Framework.Media;
 
 namespace _2ME3_Checkers
 {
-    /// hello this is Terry Tong Checking in Please delete this after
     /// <summary>
     /// Currently:
     ///   * The three states work by keyboard hotkeys = { M, P, S }
