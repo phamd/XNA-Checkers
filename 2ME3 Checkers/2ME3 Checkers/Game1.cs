@@ -12,7 +12,7 @@ using Microsoft.Xna.Framework.Media;
 namespace _2ME3_Checkers
 {
     /// <summary>
-    /// Currently:
+    /// Currently, Erica:
     ///   * The three states work by keyboard hotkeys = { M, P, S }
     ///   * Going between P (playing) and M (menu) doesn't reset the board
     ///   * Pressing S (setup) will reset the board
