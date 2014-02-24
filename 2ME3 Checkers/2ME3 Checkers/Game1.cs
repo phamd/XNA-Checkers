@@ -29,8 +29,8 @@ namespace _2ME3_Checkers
     
     public class Game1 : Microsoft.Xna.Framework.Game
     {
-        GraphicsDeviceManager graphics;
-        SpriteBatch spriteBatch;
+        private GraphicsDeviceManager graphics;
+        private SpriteBatch spriteBatch;
 
         /// <summary>
         /// Variable declarations
@@ -45,20 +45,20 @@ namespace _2ME3_Checkers
         /// <summary>
         /// Textures/Graphics
         /// </summary>
-        Texture2D Board_SquareWhite; // square == tile
-        Texture2D Board_SquareBlack;
-        Texture2D Piece_BlackNormal;
-        Texture2D Piece_WhiteNormal;
-        Texture2D Piece_BlackKing;
-        Texture2D Piece_WhiteKing;
-        Texture2D Menu_ButtonPlay;
-        Texture2D Menu_ButtonCustom;
+        private Texture2D Board_SquareWhite; // square == tile
+        private Texture2D Board_SquareBlack;
+        private Texture2D Piece_BlackNormal;
+        private Texture2D Piece_WhiteNormal;
+        private Texture2D Piece_BlackKing;
+        private Texture2D Piece_WhiteKing;
+        private Texture2D Menu_ButtonPlay;
+        private Texture2D Menu_ButtonCustom;
 
-        List<View_Clickable> pieceList = new List<View_Clickable>(); // list of pieces
+        private List<View_Clickable> pieceList = new List<View_Clickable>(); // list of pieces
 
         // buttons
-        View_Clickable clickable_PlayButton;
-        View_Clickable clickable_CustomButton;
+        private View_Clickable clickable_PlayButton;
+        private View_Clickable clickable_CustomButton;
 
         bool piecesCreated = false;
         private int board_SquareSize = 64; // pixel width to upscale to // keep it a multiple of the actual image
@@ -69,8 +69,8 @@ namespace _2ME3_Checkers
         /// </summary>
         private MouseState mouseStateCurrent;
         private MouseState mouseStatePrev;
-        View_Clickable mouseClickedPiece = null; // the current clicked on piece for dragging
-        Vector2 mouseOffset; // Offset from where mouse is dragged
+        private View_Clickable mouseClickedPiece = null; // the current clicked on piece for dragging
+        private Vector2 mouseOffset; // Offset from where mouse is dragged
 
         public Game1()
         {
