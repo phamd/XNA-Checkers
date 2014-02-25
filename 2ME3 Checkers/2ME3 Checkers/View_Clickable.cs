@@ -18,10 +18,9 @@ namespace _2ME3_Checkers
     {
 
         /// <summary>
-        /// This is a wrapper class for the pieces sprites so that we can test for 
-        /// intersection with the mouse for drag and drop.
+        /// This is a wrapper class for the sprites (buttons and pieces) so that we can test for
+        ///     when we mouseclick on them by calling the Intersect() method when the mouse is pressed.
         /// Majority of the code modified from here http://xboxforums.create.msdn.com/forums/t/53705.aspx
-        /// Feel free to refactor the class name View_Pieces to something else. ~ Don
         /// </summary>
         private Vector2 position;
         private Texture2D texture;
@@ -29,7 +28,14 @@ namespace _2ME3_Checkers
         private Color color;
         private float scale;
 
-        // constructor  
+        /// <summary>
+        /// Constructor takes standard sprite.draw parameters.
+        /// If for some reason we need more draw parameters, make another constructor; don't modify this one.
+        /// </summary>
+        /// <param name="texture"></param>
+        /// <param name="position"></param>
+        /// <param name="color"></param>
+        /// <param name="scale"></param>
         public View_Clickable(Texture2D texture, Vector2 position, Color color, float scale)
         {
             this.texture = texture;
@@ -40,7 +46,12 @@ namespace _2ME3_Checkers
             size = new Vector2(texture.Width, texture.Height);
         }
 
-        public bool Intersect(Vector2 mouseHit)
+        /// <summary>
+        /// When called, it checks if inputted xy screen coordinate lies within the sprite.
+        /// </summary>
+        /// <param name="mouseHit">Vector of the current X and Y coordinates of the mouse.</param>
+        /// <returns>True if the coordinate is inside the sprite</returns>
+        public bool IsIntersected(Vector2 mouseHit) 
         {
             Vector2 topLeft = position;
             Vector2 bottomRight = position + size;
@@ -48,6 +59,10 @@ namespace _2ME3_Checkers
             return (mouseHit.X >= topLeft.X && mouseHit.X <= bottomRight.X && mouseHit.Y >= topLeft.Y && mouseHit.Y <= bottomRight.Y);
         }
 
+        /// <summary>
+        /// Does the actual drawing to screen when called.
+        /// </summary>
+        /// <param name="batch">Pass the variable spriteBatch into this.</param>
         public void Draw(SpriteBatch batch)
         {
             batch.Draw(texture, position, null, color, 0f, new Vector2(0, 0), scale, SpriteEffects.None, 0);

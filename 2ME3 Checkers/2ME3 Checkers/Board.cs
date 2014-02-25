@@ -141,7 +141,7 @@ namespace _2ME3_Checkers
 
         //getters
         public bool getOccupied(int column, int row) { return pieceArray[column, row].getType() != Piece.typeState.NULL; }
-        public Piece.typeState getOccupiedBy(int column, int row) 
+        public Piece.typeState getOccupiedBy(int column, int row) // maybe refactor this to getOccupiedType;
         {
             if (pieceArray[column, row] != null)
             {
