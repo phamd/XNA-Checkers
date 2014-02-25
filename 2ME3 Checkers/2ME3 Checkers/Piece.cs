@@ -10,7 +10,7 @@ namespace _2ME3_Checkers
         //variable declarations
         private int column;
         private int row;
-        public enum typeState { NORMAL, KING, NULL };
+        public enum typeState { NORMAL, KING, NULL }; // enums are public so the other classes can know the allowed values.
         private typeState pieceType;
 
         public enum player { BLACK, WHITE, NULL }; //probably shouldn't have a null player, but it simplifies things for now
