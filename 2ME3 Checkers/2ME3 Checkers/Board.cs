@@ -91,7 +91,7 @@ namespace _2ME3_Checkers
                         throw new Exception();
                 }
 
-                switch (splitEquals[1]) // the right side of the equal sign in A1=W
+                switch (splitEquals[1].ToUpper()) // the right side of the equal sign in A1=W
                 {
                     case ("B"):
                         player = Piece.player.BLACK;
