@@ -27,12 +27,6 @@ namespace _2ME3_Checkers
         //getters
         public typeState getType() { return pieceType; }
         public player getOwner() { return this.owner; }
-        public bool getValidMovement(int column, int row) 
-        {
-            //TODO Setup this function for assignment 2
-            return false;
-        }
-
         //setters
         public void setType(typeState newType) { this.pieceType = newType; } // king piece vs normal piece
     }

@@ -139,8 +139,6 @@ namespace _2ME3_Checkers
 
         }
 
-        public bool isOccupied(int column, int row) { return pieceArray[column, row] != null; }
-
         public Piece getPiece(int column, int row) { return pieceArray[column, row]; } // returns null for no piece
 
         public void movePiece(int fromCol, int fromRow, int toCol, int toRow)
