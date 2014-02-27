@@ -5,7 +5,7 @@ using System.Text;
 
 namespace _2ME3_Checkers
 {
-    class Board : I_BoardInterface
+    class Board //: I_BoardInterface
     {
         //variables
         private Piece[,] pieceArray = new Piece[8,8];
@@ -22,11 +22,11 @@ namespace _2ME3_Checkers
                 for (int row = 0; row < 8; row++)
                 {
                     if ((col % 2 == 0 && (row == 0 || row == 2)) || (col % 2 != 0 && row == 1)) // bottom player's area
-                        pieceArray[col, row] = new Piece(col, row, Piece.typeState.NORMAL, Piece.player.BLACK);
+                        pieceArray[col, row] = new Piece(Piece.typeState.NORMAL, Piece.player.BLACK);
                     else if ((col % 2 != 0 && (row == 5 || row == 7)) || (col % 2 == 0 && row == 6)) // top player's area
-                        pieceArray[col, row] = new Piece(col, row, Piece.typeState.NORMAL, Piece.player.WHITE);
+                        pieceArray[col, row] = new Piece(Piece.typeState.NORMAL, Piece.player.WHITE);
                     else
-                        pieceArray[col, row] = new Piece(col, row, Piece.typeState.NULL, Piece.player.NULL);
+                        pieceArray[col, row] = null;
                 }
             }
         }
@@ -134,30 +134,21 @@ namespace _2ME3_Checkers
                     Console.WriteLine("Invalid placement. Only place on solid board squares");
                     throw new Exception();
                 }
-                pieceArray[coordCol, coordRow] = new Piece(coordCol, coordRow, type, player);
+                pieceArray[coordCol, coordRow] = new Piece(type, player);
             }
 
         }
 
-        //getters
-        public bool isOccupied(int column, int row) { return pieceArray[column, row].getType() != Piece.typeState.NULL; }
-        public Piece.typeState getOccupiedBy(int column, int row) // maybe refactor this to getOccupiedType;
-        {
-            if (pieceArray[column, row] != null)
-            {
-                return pieceArray[column, row].getType();
-            }
-            else
-            {
-                return Piece.typeState.NULL;
-            }
-        }
-        public Piece getPiece(int column, int row) { return pieceArray[column, row]; }
+        public bool isOccupied(int column, int row) { return pieceArray[column, row] != null; }
 
-        //setters
-        public void setLocation(int column, int row, Piece newPiece)
+        public Piece getPiece(int column, int row) { return pieceArray[column, row]; } // returns null for no piece
+
+        public void movePiece(int fromCol, int fromRow, int toCol, int toRow)
         {
-            this.pieceArray[column, row] = newPiece;   
+            // put piece into new location
+            this.pieceArray[toCol, toRow] = this.pieceArray[fromCol, fromRow];
+            // remove piece from previous location
+            this.pieceArray[fromCol, fromRow] = null;
         }
 
         /// <summary>
@@ -169,7 +160,7 @@ namespace _2ME3_Checkers
             {
                 for (int row = 0; row < 8; row++)
                 {
-                    pieceArray[col, row] = new Piece(col, row, Piece.typeState.NULL, Piece.player.NULL);
+                    pieceArray[col, row] = null;
                 }
             }
         }

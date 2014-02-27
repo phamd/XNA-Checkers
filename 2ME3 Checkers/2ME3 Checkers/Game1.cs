@@ -256,12 +256,12 @@ namespace _2ME3_Checkers
 
                         // check if a piece belongs on the tile then draws it.
                         if (piecesCreated == false) { // we only want to _create_ the pieces once // If we want to reset the board, set this to false
-                            if (board.getOccupiedBy(col, 7 - row) != Piece.typeState.NULL) // looks at the board array
+                            if (board.getPiece(col, 7 - row) != null) // looks at the board array
                             {
                                 // we wrap each piece in a class called View_Clickable so we can apply additional methods to them
                                 Texture2D pieceTexture;
                                 if (board.getPiece(col, 7 - row).getOwner() == Piece.player.BLACK) {
-                                    switch (board.getOccupiedBy(col, 7 - row))
+                                    switch (board.getPiece(col, 7 - row).getType())
                                     {
                                         case (Piece.typeState.NORMAL):
                                             pieceTexture = Piece_BlackNormal;
@@ -272,10 +272,10 @@ namespace _2ME3_Checkers
                                         default:
                                             throw new Exception("No way");
                                     }
-                                }    
-                                else
+                                }
+                                else if (board.getPiece(col, 7 - row).getOwner() == Piece.player.WHITE)
                                 {
-                                    switch (board.getOccupiedBy(col, 7 - row))
+                                    switch (board.getPiece(col, 7 - row).getType())
                                     {
                                         case (Piece.typeState.NORMAL):
                                             pieceTexture = Piece_WhiteNormal;
@@ -286,6 +286,10 @@ namespace _2ME3_Checkers
                                         default:
                                             throw new Exception("No way");
                                     }
+                                }
+                                else
+                                {
+                                    throw new Exception("Error: Piece owned by someone not BLACK or WHITE!");
                                 }
 
                                 // prepare a list of all pieces so we can draw them later

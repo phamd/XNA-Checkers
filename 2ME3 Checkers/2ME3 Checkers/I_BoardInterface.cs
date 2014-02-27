@@ -13,7 +13,7 @@ namespace _2ME3_Checkers
         Piece.typeState getOccupiedBy(int column, int row); // Piece.typeState is an enum of possible states
 
         //setters
-        void setLocation(int column, int row, Piece newPiece);
+        void movePiece(int column, int row, Piece newPiece);
         void clear(); // removes all pieces from the board
     }
 }

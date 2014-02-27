@@ -5,23 +5,19 @@ using System.Text;
 
 namespace _2ME3_Checkers
 {
-    class Piece : I_PieceInterface
+    class Piece// : I_PieceInterface
     {
         //variable declarations
-        private int column;
-        private int row;
-        public enum typeState { NORMAL, KING, NULL }; // enums are public so the other classes can know the allowed values.
+        public enum typeState { NORMAL, KING }; // enums are public so the other classes can know the allowed values.
         private typeState pieceType;
 
-        public enum player { BLACK, WHITE, NULL }; //probably shouldn't have a null player, but it simplifies things for now
+        public enum player { BLACK, WHITE }; //probably shouldn't have a null player, but it simplifies things for now
         private player owner;
 
         // CONSTRUCTORS
 
-        public Piece(int column, int row, typeState pieceType, player owner)
+        public Piece(typeState pieceType, player owner)
         {
-            this.column = column;
-            this.row = row;
             this.pieceType = pieceType;
             this.owner = owner;
         }
@@ -31,8 +27,6 @@ namespace _2ME3_Checkers
         //getters
         public typeState getType() { return pieceType; }
         public player getOwner() { return this.owner; }
-        public int getLocationX() { return this.column; }
-        public int getLocationY() { return this.row; }
         public bool getValidMovement(int column, int row) 
         {
             //TODO Setup this function for assignment 2
@@ -41,6 +35,5 @@ namespace _2ME3_Checkers
 
         //setters
         public void setType(typeState newType) { this.pieceType = newType; } // king piece vs normal piece
-        public void setLocation(int column, int row) { this.column = column; this.row = row; }
     }
 }
