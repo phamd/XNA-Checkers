@@ -18,6 +18,8 @@ namespace _2ME3_Checkers
         /// </summary>
         public Board()
         {
+            this.clear(); // clear the board first
+
             for (int col = 0; col < 8; col++)
             {
                 for (int row = 0; row < 8; row++)
@@ -28,7 +30,7 @@ namespace _2ME3_Checkers
                         placePiece(col, row, new Piece(Piece.typeState.NORMAL, Piece.player.WHITE));
                     else
                     {
-                        // no piece to place
+                        // place nothing
                     }
                         
                 }

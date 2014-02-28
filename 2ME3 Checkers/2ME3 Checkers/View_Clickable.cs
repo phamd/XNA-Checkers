@@ -43,7 +43,7 @@ namespace _2ME3_Checkers
             this.color = color;
             this.scale = scale;
 
-            size = new Vector2(texture.Width, texture.Height);
+            size = new Vector2(texture.Width*scale, texture.Height*scale);
         }
 
         /// <summary>
