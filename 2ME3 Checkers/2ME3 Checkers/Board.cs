@@ -45,7 +45,8 @@ namespace _2ME3_Checkers
         {
             // sample input string: "A1=W,C1=W,E1=W,G1=WK,A7=B,B8=B"
             // the goal is to parse this string and place the pieces on the board
-
+            numBlackPieces = 0;
+            numWhitePieces = 0;
             clear(); // we assume the user will setup the board all at once in one line
                      // we can later give the option to allow the user to set up the board one piece at a time.
 
@@ -134,11 +135,12 @@ namespace _2ME3_Checkers
         public Piece getPiece(int column, int row) { return pieceArray[column, row]; } 
 
         /// <summary>
-        /// Places the piece on the board while checking if the placement is legal.
+        /// Checks if a piece placement is legal, if so, it will place the piece there.
         /// </summary>
         public void placePiece(int column, int row, Piece piece) 
         {
             // Too many pieces check
+            // Another safer option is to recount the pieceArray every time we add a piece instead of having a running count.
             if (numBlackPieces > 12 || numWhitePieces > 12)
             {
                 Console.Write("You can only have up to 12 of one kind of piece and ");
@@ -159,17 +161,17 @@ namespace _2ME3_Checkers
             pieceArray[column, row] = piece;
         }
 
+        /// <summary>
+        /// Checks if the movement of a piece is legal, if so, then we move the piece to that location.
+        /// </summary>
         public void movePiece(int fromCol, int fromRow, int toCol, int toRow)
         {
+            // check if movement is legal
+
             // put piece into new location
             this.pieceArray[toCol, toRow] = this.pieceArray[fromCol, fromRow];
             // remove piece from previous location
             this.pieceArray[fromCol, fromRow] = null;
-        }
-
-        public bool isValidMovement(int fromCol, int fromRow, int toCol, int toRow)
-        {
-            return true;
         }
 
         /// <summary>
