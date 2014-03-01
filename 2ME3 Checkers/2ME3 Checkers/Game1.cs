@@ -57,6 +57,7 @@ namespace _2ME3_Checkers
         // buttons
         private View_Clickable clickable_PlayButton;
         private View_Clickable clickable_CustomButton;
+        private View_Clickable clickable_MenuButton;
 
         private List<View_Clickable> pieceList = new List<View_Clickable>(); // list of pieces
 
@@ -80,7 +81,7 @@ namespace _2ME3_Checkers
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
-            graphics.PreferredBackBufferWidth = 800; // resolution isn't a big deal, since we can scale the game to the viewport
+            graphics.PreferredBackBufferWidth = 600; // resolution isn't a big deal, since we can scale the game to the viewport
             graphics.PreferredBackBufferHeight = 600;
             Content.RootDirectory = "Content";
             Window.Title = "Checkers";
@@ -94,17 +95,6 @@ namespace _2ME3_Checkers
         /// </summary>
         protected override void Initialize()
         {
-            /*for (int row = 7; row >= 0; row--)
-            {
-                for (int col = 0; col < 8; col++)
-                {
-                    
-                    Console.Write(board.getOccupiedBy(col,row) + " ");
-                    if (col == 7)
-                        Console.WriteLine();
-                }
-            }*/
-
             this.IsMouseVisible = true;
             base.Initialize();
             Console.Title = "Checkers Console";
@@ -129,13 +119,15 @@ namespace _2ME3_Checkers
             Menu_ButtonPlay = this.Content.Load<Texture2D>("textures/Menu_ButtonPlay");
             Menu_ButtonCustom = this.Content.Load<Texture2D>("textures/Menu_ButtonCustom");
             
-            base.LoadContent(); // not sure if this line should be at the end of the method
-
             // Buttons
             clickable_PlayButton = new View_Clickable(Menu_ButtonPlay, new Vector2(GraphicsDevice.Viewport.Width / 2 - Menu_ButtonPlay.Width / 2,
                 GraphicsDevice.Viewport.Height * 1 / 3), Color.White, 1f);             // create play button
             clickable_CustomButton = new View_Clickable(Menu_ButtonCustom, new Vector2(GraphicsDevice.Viewport.Width / 2 - Menu_ButtonCustom.Width / 2,
                 GraphicsDevice.Viewport.Height * 2 / 3), Color.White, 1f);            // create setup button
+            clickable_MenuButton = new View_Clickable(Menu_ButtonPlay, new Vector2(GraphicsDevice.Viewport.Width - Menu_ButtonCustom.Width*0.3f,
+                GraphicsDevice.Viewport.Height - Menu_ButtonCustom.Height*0.3f), Color.White, 0.3f);            // create setup button
+
+            base.LoadContent();
         }
 
         /// <summary>
@@ -158,6 +150,7 @@ namespace _2ME3_Checkers
             // Allows the game to exit
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
                 this.Exit();
+
             // Change state using the keyboard
             keyState = Keyboard.GetState();
             if (keyState.IsKeyDown(Keys.M))
@@ -189,16 +182,22 @@ namespace _2ME3_Checkers
                     }
                 }
 
-                // MENU buttons events // another option is to put all buttons in a buttonList and loop through
-                if (currentState == STATE.MENU) {
+                // MENU buttons events to switch between states
+                if (currentState == STATE.MENU)
+                {
                     if (clickable_CustomButton.IsIntersected(mousePos))
-                            currentState = STATE.SETUP;
+                        currentState = STATE.SETUP;
                     if (clickable_PlayButton.IsIntersected(mousePos))
-                            currentState = STATE.PLAYING;
+                        currentState = STATE.PLAYING;
+                }
+                if (currentState == STATE.PLAYING)
+                {
+                    if (clickable_MenuButton.IsIntersected(mousePos))
+                        currentState = STATE.MENU;        
                 }    
-
             }
-            // If we haven't released the mouse, continue updating the position of the piece.
+
+            // If we haven't released the mouse, continue updating the position of the piece (for dragging).
             if (mouseClickedPiece != null) mouseClickedPiece.setPosition(mousePos + mouseOffset);
 
             base.Update(gameTime);
@@ -207,11 +206,12 @@ namespace _2ME3_Checkers
 
         /// <summary>
         /// The game draws different things depending on $currentState.
+        /// This method contains the view and graphics.
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.IndianRed);
 
             spriteBatch.Begin(); // drawing goes after this line
 
@@ -235,6 +235,9 @@ namespace _2ME3_Checkers
 
             else if (currentState == STATE.PLAYING)
             {
+                // draw button for returning to menu
+                clickable_MenuButton.Draw(spriteBatch);
+
                 // draw board
                 for (int row = 7; row >= 0; row--) // drawing from bottom up; (since 0,0 is top left corner graphically)
                 {
@@ -251,17 +254,17 @@ namespace _2ME3_Checkers
                         }
 
                         // draw tiles
-                        spriteBatch.Draw(tile, new Vector2(32 + board_SquareSize * col, 32 + board_SquareSize * row), // the 32 is the gap to the left and top of the board
+                        spriteBatch.Draw(tile, new Vector2((GraphicsDevice.Viewport.Width - 64 * 8) / 2 + board_SquareSize * col, (GraphicsDevice.Viewport.Height - 64 * 8) / 2 + board_SquareSize * row), // center the board relative to window size
                                 null, Color.White, 0f, new Vector2(0, 0), board_squareScale, SpriteEffects.None, 0);
 
                         // check if a piece belongs on the tile then draws it.
                         if (piecesCreated == false) { // we only want to _create_ the pieces once // If we want to reset the board, set this to false
-                            if (board.getOccupiedBy(col, 7 - row) != Piece.typeState.NULL) // looks at the board array
+                            if (board.getPiece(col, 7 - row) != null) // looks at the board array
                             {
                                 // we wrap each piece in a class called View_Clickable so we can apply additional methods to them
                                 Texture2D pieceTexture;
                                 if (board.getPiece(col, 7 - row).getOwner() == Piece.player.BLACK) {
-                                    switch (board.getOccupiedBy(col, 7 - row))
+                                    switch (board.getPiece(col, 7 - row).getType())
                                     {
                                         case (Piece.typeState.NORMAL):
                                             pieceTexture = Piece_BlackNormal;
@@ -272,10 +275,10 @@ namespace _2ME3_Checkers
                                         default:
                                             throw new Exception("No way");
                                     }
-                                }    
-                                else
+                                }
+                                else if (board.getPiece(col, 7 - row).getOwner() == Piece.player.WHITE)
                                 {
-                                    switch (board.getOccupiedBy(col, 7 - row))
+                                    switch (board.getPiece(col, 7 - row).getType())
                                     {
                                         case (Piece.typeState.NORMAL):
                                             pieceTexture = Piece_WhiteNormal;
@@ -287,10 +290,14 @@ namespace _2ME3_Checkers
                                             throw new Exception("No way");
                                     }
                                 }
+                                else
+                                {
+                                    throw new Exception("Error: Piece owned by someone not BLACK or WHITE!");
+                                }
 
                                 // prepare a list of all pieces so we can draw them later
-                                pieceList.Add(new View_Clickable(pieceTexture, new Vector2(32 + board_SquareSize * col + board_SquareSize / 2 - Piece_BlackNormal.Width / 2,
-                                    32 + board_SquareSize * row + board_SquareSize / 2 - Piece_BlackNormal.Height / 2), Color.White, 1f)); // 32 offsets again, maybe put these into a variable
+                                pieceList.Add(new View_Clickable(pieceTexture, new Vector2((GraphicsDevice.Viewport.Width - 64 * 8) / 2 + board_SquareSize * col + board_SquareSize / 2 - Piece_BlackNormal.Width / 2,
+                                    (GraphicsDevice.Viewport.Height - 64 * 8) / 2 + board_SquareSize * row + board_SquareSize / 2 - Piece_BlackNormal.Height / 2), Color.White, 1f)); // 32 offsets again, maybe put these into a variable
                             }
                         }
                     }

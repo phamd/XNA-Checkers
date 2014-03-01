@@ -5,11 +5,12 @@ using System.Text;
 
 namespace _2ME3_Checkers
 {
-    class Board : I_BoardInterface
+    class Board //: I_BoardInterface
     {
         //variables
         private Piece[,] pieceArray = new Piece[8,8];
-
+        private int numWhitePieces = 0;
+        private int numBlackPieces = 0;
         //Constructors
 
         /// <summary>
@@ -17,16 +18,21 @@ namespace _2ME3_Checkers
         /// </summary>
         public Board()
         {
+            this.clear(); // clear the board first
+
             for (int col = 0; col < 8; col++)
             {
                 for (int row = 0; row < 8; row++)
                 {
                     if ((col % 2 == 0 && (row == 0 || row == 2)) || (col % 2 != 0 && row == 1)) // bottom player's area
-                        pieceArray[col, row] = new Piece(col, row, Piece.typeState.NORMAL, Piece.player.BLACK);
+                        placePiece(col, row, new Piece(Piece.typeState.NORMAL, Piece.player.BLACK));
                     else if ((col % 2 != 0 && (row == 5 || row == 7)) || (col % 2 == 0 && row == 6)) // top player's area
-                        pieceArray[col, row] = new Piece(col, row, Piece.typeState.NORMAL, Piece.player.WHITE);
+                        placePiece(col, row, new Piece(Piece.typeState.NORMAL, Piece.player.WHITE));
                     else
-                        pieceArray[col, row] = new Piece(col, row, Piece.typeState.NULL, Piece.player.NULL);
+                    {
+                        // place nothing
+                    }
+                        
                 }
             }
         }
@@ -39,17 +45,18 @@ namespace _2ME3_Checkers
         /// </summary>
         public Board (String input)
         {
-            // sample input string: "A1=W, C1=W, E1=W, G1=WK, A7=B, B8=B"
-            // parse this into the pieceArray[,]
-
-            clear();
+            // sample input string: "A1=W,C1=W,E1=W,G1=WK,A7=B,B8=B"
+            // the goal is to parse this string and place the pieces on the board
+            numBlackPieces = 0;
+            numWhitePieces = 0;
+            clear(); // we assume the user will setup the board all at once in one line
+                     // we can later give the option to allow the user to set up the board one piece at a time.
 
             string[] splitCommas = input.Split(','); // splits "A1=W,C1=W" on the comma
             string[] splitEquals;
             int coordCol;
             int coordRow;
-            int numWhitePieces = 0;
-            int numBlackPieces = 0;
+
             Piece.player player;
             Piece.typeState type;
             for (int i = 0; i < splitCommas.Length; i++)
@@ -117,47 +124,56 @@ namespace _2ME3_Checkers
                         //if the input isn't recognized, then throw an exception
                         throw new Exception();
                 }
-
-                //Too many pieces check
-                if(numBlackPieces > 12 || numWhitePieces > 12) {
-                    Console.Write("You can only have up to 12 of one kind of piece and ");
-                    if (numWhitePieces > numBlackPieces)
-                        Console.WriteLine("you had " + numWhitePieces + " white pieces");
-                    else
-                        Console.WriteLine("you had " + numBlackPieces + " black pieces");
-                    throw new Exception();
-                }
-                
-                //Invalid placement check
-                if (coordCol % 2 != coordRow % 2)
-                {
-                    Console.WriteLine("Invalid placement. Only place on solid board squares");
-                    throw new Exception();
-                }
-                pieceArray[coordCol, coordRow] = new Piece(coordCol, coordRow, type, player);
+ 
+                placePiece(coordCol, coordRow, new Piece(type, player)); // place the piece with the parsed information
             }
 
         }
 
-        //getters
-        public bool isOccupied(int column, int row) { return pieceArray[column, row].getType() != Piece.typeState.NULL; }
-        public Piece.typeState getOccupiedBy(int column, int row) // maybe refactor this to getOccupiedType;
-        {
-            if (pieceArray[column, row] != null)
-            {
-                return pieceArray[column, row].getType();
-            }
-            else
-            {
-                return Piece.typeState.NULL;
-            }
-        }
-        public Piece getPiece(int column, int row) { return pieceArray[column, row]; }
+        /// <summary>
+        /// This method is used to determine if a piece exists on a spot (returns null for no).
+        /// If the piece does exist, we pass it along to the caller so it can do specific Piece methods such as getType() or getOwner().
+        /// </summary>
+        public Piece getPiece(int column, int row) { return pieceArray[column, row]; } 
 
-        //setters
-        public void setLocation(int column, int row, Piece newPiece)
+        /// <summary>
+        /// Checks if a piece placement is legal, if so, it will place the piece there.
+        /// </summary>
+        public void placePiece(int column, int row, Piece piece) 
         {
-            this.pieceArray[column, row] = newPiece;   
+            // Too many pieces check
+            // Another safer option is to recount the pieceArray every time we add a piece instead of having a running count.
+            if (numBlackPieces > 12 || numWhitePieces > 12)
+            {
+                Console.Write("You can only have up to 12 of one kind of piece and ");
+                if (numWhitePieces > numBlackPieces)
+                    Console.WriteLine("you had " + numWhitePieces + " white pieces");
+                else
+                    Console.WriteLine("you had " + numBlackPieces + " black pieces");
+                throw new Exception();
+            }
+
+            // Invalid placement check
+            if (column % 2 != row % 2)
+            {
+                Console.WriteLine("Invalid placement. Only place on solid board squares");
+                throw new Exception();
+            }
+
+            pieceArray[column, row] = piece;
+        }
+
+        /// <summary>
+        /// Checks if the movement of a piece is legal, if so, then we move the piece to that location.
+        /// </summary>
+        public void movePiece(int fromCol, int fromRow, int toCol, int toRow)
+        {
+            // check if movement is legal
+
+            // put piece into new location
+            this.pieceArray[toCol, toRow] = this.pieceArray[fromCol, fromRow];
+            // remove piece from previous location
+            this.pieceArray[fromCol, fromRow] = null;
         }
 
         /// <summary>
@@ -169,7 +185,7 @@ namespace _2ME3_Checkers
             {
                 for (int row = 0; row < 8; row++)
                 {
-                    pieceArray[col, row] = new Piece(col, row, Piece.typeState.NULL, Piece.player.NULL);
+                    pieceArray[col, row] = null;
                 }
             }
         }
