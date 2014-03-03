@@ -7,13 +7,11 @@ namespace _2ME3_Checkers
 {
     interface I_BoardInterface
     {
-        //getters
-        Piece getPiece(int column, int row);
-        bool isOccupied(int column, int row);
-        Piece.typeState getOccupiedBy(int column, int row); // Piece.typeState is an enum of possible states
 
-        //setters
-        void movePiece(int column, int row, Piece newPiece);
+        void setUpBoard(string input);
+        Piece getPiece(int column, int row); // check if piece exists and if true, return it
+        void placePiece(int column, int row, Piece piece); // place piece on board
+        void movePiece(int fromCol, int fromRow, int toCol, int toRow); // move piece
         void clear(); // removes all pieces from the board
     }
 }

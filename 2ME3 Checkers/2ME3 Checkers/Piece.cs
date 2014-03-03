@@ -5,7 +5,7 @@ using System.Text;
 
 namespace _2ME3_Checkers
 {
-    class Piece// : I_PieceInterface
+    class Piece : I_PieceInterface
     {
         //variable declarations
         public enum typeState { NORMAL, KING }; // enums are public so the other classes can know the allowed values.

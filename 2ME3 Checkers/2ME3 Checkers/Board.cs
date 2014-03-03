@@ -5,7 +5,7 @@ using System.Text;
 
 namespace _2ME3_Checkers
 {
-    class Board //: I_BoardInterface
+    class Board : I_BoardInterface
     {
         //variables
         private Piece[,] pieceArray = new Piece[8,8];
@@ -20,6 +20,7 @@ namespace _2ME3_Checkers
         {
             this.clear(); // clear the board first
 
+            // default setup
             for (int col = 0; col < 8; col++)
             {
                 for (int row = 0; row < 8; row++)
@@ -43,7 +44,7 @@ namespace _2ME3_Checkers
         /// Throws an exceptions on all malformed inputs. This whole constructor will be within a try catch statement in the main file. 
         /// If the constructor has an exception, the main file will know the input is invalid
         /// </summary>
-        public Board (String input)
+        public void setUpBoard (String input)
         {
             // sample input string: "A1=W,C1=W,E1=W,G1=WK,A7=B,B8=B"
             // the goal is to parse this string and place the pieces on the board
