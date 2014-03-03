@@ -54,6 +54,8 @@ namespace _2ME3_Checkers
         private Texture2D Piece_WhiteKing;
         private Texture2D Menu_ButtonPlay;
         private Texture2D Menu_ButtonCustom;
+        private Texture2D Playing_ButtonMenu;
+
         // buttons
         private View_Clickable clickable_PlayButton;
         private View_Clickable clickable_CustomButton;
@@ -118,13 +120,14 @@ namespace _2ME3_Checkers
             Piece_WhiteKing = this.Content.Load<Texture2D>("textures/Piece_WhiteKing");
             Menu_ButtonPlay = this.Content.Load<Texture2D>("textures/Menu_ButtonPlay");
             Menu_ButtonCustom = this.Content.Load<Texture2D>("textures/Menu_ButtonCustom");
+            Playing_ButtonMenu = this.Content.Load<Texture2D>("textures/Playing_ButtonMenu");
             
             // Buttons
             clickable_PlayButton = new View_Clickable(Menu_ButtonPlay, new Vector2(GraphicsDevice.Viewport.Width / 2 - Menu_ButtonPlay.Width / 2,
                 GraphicsDevice.Viewport.Height * 1 / 3), Color.White, 1f);             // create play button
             clickable_CustomButton = new View_Clickable(Menu_ButtonCustom, new Vector2(GraphicsDevice.Viewport.Width / 2 - Menu_ButtonCustom.Width / 2,
                 GraphicsDevice.Viewport.Height * 2 / 3), Color.White, 1f);            // create setup button
-            clickable_MenuButton = new View_Clickable(Menu_ButtonPlay, new Vector2(GraphicsDevice.Viewport.Width - Menu_ButtonCustom.Width*0.3f,
+            clickable_MenuButton = new View_Clickable(Playing_ButtonMenu, new Vector2(GraphicsDevice.Viewport.Width - Menu_ButtonCustom.Width*0.3f,
                 GraphicsDevice.Viewport.Height - Menu_ButtonCustom.Height*0.3f), Color.White, 0.3f);            // create setup button
 
             base.LoadContent();
@@ -330,7 +333,7 @@ namespace _2ME3_Checkers
             //input = "A1=W,C1=W,E1=W,G1=WK,A7=B,B8=B"; // sample input
             try
             {
-                board = new Board(input); // this construction is able to throw exceptions 
+                board.setUpBoard(input); // this construction is able to throw exceptions 
                 // the following code only runs if there were no exceptions above
                 Console.WriteLine("Setting up board: " + input);
                 Console.WriteLine("Enjoy your game");
