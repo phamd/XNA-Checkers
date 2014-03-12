@@ -27,6 +27,8 @@ namespace _2ME3_Checkers
         private Vector2 size;
         private Color color;
         private float scale;
+        private Vector2 boardCoords; // If the View_Clickable is a piece, the Piece information is stored
+        private Piece pieceInfo;
 
         /// <summary>
         /// Constructor takes standard sprite.draw parameters.
@@ -42,8 +44,31 @@ namespace _2ME3_Checkers
             this.position = position;
             this.color = color;
             this.scale = scale;
-
+            
             size = new Vector2(texture.Width*scale, texture.Height*scale);
+            
+        }
+
+        public View_Clickable(Texture2D texture, Vector2 position, Color color, float scale, int col, int row)
+        {
+            this.texture = texture;
+            this.position = position;
+            this.color = color;
+            this.scale = scale;
+
+            size = new Vector2(texture.Width * scale, texture.Height * scale);
+            boardCoords = new Vector2(col, row);
+        }
+
+        public View_Clickable(Texture2D texture, Vector2 position, Color color, float scale, Piece piece)
+        {
+            this.texture = texture;
+            this.position = position;
+            this.color = color;
+            this.scale = scale;
+
+            size = new Vector2(texture.Width * scale, texture.Height * scale);
+            pieceInfo = piece;
         }
 
         /// <summary>
@@ -74,6 +99,20 @@ namespace _2ME3_Checkers
         public void setPosition(Vector2 pos)
         {
             this.position = pos;
+        }
+        public Vector2 getCoords()
+        {
+            //if (pieceInfo != null)
+                return boardCoords;
+            //else
+            //    throw new Exception("No piece to fetch from View_Clickable");
+        }
+        public Piece getPiece()
+        {
+            //if (pieceInfo != null)
+            return pieceInfo;
+            //else
+            //    throw new Exception("No piece to fetch from View_Clickable");
         }
     }
 }

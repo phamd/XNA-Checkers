@@ -22,11 +22,18 @@ namespace _2ME3_Checkers
             this.owner = owner;
         }
 
+        public Piece()
+        {
+        }
+
         // METHODS
 
         //getters
         public typeState getType() { return pieceType; }
         public player getOwner() { return this.owner; }
+        //TEMP
+        public string test() { return "hello world"; }
+
         //setters
         public void setType(typeState newType) { this.pieceType = newType; } // king piece vs normal piece
     }

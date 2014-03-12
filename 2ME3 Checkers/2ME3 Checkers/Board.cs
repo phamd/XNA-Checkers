@@ -135,7 +135,11 @@ namespace _2ME3_Checkers
         /// This method is used to determine if a piece exists on a spot (returns null for no).
         /// If the piece does exist, we pass it along to the caller so it can do specific Piece methods such as getType() or getOwner().
         /// </summary>
-        public Piece getPiece(int column, int row) { return pieceArray[column, row]; } 
+        public Piece getPiece(int column, int row)
+        {
+            try { return pieceArray[column, row]; }
+            catch { throw new Exception("Error: Trying to fetch piece outside of array"); }
+        }
 
         /// <summary>
         /// Checks if a piece placement is legal, if so, it will place the piece there.

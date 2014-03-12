@@ -12,18 +12,7 @@ using Microsoft.Xna.Framework.Media;
 namespace _2ME3_Checkers
 {
     /// <summary>
-    /// Currently, Erica:
-    ///   * The three states work by keyboard hotkeys = { M, P, S }
-    ///   * Going between P (playing) and M (menu) doesn't reset the board
-    ///   * Pressing S (setup) will reset the board
-    ///   
-    /// TODO: 
-    ///   * Add mouse control (added drag and drop mechanics)
-    ///   * Distinguish between the two players (in Piece.cs/Board.cs and in the graphics)
-    ///   * Board parser using E3=W, A4=B notation.
-    ///   
-    /// Thoughts:
-    ///   * Maybe instead of tiling each square of the board, we just hardcode a single image in?
+    /// 2ME3 Checkers
     /// </summary>
     
     
@@ -33,8 +22,10 @@ namespace _2ME3_Checkers
         /// <summary>
         /// Variable declarations
         /// </summary>
-        private enum STATE { MENU, SETUP, PLAYING };
-        private STATE currentState = STATE.MENU;
+        private enum STATE { MENU, SETUP, PLAYING }; // The three major states of the game
+        private STATE currentState = STATE.MENU; // The variable to track which state is currently active
+        private enum PLAYER_TURN { PLAYER_1, PLAYER_2, AI }; // Each game will have two of these possible players. The AI is currently unused, and is for assignment 3
+        private PLAYER_TURN currentPlayerTurn = PLAYER_TURN.PLAYER_1; 
         private KeyboardState keyState;
         private string input;
 
@@ -163,6 +154,11 @@ namespace _2ME3_Checkers
             else if (keyState.IsKeyDown(Keys.P))
                 currentState = STATE.PLAYING;
 
+            if (keyState.IsKeyDown(Keys.B))
+                currentPlayerTurn = PLAYER_TURN.PLAYER_1;
+            else if (keyState.IsKeyDown(Keys.W))
+                currentPlayerTurn = PLAYER_TURN.PLAYER_2;
+
             // Mouse Update Stuff
             mouseStatePrev = mouseStateCurrent;
             mouseStateCurrent = Mouse.GetState();
@@ -174,10 +170,20 @@ namespace _2ME3_Checkers
             // True if we pressed the mouse this frame.
             if (mouseStateCurrent.LeftButton == ButtonState.Pressed && mouseStatePrev.LeftButton == ButtonState.Released)
             {
+               
                 // Look through all pieces
                 foreach (View_Clickable thisPiece in pieceList)
                 {
-                    if (thisPiece.IsIntersected(mousePos)) // if we are clicking on the piece
+                    
+                    if (thisPiece.IsIntersected(mousePos)
+                       // && 
+                        //(currentPlayerTurn == PLAYER_TURN.PLAYER_1 && board.getPiece((int)thisPiece.getCoords().X, (int)thisPiece.getCoords().Y).getOwner() == Piece.player.BLACK)
+                        //|| (currentPlayerTurn == PLAYER_TURN.PLAYER_2 && board.getPiece((int)thisPiece.getCoords().X, (int)thisPiece.getCoords().Y).getOwner() == Piece.player.WHITE)
+                         && 
+                        (currentPlayerTurn == PLAYER_TURN.PLAYER_1 && thisPiece.getPiece().getOwner() == Piece.player.BLACK)
+                        || (currentPlayerTurn == PLAYER_TURN.PLAYER_2 && thisPiece.getPiece().getOwner() == Piece.player.WHITE)
+                       
+                        )// if we are clicking on the piece
                     {
                         mouseClickedPiece = thisPiece;
                         mouseOffset = thisPiece.getPosition() - mousePos;
@@ -300,7 +306,8 @@ namespace _2ME3_Checkers
 
                                 // prepare a list of all pieces so we can draw them later
                                 pieceList.Add(new View_Clickable(pieceTexture, new Vector2((GraphicsDevice.Viewport.Width - 64 * 8) / 2 + board_SquareSize * col + board_SquareSize / 2 - Piece_BlackNormal.Width / 2,
-                                    (GraphicsDevice.Viewport.Height - 64 * 8) / 2 + board_SquareSize * row + board_SquareSize / 2 - Piece_BlackNormal.Height / 2), Color.White, 1f)); // 32 offsets again, maybe put these into a variable
+                                    (GraphicsDevice.Viewport.Height - 64 * 8) / 2 + board_SquareSize * row + board_SquareSize / 2 - Piece_BlackNormal.Height / 2), Color.White, 1f, board.getPiece(col, 7-row))); // 32 offsets again, maybe put these into a variable
+                                //need to save coordinates when making Piece views to know where they are
                             }
                         }
                     }
