@@ -192,6 +192,15 @@ namespace _2ME3_Checkers
             // remove piece from previous location
             this.pieceArray[fromCol, fromRow] = null;
         }
+        public void movePiece(Vector2 originalLocation, Vector2 newLocation)
+        {
+            // check if movement is legal
+
+            // put piece into new location
+            this.pieceArray[(int)newLocation.X, (int)newLocation.Y] = this.pieceArray[(int)originalLocation.X, (int)originalLocation.Y];
+            // remove piece from previous location
+            this.pieceArray[(int)originalLocation.X, (int)originalLocation.Y] = null;
+        }
 
         /// <summary>
         /// Clears the board

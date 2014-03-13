@@ -14,6 +14,7 @@ namespace _2ME3_Checkers
         Piece getPiece(Vector2 location); // piece can be searched for with a Vector2 as well
         void placePiece(int column, int row, Piece piece); // place piece on board
         void movePiece(int fromCol, int fromRow, int toCol, int toRow); // move piece
+        void movePiece(Vector2 originalLocation, Vector2 newLocation); // moving piece with vectors
         void clear(); // removes all pieces from the board
     }
 }

@@ -28,7 +28,6 @@ namespace _2ME3_Checkers
         private Color color;
         private float scale;
         private Vector2 boardCoords; // If the View_Clickable is a piece, the Piece information is stored
-        private Piece pieceInfo;
 
         /// <summary>
         /// Constructor takes standard sprite.draw parameters.
