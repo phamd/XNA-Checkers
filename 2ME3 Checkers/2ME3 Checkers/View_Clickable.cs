@@ -38,6 +38,7 @@ namespace _2ME3_Checkers
         /// <param name="position"></param>
         /// <param name="color"></param>
         /// <param name="scale"></param>
+        //This constructor is used if the View_Clickable does not have any Piece information
         public View_Clickable(Texture2D texture, Vector2 position, Color color, float scale)
         {
             this.texture = texture;
@@ -48,7 +49,7 @@ namespace _2ME3_Checkers
             size = new Vector2(texture.Width*scale, texture.Height*scale);
             
         }
-
+        // This constructor is used when we want to save the coordinates of the piece it is referring to
         public View_Clickable(Texture2D texture, Vector2 position, Color color, float scale, int col, int row)
         {
             this.texture = texture;
@@ -60,16 +61,6 @@ namespace _2ME3_Checkers
             boardCoords = new Vector2(col, row);
         }
 
-        public View_Clickable(Texture2D texture, Vector2 position, Color color, float scale, Piece piece)
-        {
-            this.texture = texture;
-            this.position = position;
-            this.color = color;
-            this.scale = scale;
-
-            size = new Vector2(texture.Width * scale, texture.Height * scale);
-            pieceInfo = piece;
-        }
 
         /// <summary>
         /// When called, it checks if inputted xy screen coordinate lies within the sprite.
@@ -102,17 +93,8 @@ namespace _2ME3_Checkers
         }
         public Vector2 getCoords()
         {
-            //if (pieceInfo != null)
-                return boardCoords;
-            //else
-            //    throw new Exception("No piece to fetch from View_Clickable");
+            return boardCoords;
         }
-        public Piece getPiece()
-        {
-            //if (pieceInfo != null)
-            return pieceInfo;
-            //else
-            //    throw new Exception("No piece to fetch from View_Clickable");
-        }
+        
     }
 }

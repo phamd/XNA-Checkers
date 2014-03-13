@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Microsoft.Xna.Framework;
 
 namespace _2ME3_Checkers
 {
@@ -139,6 +140,17 @@ namespace _2ME3_Checkers
         {
             try { return pieceArray[column, row]; }
             catch { throw new Exception("Error: Trying to fetch piece outside of array"); }
+        }
+
+        public Piece getPiece(Vector2 location)
+        {
+            try { return pieceArray[(int) location.X, (int) location.Y]; }
+            catch { throw new Exception("Error: Trying to fetch piece outside of array"); }
+        }
+
+        public Piece[,] getPieceArray()
+        {
+            return pieceArray;
         }
 
         /// <summary>

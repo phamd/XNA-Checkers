@@ -29,6 +29,8 @@ namespace _2ME3_Checkers
         private KeyboardState keyState;
         private string input;
 
+        
+
         private Board board = new Board();
 
         /// <summary>
@@ -57,7 +59,7 @@ namespace _2ME3_Checkers
         private bool piecesCreated = false;
 
         // we can hard code these following two variables
-        private int board_SquareSize = 64; // pixel width to upscale to // keep it a multiple of the actual image
+        private const int board_SquareSize = 64; // pixel width to upscale to // keep it a multiple of the actual image
         private float board_squareScale;
 
         /// <summary>
@@ -68,7 +70,7 @@ namespace _2ME3_Checkers
         private View_Clickable mouseClickedPiece = null; // the current clicked on piece for dragging
         private Vector2 mousePos; // current mouse position
         private Vector2 mouseOffset; // offset from where mouse is dragged
-
+        private Vector2 mouseBoardPosition; // the board index the mouse is hovering over
 
 
         public Game1()
@@ -159,13 +161,32 @@ namespace _2ME3_Checkers
             else if (keyState.IsKeyDown(Keys.W))
                 currentPlayerTurn = PLAYER_TURN.PLAYER_2;
 
+            //TEMP
+            else if (keyState.IsKeyDown(Keys.K))
+                setValidMovements();
+
             // Mouse Update Stuff
             mouseStatePrev = mouseStateCurrent;
             mouseStateCurrent = Mouse.GetState();
             mousePos = new Vector2(mouseStateCurrent.X, mouseStateCurrent.Y);
-
+            mouseBoardPosition = new Vector2((float) Math.Round( (mousePos.X - board_SquareSize) / board_SquareSize) 
+                , (float) Math.Round(Math.Abs(mousePos.Y / (board_SquareSize) - 8))); // this is where the mouse is looking on the board ie (0-7), (0-7)
+            
             // Drop piece if mouse button is up
-            if (mouseStateCurrent.LeftButton == ButtonState.Released) mouseClickedPiece = null;
+            if (mouseStateCurrent.LeftButton == ButtonState.Released)
+            {
+                //if(mouseClickedPiece.getCoords() == mouseBoardPosition)
+
+
+                mouseClickedPiece = null;
+
+                //Console.WriteLine("last sel piece was " + board.getPiece(
+                pieceList.Clear(); // clear the board first
+                piecesCreated = false;
+                //Logic to corresspond the mouse X,Y coordinates with the board's index (0-7, 0-7)
+                
+                //Console.WriteLine(Math.Round( (mousePos.X - board_SquareSize) / board_SquareSize) + " " + Math.Round(Math.Abs(mousePos.Y / (board_SquareSize) - 8)));
+            }
 
             // True if we pressed the mouse this frame.
             if (mouseStateCurrent.LeftButton == ButtonState.Pressed && mouseStatePrev.LeftButton == ButtonState.Released)
@@ -176,17 +197,16 @@ namespace _2ME3_Checkers
                 {
                     
                     if (thisPiece.IsIntersected(mousePos)
-                       // && 
-                        //(currentPlayerTurn == PLAYER_TURN.PLAYER_1 && board.getPiece((int)thisPiece.getCoords().X, (int)thisPiece.getCoords().Y).getOwner() == Piece.player.BLACK)
-                        //|| (currentPlayerTurn == PLAYER_TURN.PLAYER_2 && board.getPiece((int)thisPiece.getCoords().X, (int)thisPiece.getCoords().Y).getOwner() == Piece.player.WHITE)
-                         && 
-                        (currentPlayerTurn == PLAYER_TURN.PLAYER_1 && thisPiece.getPiece().getOwner() == Piece.player.BLACK)
-                        || (currentPlayerTurn == PLAYER_TURN.PLAYER_2 && thisPiece.getPiece().getOwner() == Piece.player.WHITE)
-                       
+                       && 
+                        ((currentPlayerTurn == PLAYER_TURN.PLAYER_1 && board.getPiece((int)thisPiece.getCoords().X, (int)thisPiece.getCoords().Y).getOwner() == Piece.player.BLACK)
+                        || (currentPlayerTurn == PLAYER_TURN.PLAYER_2 && board.getPiece((int)thisPiece.getCoords().X, (int)thisPiece.getCoords().Y).getOwner() == Piece.player.WHITE))
                         )// if we are clicking on the piece
                     {
                         mouseClickedPiece = thisPiece;
                         mouseOffset = thisPiece.getPosition() - mousePos;
+
+                        Piece.validMovementsStruct vms = board.getPiece((int)thisPiece.getCoords().X, (int)thisPiece.getCoords().Y).getValidMovements()[0];
+                        Console.WriteLine(vms.direction + " " + vms.col + " " + vms.row);
                         break; // break so we can only pick up one piece at a time
                     }
                 }
@@ -263,7 +283,7 @@ namespace _2ME3_Checkers
                         }
 
                         // draw tiles
-                        spriteBatch.Draw(tile, new Vector2((GraphicsDevice.Viewport.Width - 64 * 8) / 2 + board_SquareSize * col, (GraphicsDevice.Viewport.Height - 64 * 8) / 2 + board_SquareSize * row), // center the board relative to window size
+                        spriteBatch.Draw(tile, new Vector2((GraphicsDevice.Viewport.Width - board_SquareSize * 8) / 2 + board_SquareSize * col, (GraphicsDevice.Viewport.Height - board_SquareSize * 8) / 2 + board_SquareSize * row), // center the board relative to window size
                                 null, Color.White, 0f, new Vector2(0, 0), board_squareScale, SpriteEffects.None, 0);
 
                         // check if a piece belongs on the tile then draws it.
@@ -305,8 +325,8 @@ namespace _2ME3_Checkers
                                 }
 
                                 // prepare a list of all pieces so we can draw them later
-                                pieceList.Add(new View_Clickable(pieceTexture, new Vector2((GraphicsDevice.Viewport.Width - 64 * 8) / 2 + board_SquareSize * col + board_SquareSize / 2 - Piece_BlackNormal.Width / 2,
-                                    (GraphicsDevice.Viewport.Height - 64 * 8) / 2 + board_SquareSize * row + board_SquareSize / 2 - Piece_BlackNormal.Height / 2), Color.White, 1f, board.getPiece(col, 7-row))); // 32 offsets again, maybe put these into a variable
+                                pieceList.Add(new View_Clickable(pieceTexture, new Vector2((GraphicsDevice.Viewport.Width - board_SquareSize * 8) / 2 + board_SquareSize * col + board_SquareSize / 2 - Piece_BlackNormal.Width / 2,
+                                    (GraphicsDevice.Viewport.Height - board_SquareSize * 8) / 2 + board_SquareSize * row + board_SquareSize / 2 - Piece_BlackNormal.Height / 2), Color.White, 1f, col, 7-row)); // 32 offsets again, maybe put these into a variable
                                 //need to save coordinates when making Piece views to know where they are
                             }
                         }
@@ -353,5 +373,46 @@ namespace _2ME3_Checkers
                 takeInput();
             }
         }
+
+
+
+        //Sets the valid movements for a specific Piece
+        void setValidMovements(int col, int row)
+        {
+
+        }
+        /// <summary>
+        /// Sets the valid movements for every Piece
+        /// Default constructor to set them for the entire board. The safe locations to move to are stored within the Pieces
+        /// The valid locations are assigned in the order: Top Left -> Top Right -> Bottom Right -> Bottom Left
+        /// </summary>
+        void setValidMovements()
+        {
+            //Double for loop to iterate through the board array
+            for (int col = 0; col < 8; col++)
+            {
+                for (int row = 0; row < 8; row++)
+                {
+                    try
+                    {
+                        if (board.getPiece(col, row).getType() == Piece.typeState.NORMAL)
+                        {
+                            board.getPiece(col, row).setValidMovements(Piece.validMoveDirection.UP_LEFT, col - 1, row + 1);
+                            board.getPiece(col, row).setValidMovements(Piece.validMoveDirection.UP_RIGHT, col + 1, row + 1);
+                            board.getPiece(col, row).setValidMovements(Piece.validMoveDirection.DOWN_RIGHT, -99, -99); //the negative numbers indicate there is no valid movement on the board in this direction
+                            board.getPiece(col, row).setValidMovements(Piece.validMoveDirection.DOWN_LEFT, -99, -99);
+                        }
+                        else if (board.getPiece(col, row).getType() == Piece.typeState.KING)
+                        {
+                            board.getPiece(col, row).setValidMovements(Piece.validMoveDirection.UP_LEFT, col - 1, row + 1);
+                            board.getPiece(col, row).setValidMovements(Piece.validMoveDirection.UP_RIGHT, col + 1, row + 1);
+                            board.getPiece(col, row).setValidMovements(Piece.validMoveDirection.DOWN_RIGHT, col - 1, row + 1); //the negative numbers indicate there is no valid movement on the board in this direction
+                            board.getPiece(col, row).setValidMovements(Piece.validMoveDirection.DOWN_LEFT, col - 1, row - 1);
+                        }
+                    }
+                    catch { } // This means there was no piece at that board location. In this case, just skip to next index
+                }
+            }
+        }// end setValidMovements function
     }
 }
