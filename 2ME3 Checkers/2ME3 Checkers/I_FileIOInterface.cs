@@ -7,7 +7,7 @@ namespace _2ME3_Checkers
 {
     interface I_FileIOInterface
     {
-        public static void save(Board board); //saves the current game to a file
-        public static string load(Board board); //reads from the saved file
+        void save(Board board); //saves the current game to a file
+        string load(Board board); //reads from the saved file
     }
 }

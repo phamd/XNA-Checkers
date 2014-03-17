@@ -8,9 +8,13 @@ namespace _2ME3_Checkers
 {
     class FileIO:I_FileIOInterface
     {
-        private static string path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "/CheckersGameSaves"; //designate a path for the folder
+        private string path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "/CheckersGameSaves"; //designate a path for the folder
 
-        public static void save(Board board)
+        public FileIO()
+        {
+        }
+
+        public void save(Board board)
         {
             string saveText = "";
             int jAdjusted = 0;  //adding one to index j for board index
@@ -31,9 +35,9 @@ namespace _2ME3_Checkers
                 Console.WriteLine("Save Unsuccessful " + e);
             }
 
-            for (int i = 0; i < pieceArray.Length / 8; i++)
+            for (int i = 0; i < board.getPieceArray().Length / 8; i++)
             {
-                for (int j = 0; j < pieceArray.Length / 8; j++)
+                for (int j = 0; j < board.getPieceArray().Length / 8; j++)
                 {
                     if (board.getPiece(i, j) != null)
                     {
@@ -95,7 +99,7 @@ namespace _2ME3_Checkers
             Console.WriteLine("Game Saved!");
         }
 
-        public static string load(Board board)
+        public string load(Board board)
         {
             if (File.Exists(@path + "/SavedGame.txt"))
             {

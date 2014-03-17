@@ -28,6 +28,7 @@ namespace _2ME3_Checkers
         private PLAYER_TURN currentPlayerTurn = PLAYER_TURN.PLAYER_1; 
         private KeyboardState keyState;
         private string input;
+        private FileIO fileIO = new FileIO();
 
         
 
@@ -256,7 +257,7 @@ namespace _2ME3_Checkers
                     if (clickable_LoadButton.IsIntersected(mousePos))
                     {
                         currentState = STATE.SETUP;
-                        takeInput(FileIO.load(board));
+                        takeInput(fileIO.load(board));
                         setValidMovements();
                         Console.WriteLine("Game Loaded!");
                     }
@@ -266,7 +267,7 @@ namespace _2ME3_Checkers
                     if (clickable_MenuButton.IsIntersected(mousePos))
                         currentState = STATE.MENU;
                     if (clickable_SaveButton.IsIntersected(mousePos))
-                        FileIO.save(board);
+                        fileIO.save(board);
                 }    
             }
 

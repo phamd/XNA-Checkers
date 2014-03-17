@@ -12,6 +12,7 @@ namespace _2ME3_Checkers
         void setUpBoard(string input);
         Piece getPiece(int column, int row); // check if piece exists and if true, return it
         Piece getPiece(Vector2 location); // piece can be searched for with a Vector2 as well
+        Piece[,] getPieceArray(); //returns the piece array 
         void placePiece(int column, int row, Piece piece); // place piece on board
         void movePiece(int fromCol, int fromRow, int toCol, int toRow); // move piece
         void movePiece(Vector2 originalLocation, Vector2 newLocation); // moving piece with vectors
