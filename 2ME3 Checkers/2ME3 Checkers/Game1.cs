@@ -386,6 +386,8 @@ namespace _2ME3_Checkers
                                     (GraphicsDevice.Viewport.Height - board_SquareSize * 8) / 2 + board_SquareSize * row + board_SquareSize / 2 - Piece_BlackNormal.Height / 2), Color.White, 1f, col, 7-row)); // 32 offsets again, maybe put these into a variable
                                 //need to save coordinates when making Piece views to know where they are
                             }
+                            setValidMovements(board);
+                            Console.WriteLine("WE SET VALID MOVEMENTS");
                         }
                     }
                 }
@@ -399,7 +401,6 @@ namespace _2ME3_Checkers
                 piecesCreated = true; // We set true to tell the PLAYING state to not create brand new copies of our pieces every frame
                 input = null; // We reset the SETUP state so we can set up an new board
 
-                setValidMovements(board);
             } // END OF PLAYING STATE
 
             spriteBatch.End(); // drawing goes before this line
