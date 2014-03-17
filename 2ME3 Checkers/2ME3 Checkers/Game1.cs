@@ -175,7 +175,7 @@ namespace _2ME3_Checkers
 
             //TEMP
             else if (keyState.IsKeyDown(Keys.K))
-                setValidMovements();
+                setValidMovements(board);
 
             // Mouse Update Stuff
             mouseStatePrev = mouseStateCurrent;
@@ -200,7 +200,7 @@ namespace _2ME3_Checkers
                             Console.WriteLine(board.getPiece(mouseClickedPiece.getCoords()).getValidMovements()[i].row + "=" + mouseBoardPosition.Y + "/n");
 
                             board.movePiece(mouseClickedPiece.getCoords(), mouseBoardPosition); //Move the piece in the array to the spot where the mouse dropped it
-                            setValidMovements((int)mouseBoardPosition.X, (int)mouseBoardPosition.Y); //Update that piece's valid movements
+                            setValidMovements(board, (int)mouseBoardPosition.X, (int)mouseBoardPosition.Y); //Update that piece's valid movements
                             currentPlayerTurn = (currentPlayerTurn == PLAYER_TURN.PLAYER_1)? PLAYER_TURN.PLAYER_2 : PLAYER_TURN.PLAYER_1; //switch the turn
                         }
                     }
@@ -251,14 +251,14 @@ namespace _2ME3_Checkers
                         currentState = STATE.SETUP;
                     if (clickable_PlayButton.IsIntersected(mousePos))
                     {
-                        setValidMovements();
+                        setValidMovements(board);
                         currentState = STATE.PLAYING;
                     }
                     if (clickable_LoadButton.IsIntersected(mousePos))
                     {
                         currentState = STATE.SETUP;
                         takeInput(fileIO.load(board));
-                        setValidMovements();
+                        setValidMovements(board);
                         Console.WriteLine("Game Loaded!");
                     }
                 }
@@ -435,87 +435,69 @@ namespace _2ME3_Checkers
         /// Sets the valid movements for every Piece
         /// Default constructor to set them for the entire board. The safe locations to move to are stored within the Pieces
         /// The valid locations are assigned in the order: Top Left -> Top Right -> Bottom Right -> Bottom Left
-        /// TODO: add constructor to set the valid movement of one piece in particular
-        /// TODO: move this function to board
-        /// TODO: !remove code duplication!
         /// the default constructor allows for calling the function with no paramaters to set up the entire board
         /// </summary>
-        void setValidMovements(int x = -99, int y = -99)
+        /// 
+
+        void setValidMovements(Board board)
         {
-            //This conditional is only met if this function is called with a specific Piece to update the valid movements. 
-            //Otherwise all the pieces have their valid moves updated
-            if (x >= 0 && x < 8 && y >= 0 && y < 8)
+            for (int col = 0; col < 8; col++)
+            {
+                for (int row = 0; row < 8; row++)
+                {
+                    setValidMovements(board, row, col);
+                }
+            }
+        }
+
+        void setValidMovements(Board board, int x, int y)
+        {
+            if (board.getPiece(x, y) != null)
             {
                 try
                 {
                     if (board.getPiece(x, y).getType() == Piece.typeState.NORMAL)
-                    { 
+                    {
                         if (board.getPiece(x, y).getOwner() == Piece.player.WHITE)
                         {
+
                             board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.UP_LEFT, x - 1, y + 1);
                             board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.UP_RIGHT, x + 1, y + 1);
                             board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.DOWN_RIGHT, -99, -99); //the negative numbers indicate there is no valid movement on the board in this direction
                             board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.DOWN_LEFT, -99, -99);
+
+                            if (y == 7)
+                            {
+                                board.getPiece(x, y).setType(Piece.typeState.KING);
+                                setValidMovements(board, x, y);
+                            }
                         }
                         else if (board.getPiece(x, y).getOwner() == Piece.player.BLACK)
                         {
+
                             board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.UP_LEFT, -99, -99);
                             board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.UP_RIGHT, -99, -99);
                             board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.DOWN_RIGHT, x + 1, y - 1); //the negative numbers indicate there is no valid movement on the board in this direction
                             board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.DOWN_LEFT, x - 1, y - 1);
+
+                            if (y == 0)
+                            {
+                                board.getPiece(x, y).setType(Piece.typeState.KING);
+                                setValidMovements(board, x, y);
+                            }
                         }
                     }
                     else if (board.getPiece(x, y).getType() == Piece.typeState.KING)
                     {
                         board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.UP_LEFT, x - 1, y + 1);
                         board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.UP_RIGHT, x + 1, y + 1);
-                        board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.DOWN_RIGHT, x + 1, y + 1); //the negative numbers indicate there is no valid movement on the board in this direction
+                        board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.DOWN_RIGHT, x + 1, y - 1); //the negative numbers indicate there is no valid movement on the board in this direction
                         board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.DOWN_LEFT, x - 1, y - 1);
                     }
                 }
                 catch { throw new Exception("Error: trying to set a valid movement to a piece not in the board piece array"); }
             }
-            //in this case set up the whole board.
-            else
-            {
-                //Double for loop to iterate through the board array
-                for (int col = 0; col < 8; col++)
-                {
-                    for (int row = 0; row < 8; row++)
-                    {
-                        //TODO: add a conditional here to only check solid squares. 
-                        // Only process if there is a Piece on the square
-                        if (board.getPiece(col, row) != null)
-                        {
-                            if (board.getPiece(col, row).getType() == Piece.typeState.NORMAL)
-                            {
-                                //more conditionals. one player can only move up, and the other can only move down
-                                if (board.getPiece(col, row).getOwner() == Piece.player.WHITE)
-                                {
-                                    board.getPiece(col, row).setValidMovements(Piece.validMoveDirection.UP_LEFT, col - 1, row + 1);
-                                    board.getPiece(col, row).setValidMovements(Piece.validMoveDirection.UP_RIGHT, col + 1, row + 1);
-                                    board.getPiece(col, row).setValidMovements(Piece.validMoveDirection.DOWN_RIGHT, -99, -99); //the negative numbers indicate there is no valid movement on the board in this direction
-                                    board.getPiece(col, row).setValidMovements(Piece.validMoveDirection.DOWN_LEFT, -99, -99);
-                                }
-                                else if (board.getPiece(col, row).getOwner() == Piece.player.BLACK)
-                                {
-                                    board.getPiece(col, row).setValidMovements(Piece.validMoveDirection.UP_LEFT, -99, -99);
-                                    board.getPiece(col, row).setValidMovements(Piece.validMoveDirection.UP_RIGHT, -99, -99);
-                                    board.getPiece(col, row).setValidMovements(Piece.validMoveDirection.DOWN_RIGHT, col + 1, row - 1); //the negative numbers indicate there is no valid movement on the board in this direction
-                                    board.getPiece(col, row).setValidMovements(Piece.validMoveDirection.DOWN_LEFT, col - 1, row - 1);
-                                }
-                            }
-                            else if (board.getPiece(col, row).getType() == Piece.typeState.KING)
-                            {
-                                board.getPiece(col, row).setValidMovements(Piece.validMoveDirection.UP_LEFT, col - 1, row + 1);
-                                board.getPiece(col, row).setValidMovements(Piece.validMoveDirection.UP_RIGHT, col + 1, row + 1);
-                                board.getPiece(col, row).setValidMovements(Piece.validMoveDirection.DOWN_RIGHT, col + 1, row + 1); //the negative numbers indicate there is no valid movement on the board in this direction
-                                board.getPiece(col, row).setValidMovements(Piece.validMoveDirection.DOWN_LEFT, col - 1, row - 1);
-                            }
-                        }
-                    }
-                }
-            }
+           
         }// end setValidMovements function
         
     }
