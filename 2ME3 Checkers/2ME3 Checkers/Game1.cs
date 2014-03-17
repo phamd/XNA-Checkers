@@ -22,7 +22,7 @@ namespace _2ME3_Checkers
         /// <summary>
         /// Variable declarations
         /// </summary>
-        private enum STATE { MENU, SETUP, PLAYING }; // The three major states of the game
+        private enum STATE { MENU, SETUP, PLAYING, LOAD }; // The three major states of the game
         private STATE currentState = STATE.MENU; // The variable to track which state is currently active
         private enum PLAYER_TURN { PLAYER_1, PLAYER_2, AI }; // Each game will have two of these possible players. The AI is currently unused, and is for assignment 3
         private PLAYER_TURN currentPlayerTurn = PLAYER_TURN.PLAYER_1; 
@@ -224,7 +224,8 @@ namespace _2ME3_Checkers
                 // Look through all pieces
                 foreach (View_Clickable thisPiece in pieceList)
                 {
-                    
+
+                    Console.WriteLine(thisPiece.getCoords().ToString());
                     if (thisPiece.IsIntersected(mousePos)
                        && 
                         ((currentPlayerTurn == PLAYER_TURN.PLAYER_1 && board.getPiece((int)thisPiece.getCoords().X, (int)thisPiece.getCoords().Y).getOwner() == Piece.player.BLACK)
@@ -251,17 +252,14 @@ namespace _2ME3_Checkers
                         currentState = STATE.SETUP;
                     if (clickable_PlayButton.IsIntersected(mousePos))
                     {
-                        setValidMovements();
                         currentState = STATE.PLAYING;
                     }
                     if (clickable_LoadButton.IsIntersected(mousePos))
                     {
-                        currentState = STATE.SETUP;
-                        takeInput(fileIO.load(board));
-                        setValidMovements();
-                        Console.WriteLine("Game Loaded!");
+                        currentState = STATE.LOAD;
                     }
                 }
+
                 if (currentState == STATE.PLAYING)
                 {
                     if (clickable_MenuButton.IsIntersected(mousePos))
@@ -306,6 +304,19 @@ namespace _2ME3_Checkers
                 
                 if(input == null)
                     takeInput();
+            }
+
+            else if (currentState == STATE.LOAD)
+            {
+                pieceList.Clear(); // clear the board first
+                piecesCreated = false; // reset pieces
+                
+                if (input != "no save file")
+                {
+                    board.setUpBoard(fileIO.load(board));
+                    Console.WriteLine("Game Loaded!");
+                    currentState = STATE.PLAYING;
+                }
             }
 
             else if (currentState == STATE.PLAYING)
@@ -388,6 +399,8 @@ namespace _2ME3_Checkers
 
                 piecesCreated = true; // We set true to tell the PLAYING state to not create brand new copies of our pieces every frame
                 input = null; // We reset the SETUP state so we can set up an new board
+
+                setValidMovements();
             } // END OF PLAYING STATE
 
             spriteBatch.End(); // drawing goes before this line
