@@ -19,7 +19,6 @@ namespace _2ME3_Checkers
     
     public class Game1 : Microsoft.Xna.Framework.Game
     {
-
         /// <summary>
         /// Variable declarations
         /// </summary>
@@ -48,12 +47,16 @@ namespace _2ME3_Checkers
         private Texture2D Piece_WhiteKing;
         private Texture2D Menu_ButtonPlay;
         private Texture2D Menu_ButtonCustom;
+        private Texture2D Menu_ButtonLoad;
+        private Texture2D Playing_ButtonSave;
         private Texture2D Playing_ButtonMenu;
 
         // buttons
         private View_Clickable clickable_PlayButton;
         private View_Clickable clickable_CustomButton;
         private View_Clickable clickable_MenuButton;
+        private View_Clickable clickable_LoadButton;
+        private View_Clickable clickable_SaveButton;
 
         private List<View_Clickable> pieceList = new List<View_Clickable>(); // list of pieces
 
@@ -73,6 +76,7 @@ namespace _2ME3_Checkers
         private Vector2 mouseOffset; // offset from where mouse is dragged
         private Vector2 mouseBoardPosition; // the board index the mouse is hovering over
 
+        
 
         public Game1()
         {
@@ -114,15 +118,21 @@ namespace _2ME3_Checkers
             Piece_WhiteKing = this.Content.Load<Texture2D>("textures/Piece_WhiteKing");
             Menu_ButtonPlay = this.Content.Load<Texture2D>("textures/Menu_ButtonPlay");
             Menu_ButtonCustom = this.Content.Load<Texture2D>("textures/Menu_ButtonCustom");
+            Menu_ButtonLoad = this.Content.Load<Texture2D>("textures/Menu_ButtonLoad");
             Playing_ButtonMenu = this.Content.Load<Texture2D>("textures/Playing_ButtonMenu");
+            Playing_ButtonSave = this.Content.Load<Texture2D>("textures/Playing_ButtonSave");
             
             // Buttons
             clickable_PlayButton = new View_Clickable(Menu_ButtonPlay, new Vector2(GraphicsDevice.Viewport.Width / 2 - Menu_ButtonPlay.Width / 2,
-                GraphicsDevice.Viewport.Height * 1 / 3), Color.White, 1f);             // create play button
+                GraphicsDevice.Viewport.Height * 1 / 9), Color.White, 1f);             // create play button
             clickable_CustomButton = new View_Clickable(Menu_ButtonCustom, new Vector2(GraphicsDevice.Viewport.Width / 2 - Menu_ButtonCustom.Width / 2,
-                GraphicsDevice.Viewport.Height * 2 / 3), Color.White, 1f);            // create setup button
+                GraphicsDevice.Viewport.Height * 3 / 9), Color.White, 1f);            // create setup button
+            clickable_LoadButton = new View_Clickable(Menu_ButtonLoad, new Vector2(GraphicsDevice.Viewport.Width / 2 - Menu_ButtonLoad.Width / 2,
+                GraphicsDevice.Viewport.Height * 5 / 9), Color.White, 1f); //create load button
             clickable_MenuButton = new View_Clickable(Playing_ButtonMenu, new Vector2(GraphicsDevice.Viewport.Width - Menu_ButtonCustom.Width*0.3f,
                 GraphicsDevice.Viewport.Height - Menu_ButtonCustom.Height*0.3f), Color.White, 0.3f);            // create setup button
+            clickable_SaveButton = new View_Clickable(Playing_ButtonSave, new Vector2(GraphicsDevice.Viewport.Width - Menu_ButtonCustom.Width,
+                GraphicsDevice.Viewport.Height - Menu_ButtonCustom.Height * 0.3f), Color.White, 0.3f); //create save button
 
             base.LoadContent();
         }
@@ -244,11 +254,20 @@ namespace _2ME3_Checkers
                         setValidMovements();
                         currentState = STATE.PLAYING;
                     }
+                    if (clickable_LoadButton.IsIntersected(mousePos))
+                    {
+                        currentState = STATE.SETUP;
+                        takeInput(FileIO.load(board));
+                        setValidMovements();
+                        Console.WriteLine("Game Loaded!");
+                    }
                 }
                 if (currentState == STATE.PLAYING)
                 {
                     if (clickable_MenuButton.IsIntersected(mousePos))
-                        currentState = STATE.MENU;        
+                        currentState = STATE.MENU;
+                    if (clickable_SaveButton.IsIntersected(mousePos))
+                        FileIO.save(board);
                 }    
             }
 
@@ -275,6 +294,7 @@ namespace _2ME3_Checkers
                 // draw menu
                 clickable_PlayButton.Draw(spriteBatch);
                 clickable_CustomButton.Draw(spriteBatch);
+                clickable_LoadButton.Draw(spriteBatch);
             }
 
             else if (currentState == STATE.SETUP)
@@ -292,6 +312,7 @@ namespace _2ME3_Checkers
             {
                 // draw button for returning to menu
                 clickable_MenuButton.Draw(spriteBatch);
+                clickable_SaveButton.Draw(spriteBatch);
 
                 // draw board
                 for (int row = 7; row >= 0; row--) // drawing from bottom up; (since 0,0 is top left corner graphically)
@@ -399,6 +420,12 @@ namespace _2ME3_Checkers
                 takeInput();
             }
         }
+        void takeInput(String input) {
+            if (input != "no save file") {
+                board.setUpBoard(input);
+                currentState = STATE.PLAYING;
+            }
+        }
 
 
 
@@ -490,5 +517,7 @@ namespace _2ME3_Checkers
                 }
             }
         }// end setValidMovements function
+        
     }
+    
 }
