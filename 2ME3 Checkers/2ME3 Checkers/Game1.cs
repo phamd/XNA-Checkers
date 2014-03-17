@@ -24,7 +24,7 @@ namespace _2ME3_Checkers
         /// </summary>
         private enum STATE { MENU, SETUP, PLAYING, LOAD }; // The three major states of the game
         private STATE currentState = STATE.MENU; // The variable to track which state is currently active
-        private enum PLAYER_TURN { PLAYER_1, PLAYER_2, AI }; // Each game will have two of these possible players. The AI is currently unused, and is for assignment 3
+        public enum PLAYER_TURN { PLAYER_1, PLAYER_2, AI }; // Each game will have two of these possible players. The AI is currently unused, and is for assignment 3
         private PLAYER_TURN currentPlayerTurn = PLAYER_TURN.PLAYER_1; 
         private KeyboardState keyState;
         private string input;
@@ -264,7 +264,7 @@ namespace _2ME3_Checkers
                     if (clickable_MenuButton.IsIntersected(mousePos))
                         currentState = STATE.MENU;
                     if (clickable_SaveButton.IsIntersected(mousePos))
-                        fileIO.save(board); // need a save STATE
+                        fileIO.save(board, currentPlayerTurn); // need a save STATE
                 }    
             }
 
@@ -310,12 +310,26 @@ namespace _2ME3_Checkers
                 pieceList.Clear(); // clear the board first
                 piecesCreated = false; // reset pieces
                 
-                if (input != "no save file")
-                {
-                    board.setUpBoard(fileIO.load(board));
+                try {
+                    string[] tempIO = fileIO.load(board);
+                    board.setUpBoard(tempIO[1]);
+                    if (tempIO[0] == "WHITE")
+                    {
+                        currentPlayerTurn = PLAYER_TURN.PLAYER_2;
+                    }
+                    else if (tempIO[1] == "BLACK")
+                    {
+                        currentPlayerTurn = PLAYER_TURN.PLAYER_1;
+                    }
                     Console.WriteLine("Game Loaded!");
                     currentState = STATE.PLAYING;
-                }
+                } 
+                catch 
+                {
+                    Console.WriteLine("No Save Game!");
+                    currentState = STATE.MENU;
+                } 
+                 
             }
 
             else if (currentState == STATE.PLAYING)
