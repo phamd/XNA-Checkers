@@ -252,7 +252,6 @@ namespace _2ME3_Checkers
                         currentState = STATE.SETUP;
                     if (clickable_PlayButton.IsIntersected(mousePos))
                     {
-                        setValidMovements(board);
                         currentState = STATE.PLAYING;
                     }
                     if (clickable_LoadButton.IsIntersected(mousePos))
@@ -260,13 +259,12 @@ namespace _2ME3_Checkers
                         currentState = STATE.LOAD;
                     }
                 }
-
                 if (currentState == STATE.PLAYING)
                 {
                     if (clickable_MenuButton.IsIntersected(mousePos))
                         currentState = STATE.MENU;
                     if (clickable_SaveButton.IsIntersected(mousePos))
-                        fileIO.save(board);
+                        fileIO.save(board); // need a save STATE
                 }    
             }
 
@@ -401,7 +399,7 @@ namespace _2ME3_Checkers
                 piecesCreated = true; // We set true to tell the PLAYING state to not create brand new copies of our pieces every frame
                 input = null; // We reset the SETUP state so we can set up an new board
 
-                setValidMovements();
+                setValidMovements(board);
             } // END OF PLAYING STATE
 
             spriteBatch.End(); // drawing goes before this line
