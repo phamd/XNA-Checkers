@@ -178,8 +178,8 @@ namespace _2ME3_Checkers
             {
                 // there are 4 possible directions of movement
                 for(int i = 0; i < 4; i++) {
-                    //need a try because board.getPiece() can return null if there is no Piece there
-                    try
+                    //need a this conditional because board.getPiece() can return null if there is no Piece there
+                    if(board.getPiece(mouseClickedPiece.getCoords()) != null)
                     {
                         //if the place where the mouse is releasing the piece is a valid move for the piece 
                         if ( (board.getPiece(mouseClickedPiece.getCoords()).getValidMovements()[i].col == mouseBoardPosition.X)
@@ -193,7 +193,6 @@ namespace _2ME3_Checkers
                             currentPlayerTurn = (currentPlayerTurn == PLAYER_TURN.PLAYER_1)? PLAYER_TURN.PLAYER_2 : PLAYER_TURN.PLAYER_1; //switch the turn
                         }
                     }
-                    catch { }
                 }
 
 
@@ -422,7 +421,7 @@ namespace _2ME3_Checkers
                 try
                 {
                     if (board.getPiece(x, y).getType() == Piece.typeState.NORMAL)
-                    {
+                    { 
                         if (board.getPiece(x, y).getOwner() == Piece.player.BLACK)
                         {
                             board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.UP_LEFT, x - 1, y + 1);
@@ -456,8 +455,9 @@ namespace _2ME3_Checkers
                 {
                     for (int row = 0; row < 8; row++)
                     {
-                        //TODO: add a conditional here to only check solid squares
-                        try
+                        //TODO: add a conditional here to only check solid squares. 
+                        // Only process if there is a Piece on the square
+                        if (board.getPiece(col, row) != null)
                         {
                             if (board.getPiece(col, row).getType() == Piece.typeState.NORMAL)
                             {
@@ -485,7 +485,6 @@ namespace _2ME3_Checkers
                                 board.getPiece(col, row).setValidMovements(Piece.validMoveDirection.DOWN_LEFT, col - 1, row - 1);
                             }
                         }
-                        catch { } // This means there was no piece at that board location. In this case, just skip to next index
                     }
                 }
             }
