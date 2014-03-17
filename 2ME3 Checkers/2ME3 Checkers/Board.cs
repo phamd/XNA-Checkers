@@ -27,9 +27,9 @@ namespace _2ME3_Checkers
                 for (int row = 0; row < 8; row++)
                 {
                     if ((col % 2 == 0 && (row == 0 || row == 2)) || (col % 2 != 0 && row == 1)) // bottom player's area
-                        placePiece(col, row, new Piece(Piece.typeState.NORMAL, Piece.player.BLACK));
-                    else if ((col % 2 != 0 && (row == 5 || row == 7)) || (col % 2 == 0 && row == 6)) // top player's area
                         placePiece(col, row, new Piece(Piece.typeState.NORMAL, Piece.player.WHITE));
+                    else if ((col % 2 != 0 && (row == 5 || row == 7)) || (col % 2 == 0 && row == 6)) // top player's area
+                        placePiece(col, row, new Piece(Piece.typeState.NORMAL, Piece.player.BLACK));
                     else
                     {
                         // place nothing

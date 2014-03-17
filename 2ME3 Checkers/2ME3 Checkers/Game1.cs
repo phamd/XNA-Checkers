@@ -450,14 +450,14 @@ namespace _2ME3_Checkers
                 {
                     if (board.getPiece(x, y).getType() == Piece.typeState.NORMAL)
                     { 
-                        if (board.getPiece(x, y).getOwner() == Piece.player.BLACK)
+                        if (board.getPiece(x, y).getOwner() == Piece.player.WHITE)
                         {
                             board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.UP_LEFT, x - 1, y + 1);
                             board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.UP_RIGHT, x + 1, y + 1);
                             board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.DOWN_RIGHT, -99, -99); //the negative numbers indicate there is no valid movement on the board in this direction
                             board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.DOWN_LEFT, -99, -99);
                         }
-                        else if (board.getPiece(x, y).getOwner() == Piece.player.WHITE)
+                        else if (board.getPiece(x, y).getOwner() == Piece.player.BLACK)
                         {
                             board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.UP_LEFT, -99, -99);
                             board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.UP_RIGHT, -99, -99);
@@ -490,14 +490,14 @@ namespace _2ME3_Checkers
                             if (board.getPiece(col, row).getType() == Piece.typeState.NORMAL)
                             {
                                 //more conditionals. one player can only move up, and the other can only move down
-                                if (board.getPiece(col, row).getOwner() == Piece.player.BLACK)
+                                if (board.getPiece(col, row).getOwner() == Piece.player.WHITE)
                                 {
                                     board.getPiece(col, row).setValidMovements(Piece.validMoveDirection.UP_LEFT, col - 1, row + 1);
                                     board.getPiece(col, row).setValidMovements(Piece.validMoveDirection.UP_RIGHT, col + 1, row + 1);
                                     board.getPiece(col, row).setValidMovements(Piece.validMoveDirection.DOWN_RIGHT, -99, -99); //the negative numbers indicate there is no valid movement on the board in this direction
                                     board.getPiece(col, row).setValidMovements(Piece.validMoveDirection.DOWN_LEFT, -99, -99);
                                 }
-                                else if (board.getPiece(col, row).getOwner() == Piece.player.WHITE)
+                                else if (board.getPiece(col, row).getOwner() == Piece.player.BLACK)
                                 {
                                     board.getPiece(col, row).setValidMovements(Piece.validMoveDirection.UP_LEFT, -99, -99);
                                     board.getPiece(col, row).setValidMovements(Piece.validMoveDirection.UP_RIGHT, -99, -99);
