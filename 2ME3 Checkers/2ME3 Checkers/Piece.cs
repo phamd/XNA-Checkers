@@ -26,7 +26,6 @@ namespace _2ME3_Checkers
         };
         //list of all the valid movements
         private validMovementsStruct[] validMovementsArray = new validMovementsStruct[4];
-        //private int[,,] validMovements;
 
         public enum player { BLACK, WHITE }; 
         private player owner;
@@ -57,8 +56,6 @@ namespace _2ME3_Checkers
             return validMovementsArray;
         }
        
-        //TEMP
-        public string test() { return "hello world"; }
 
         //setters
         public void setType(typeState newType) { this.pieceType = newType; } // king piece vs normal piece

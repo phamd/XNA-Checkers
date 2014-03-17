@@ -464,10 +464,12 @@ namespace _2ME3_Checkers
                     board.getPiece(x, y).setType(Piece.typeState.KING);
                 }
 
+                // valid movements logic
                 if (board.getPiece(x, y).getType() == Piece.typeState.NORMAL)
                 {
                     if (board.getPiece(x, y).getOwner() == Piece.player.WHITE)
                     {
+                        bool increaseWhiteNewUp = false; //this is needed because newUp can be edited by either the leftup check or the rightup check, but we only want it to be adjusted once.
                         if (x - 1 >= 0) newLeft = x - 1;
                         if (y + 1 <= 7) newUp = y + 1;
                         if (x + 1 <= 7) newRight = x + 1;
@@ -480,6 +482,12 @@ namespace _2ME3_Checkers
                             {
                                 newLeft = -99;
                             }
+                            //there is a piece to jump
+                            else if (board.getPiece(newLeft, newUp).getOwner() == Piece.player.BLACK)
+                            {
+                                if (newLeft - 1 >= 0) newLeft = newLeft - 1;
+                                if (newUp + 1 <= 7) increaseWhiteNewUp = true;
+                            }
                         }
                         if (newRight >=0 && newUp >= 0 && board.getPiece(newRight, newUp) != null)
                         {
@@ -487,17 +495,20 @@ namespace _2ME3_Checkers
                             {
                                 newRight = -99;
                             }
+                            //there is a piece to jump
+                            else if (board.getPiece(newRight, newUp).getOwner() == Piece.player.BLACK)
+                            {
+                                if (newRight + 1 <= 7) newRight = newRight + 1;
+                                if (newUp - 1 >= 0) increaseWhiteNewUp = true;
+                            }
                         }
-                        /*
-                        board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.UP_LEFT, x - 1, y + 1);
-                        board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.UP_RIGHT, x + 1, y + 1);
-                        board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.DOWN_RIGHT, -99, -99); //the negative numbers indicate there is no valid movement on the board in this direction
-                        board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.DOWN_LEFT, -99, -99);*/
-                        //This means the piece is at the row to be kinged
-                        
+
+                        if (increaseWhiteNewUp)
+                            newUp++;
                     }
                     else if (board.getPiece(x, y).getOwner() == Piece.player.BLACK)
                     {
+                        bool decreaseBlackNewDown = false; //this is needed because newDown can be edited by either the leftdown check or the rightdown check, but we only want it to be adjusted once.
                         if (x - 1 >= 0) newLeft = x - 1;
                         if (x + 1 <= 7) newRight = x + 1;
                         if (y - 1 >= 0) newDown = y - 1;
@@ -510,6 +521,12 @@ namespace _2ME3_Checkers
                             {
                                 newLeft = -99;
                             }
+                            //there is a piece to jump
+                            else if (board.getPiece(newLeft, newDown).getOwner() == Piece.player.WHITE)
+                            {
+                                if (newLeft - 1 >= 0) newLeft = newLeft - 1;
+                                if (newDown - 1 >= 0) decreaseBlackNewDown = true;
+                            }
                         }
                         if (newRight >= 0 && newDown >= 0 && board.getPiece(newRight, newDown) != null)
                         {
@@ -517,33 +534,29 @@ namespace _2ME3_Checkers
                             {
                                 newRight = -99;
                             }
+                            //there is a piece to jump
+                            else if (board.getPiece(newRight, newDown).getOwner() == Piece.player.WHITE)
+                            {
+                                if (newRight + 1 <= 7) newRight = newRight + 1;
+                                if (newDown - 1 >= 0) decreaseBlackNewDown = true;
+                            }
                         }
-                        /*board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.UP_LEFT, -99, -99);
-                        board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.UP_RIGHT, -99, -99);
-                        board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.DOWN_RIGHT, x + 1, y - 1); //the negative numbers indicate there is no valid movement on the board in this direction
-                        board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.DOWN_LEFT, x - 1, y - 1);*/
-                        //This means the piece is at the row to be kinged
-                        /*if (y == 0)
-                        {
-                            board.getPiece(x, y).setType(Piece.typeState.KING);
-                            setValidMovements(board);
-                        }*/
+
+                        if (decreaseBlackNewDown)
+                            newDown--;
                     }
                 }
                 else if (board.getPiece(x, y).getType() == Piece.typeState.KING)
                 {
-                    /*board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.UP_LEFT, x - 1, y + 1);
-                    board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.UP_RIGHT, x + 1, y + 1);
-                    board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.DOWN_RIGHT, x + 1, y - 1); //the negative numbers indicate there is no valid movement on the board in this direction
-                    board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.DOWN_LEFT, x - 1, y - 1);*/
-                    
                     if (x - 1 >= 0) newLeft = x - 1;
                     if (y + 1 <= 7) newUp = y + 1;
                     if (x + 1 <= 7) newRight = x + 1;
                     if (y - 1 >= 0) newDown = y - 1;
-                    //Console.WriteLine("reach" + "left = " + newLeft + "up = " + newUp + "right = " + newRight + "down = " + newDown);
+
+                    //TODO: Add code for interacting with other Pieces
                 }
-                //Console.WriteLine(board.getPiece(1, 1).getOwner() == Piece.player.WHITE);
+                
+                // the move locations have been figured out by this point. update the valid movements for each piece
                 board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.UP_LEFT, newLeft, newUp);
                 board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.UP_RIGHT, newRight, newUp);
                 board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.DOWN_RIGHT, newRight, newDown); //the negative numbers indicate there is no valid movement on the board in this direction
