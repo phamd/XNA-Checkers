@@ -22,7 +22,7 @@ namespace _2ME3_Checkers
         /// <summary>
         /// Variable declarations
         /// </summary>
-        private enum STATE { MENU, SETUP, PLAYING, LOAD }; // The three major states of the game
+        private enum STATE { MENU, SETUP, PLAYING }; // The three major states of the game
         private STATE currentState = STATE.MENU; // The variable to track which state is currently active
         private enum PLAYER_TURN { PLAYER_1, PLAYER_2, AI }; // Each game will have two of these possible players. The AI is currently unused, and is for assignment 3
         private PLAYER_TURN currentPlayerTurn = PLAYER_TURN.PLAYER_1; 
@@ -200,7 +200,8 @@ namespace _2ME3_Checkers
                             Console.WriteLine(board.getPiece(mouseClickedPiece.getCoords()).getValidMovements()[i].row + "=" + mouseBoardPosition.Y + "/n");
 
                             board.movePiece(mouseClickedPiece.getCoords(), mouseBoardPosition); //Move the piece in the array to the spot where the mouse dropped it
-                            setValidMovements(board, (int)mouseBoardPosition.X, (int)mouseBoardPosition.Y); //Update that piece's valid movements
+                            //setValidMovements(board, (int)mouseBoardPosition.X, (int)mouseBoardPosition.Y); //Update that piece's valid movements
+                            setValidMovements(board);
                             currentPlayerTurn = (currentPlayerTurn == PLAYER_TURN.PLAYER_1)? PLAYER_TURN.PLAYER_2 : PLAYER_TURN.PLAYER_1; //switch the turn
                         }
                     }
@@ -225,7 +226,6 @@ namespace _2ME3_Checkers
                 foreach (View_Clickable thisPiece in pieceList)
                 {
                     
-                    Console.WriteLine(thisPiece.getCoords().ToString());
                     if (thisPiece.IsIntersected(mousePos)
                        && 
                         ((currentPlayerTurn == PLAYER_TURN.PLAYER_1 && board.getPiece((int)thisPiece.getCoords().X, (int)thisPiece.getCoords().Y).getOwner() == Piece.player.BLACK)
@@ -252,11 +252,15 @@ namespace _2ME3_Checkers
                         currentState = STATE.SETUP;
                     if (clickable_PlayButton.IsIntersected(mousePos))
                     {
+                        setValidMovements(board);
                         currentState = STATE.PLAYING;
                     }
                     if (clickable_LoadButton.IsIntersected(mousePos))
                     {
-                        currentState = STATE.LOAD;
+                        currentState = STATE.SETUP;
+                        takeInput(fileIO.load(board));
+                        setValidMovements(board);
+                        Console.WriteLine("Game Loaded!");
                     }
                 }
                 if (currentState == STATE.PLAYING)
@@ -264,7 +268,7 @@ namespace _2ME3_Checkers
                     if (clickable_MenuButton.IsIntersected(mousePos))
                         currentState = STATE.MENU;
                     if (clickable_SaveButton.IsIntersected(mousePos))
-                        fileIO.save(board); // need a save STATE
+                        fileIO.save(board);
                 }    
             }
 
@@ -303,19 +307,6 @@ namespace _2ME3_Checkers
                 
                 if(input == null)
                     takeInput();
-            }
-
-            else if (currentState == STATE.LOAD)
-            {
-                pieceList.Clear(); // clear the board first
-                piecesCreated = false; // reset pieces
-                
-                if (input != "no save file")
-                {
-                    board.setUpBoard(fileIO.load(board));
-                    Console.WriteLine("Game Loaded!");
-                    currentState = STATE.PLAYING;
-                }
             }
 
             else if (currentState == STATE.PLAYING)
@@ -386,8 +377,6 @@ namespace _2ME3_Checkers
                                     (GraphicsDevice.Viewport.Height - board_SquareSize * 8) / 2 + board_SquareSize * row + board_SquareSize / 2 - Piece_BlackNormal.Height / 2), Color.White, 1f, col, 7-row)); // 32 offsets again, maybe put these into a variable
                                 //need to save coordinates when making Piece views to know where they are
                             }
-                            setValidMovements(board);
-                            Console.WriteLine("WE SET VALID MOVEMENTS");
                         }
                     }
                 }
@@ -400,7 +389,6 @@ namespace _2ME3_Checkers
 
                 piecesCreated = true; // We set true to tell the PLAYING state to not create brand new copies of our pieces every frame
                 input = null; // We reset the SETUP state so we can set up an new board
-
             } // END OF PLAYING STATE
 
             spriteBatch.End(); // drawing goes before this line
@@ -465,52 +453,103 @@ namespace _2ME3_Checkers
 
         void setValidMovements(Board board, int x, int y)
         {
+            // the valid movements are a combination of an x direction and a y direction. initialized to a flag of an unreachable location
+            int newLeft = -99; int newUp = -99; int newRight = -99; int newDown = -99; 
+
             if (board.getPiece(x, y) != null)
             {
-                try
+                // logic to king pieces
+                if (((y == 7 && board.getPiece(x, y).getOwner() == Piece.player.WHITE) || (y == 0 && board.getPiece(x, y).getOwner() == Piece.player.BLACK)) && board.getPiece(x, y).getType() == Piece.typeState.NORMAL)
                 {
-                    if (board.getPiece(x, y).getType() == Piece.typeState.NORMAL)
-                    { 
-                        if (board.getPiece(x, y).getOwner() == Piece.player.WHITE)
-                        {
+                    board.getPiece(x, y).setType(Piece.typeState.KING);
+                }
 
-                            board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.UP_LEFT, x - 1, y + 1);
-                            board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.UP_RIGHT, x + 1, y + 1);
-                            board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.DOWN_RIGHT, -99, -99); //the negative numbers indicate there is no valid movement on the board in this direction
-                            board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.DOWN_LEFT, -99, -99);
-
-                            if (y == 7)
-                            {
-                                board.getPiece(x, y).setType(Piece.typeState.KING);
-                                setValidMovements(board, x, y);
-                        }
-                        }
-                        else if (board.getPiece(x, y).getOwner() == Piece.player.BLACK)
-                        {
-
-                            board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.UP_LEFT, -99, -99);
-                            board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.UP_RIGHT, -99, -99);
-                            board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.DOWN_RIGHT, x + 1, y - 1); //the negative numbers indicate there is no valid movement on the board in this direction
-                            board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.DOWN_LEFT, x - 1, y - 1);
-
-                            if (y == 0)
-                            {
-                                board.getPiece(x, y).setType(Piece.typeState.KING);
-                                setValidMovements(board, x, y);
-                        }
-                    }
-                    }
-                    else if (board.getPiece(x, y).getType() == Piece.typeState.KING)
+                if (board.getPiece(x, y).getType() == Piece.typeState.NORMAL)
+                {
+                    if (board.getPiece(x, y).getOwner() == Piece.player.WHITE)
                     {
+                        if (x - 1 >= 0) newLeft = x - 1;
+                        if (y + 1 <= 7) newUp = y + 1;
+                        if (x + 1 <= 7) newRight = x + 1;
+
+                        //check to prevent capturing own pieces
+                        //if the newUp/newLeft etc variables are positive, then they have valid values by this point
+                        if (newLeft >= 0 && newUp >= 0 && board.getPiece(newLeft, newUp) != null)
+                        {
+                            if (board.getPiece(newLeft, newUp).getOwner() == Piece.player.WHITE)
+                            {
+                                newLeft = -99;
+                            }
+                        }
+                        if (newRight >=0 && newUp >= 0 && board.getPiece(newRight, newUp) != null)
+                        {
+                            if (board.getPiece(newRight, newUp).getOwner() == Piece.player.WHITE)
+                            {
+                                newRight = -99;
+                            }
+                        }
+                        /*
                         board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.UP_LEFT, x - 1, y + 1);
                         board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.UP_RIGHT, x + 1, y + 1);
+                        board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.DOWN_RIGHT, -99, -99); //the negative numbers indicate there is no valid movement on the board in this direction
+                        board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.DOWN_LEFT, -99, -99);*/
+                        //This means the piece is at the row to be kinged
+                        
+                    }
+                    else if (board.getPiece(x, y).getOwner() == Piece.player.BLACK)
+                    {
+                        if (x - 1 >= 0) newLeft = x - 1;
+                        if (x + 1 <= 7) newRight = x + 1;
+                        if (y - 1 >= 0) newDown = y - 1;
+
+                        //check to prevent capturing own pieces
+                        //if the newUp/newLeft etc variables are positive, then they have valid values by this point
+                        if (newLeft >= 0 && newDown >= 0 && board.getPiece(newLeft, newDown) != null)
+                        {
+                            if (board.getPiece(newLeft, newDown).getOwner() == Piece.player.BLACK)
+                            {
+                                newLeft = -99;
+                            }
+                        }
+                        if (newRight >= 0 && newDown >= 0 && board.getPiece(newRight, newDown) != null)
+                        {
+                            if (board.getPiece(newRight, newDown).getOwner() == Piece.player.BLACK)
+                            {
+                                newRight = -99;
+                            }
+                        }
+                        /*board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.UP_LEFT, -99, -99);
+                        board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.UP_RIGHT, -99, -99);
                         board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.DOWN_RIGHT, x + 1, y - 1); //the negative numbers indicate there is no valid movement on the board in this direction
-                        board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.DOWN_LEFT, x - 1, y - 1);
+                        board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.DOWN_LEFT, x - 1, y - 1);*/
+                        //This means the piece is at the row to be kinged
+                        /*if (y == 0)
+                        {
+                            board.getPiece(x, y).setType(Piece.typeState.KING);
+                            setValidMovements(board);
+                        }*/
                     }
                 }
-                catch { throw new Exception("Error: trying to set a valid movement to a piece not in the board piece array"); }
+                else if (board.getPiece(x, y).getType() == Piece.typeState.KING)
+                {
+                    /*board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.UP_LEFT, x - 1, y + 1);
+                    board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.UP_RIGHT, x + 1, y + 1);
+                    board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.DOWN_RIGHT, x + 1, y - 1); //the negative numbers indicate there is no valid movement on the board in this direction
+                    board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.DOWN_LEFT, x - 1, y - 1);*/
+                    
+                    if (x - 1 >= 0) newLeft = x - 1;
+                    if (y + 1 <= 7) newUp = y + 1;
+                    if (x + 1 <= 7) newRight = x + 1;
+                    if (y - 1 >= 0) newDown = y - 1;
+                    //Console.WriteLine("reach" + "left = " + newLeft + "up = " + newUp + "right = " + newRight + "down = " + newDown);
+                }
+                //Console.WriteLine(board.getPiece(1, 1).getOwner() == Piece.player.WHITE);
+                board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.UP_LEFT, newLeft, newUp);
+                board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.UP_RIGHT, newRight, newUp);
+                board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.DOWN_RIGHT, newRight, newDown); //the negative numbers indicate there is no valid movement on the board in this direction
+                board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.DOWN_LEFT, newLeft, newDown);
             }
-           
+            
         }// end setValidMovements function
         
     }
