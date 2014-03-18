@@ -454,7 +454,10 @@ namespace _2ME3_Checkers
         void setValidMovements(Board board, int x, int y)
         {
             // the valid movements are a combination of an x direction and a y direction. initialized to a flag of an unreachable location
-            int newLeft = -99; int newUp = -99; int newRight = -99; int newDown = -99; 
+            int newUpLeftX = -99, newUpLeftY = -99; 
+            int newUpRightX = -99, newUpRightY = -99; 
+            int newDownRightX = -99, newDownRightY = -99;
+            int newDownLeftX = -99, newDownLeftY = -99; 
 
             if (board.getPiece(x, y) != null)
             {
@@ -469,98 +472,92 @@ namespace _2ME3_Checkers
                 {
                     if (board.getPiece(x, y).getOwner() == Piece.player.WHITE)
                     {
-                        bool increaseWhiteNewUp = false; //this is needed because newUp can be edited by either the leftup check or the rightup check, but we only want it to be adjusted once.
-                        if (x - 1 >= 0) newLeft = x - 1;
-                        if (y + 1 <= 7) newUp = y + 1;
-                        if (x + 1 <= 7) newRight = x + 1;
+                        if (x - 1 >= 0) newUpLeftX = x - 1;
+                        if (y + 1 <= 7) { newUpLeftY = y + 1; newUpRightY = y + 1; }
+                        if (x + 1 <= 7) newUpRightX = x + 1;
 
                         //check to prevent capturing own pieces
                         //if the newUp/newLeft etc variables are positive, then they have valid values by this point
-                        if (newLeft >= 0 && newUp >= 0 && board.getPiece(newLeft, newUp) != null)
+                        if (newUpLeftX >= 0 && newUpLeftY >= 0 && board.getPiece(newUpLeftX, newUpLeftY) != null)
                         {
-                            if (board.getPiece(newLeft, newUp).getOwner() == Piece.player.WHITE)
+                            if (board.getPiece(newUpLeftX, newUpLeftY).getOwner() == Piece.player.WHITE)
                             {
-                                newLeft = -99;
+                                newUpLeftX = -99;
                             }
                             //there is a piece to jump
-                            else if (board.getPiece(newLeft, newUp).getOwner() == Piece.player.BLACK)
+                            else if (board.getPiece(newUpLeftX, newUpLeftY).getOwner() == Piece.player.BLACK)
                             {
-                                if (newLeft - 1 >= 0) newLeft = newLeft - 1;
-                                if (newUp + 1 <= 7) increaseWhiteNewUp = true;
+                                if (newUpLeftX - 1 >= 0) newUpLeftX = newUpLeftX - 1;
+                                if (newUpLeftY + 1 <= 7) newUpLeftY += 1;
                             }
                         }
-                        if (newRight >=0 && newUp >= 0 && board.getPiece(newRight, newUp) != null)
+                        if (newUpRightX >=0 && newUpRightY >= 0 && board.getPiece(newUpRightX, newUpRightY) != null)
                         {
-                            if (board.getPiece(newRight, newUp).getOwner() == Piece.player.WHITE)
+                            if (board.getPiece(newUpRightX, newUpRightY).getOwner() == Piece.player.WHITE)
                             {
-                                newRight = -99;
+                                newUpRightX = -99;
                             }
                             //there is a piece to jump
-                            else if (board.getPiece(newRight, newUp).getOwner() == Piece.player.BLACK)
+                            else if (board.getPiece(newUpRightX, newUpRightY).getOwner() == Piece.player.BLACK)
                             {
-                                if (newRight + 1 <= 7) newRight = newRight + 1;
-                                if (newUp - 1 >= 0) increaseWhiteNewUp = true;
+                                if (newUpRightX + 1 <= 7) newUpRightX = newUpRightX + 1;
+                                if (newUpRightY + 1 <= 7) newUpRightY += 1;
                             }
                         }
 
-                        if (increaseWhiteNewUp)
-                            newUp++;
                     }
                     else if (board.getPiece(x, y).getOwner() == Piece.player.BLACK)
                     {
-                        bool decreaseBlackNewDown = false; //this is needed because newDown can be edited by either the leftdown check or the rightdown check, but we only want it to be adjusted once.
-                        if (x - 1 >= 0) newLeft = x - 1;
-                        if (x + 1 <= 7) newRight = x + 1;
-                        if (y - 1 >= 0) newDown = y - 1;
+                        if (x - 1 >= 0) newDownLeftX = x - 1;
+                        if (x + 1 <= 7) newDownRightX = x + 1;
+                        if (y - 1 >= 0) { newDownRightY = y - 1; newDownLeftY = y - 1; }
 
                         //check to prevent capturing own pieces
                         //if the newUp/newLeft etc variables are positive, then they have valid values by this point
-                        if (newLeft >= 0 && newDown >= 0 && board.getPiece(newLeft, newDown) != null)
+                        if (newDownLeftX >= 0 && newDownLeftY >= 0 && board.getPiece(newDownLeftX, newDownLeftY) != null)
                         {
-                            if (board.getPiece(newLeft, newDown).getOwner() == Piece.player.BLACK)
+                            if (board.getPiece(newDownLeftX, newDownLeftY).getOwner() == Piece.player.BLACK)
                             {
-                                newLeft = -99;
+                                newDownLeftX = -99;
                             }
                             //there is a piece to jump
-                            else if (board.getPiece(newLeft, newDown).getOwner() == Piece.player.WHITE)
+                            else if (board.getPiece(newDownLeftX, newDownLeftY).getOwner() == Piece.player.WHITE)
                             {
-                                if (newLeft - 1 >= 0) newLeft = newLeft - 1;
-                                if (newDown - 1 >= 0) decreaseBlackNewDown = true;
+                                if (newDownLeftX - 1 >= 0) newDownLeftX = newDownLeftX - 1;
+                                if (newDownLeftY - 1 >= 0) newDownLeftY--;
                             }
                         }
-                        if (newRight >= 0 && newDown >= 0 && board.getPiece(newRight, newDown) != null)
+                        if (newDownRightX >= 0 && newDownRightY >= 0 && board.getPiece(newDownRightX, newDownRightY) != null)
                         {
-                            if (board.getPiece(newRight, newDown).getOwner() == Piece.player.BLACK)
+                            if (board.getPiece(newDownRightX, newDownRightY).getOwner() == Piece.player.BLACK)
                             {
-                                newRight = -99;
+                                newDownRightX = -99;
                             }
                             //there is a piece to jump
-                            else if (board.getPiece(newRight, newDown).getOwner() == Piece.player.WHITE)
+                            else if (board.getPiece(newDownRightX, newDownRightY).getOwner() == Piece.player.WHITE)
                             {
-                                if (newRight + 1 <= 7) newRight = newRight + 1;
-                                if (newDown - 1 >= 0) decreaseBlackNewDown = true;
+                                if (newDownRightX + 1 <= 7) newDownRightX = newDownRightX + 1;
+                                if (newDownRightY - 1 >= 0) newDownRightY--;
                             }
                         }
 
-                        if (decreaseBlackNewDown)
-                            newDown--;
                     }
                 }
                 else if (board.getPiece(x, y).getType() == Piece.typeState.KING)
                 {
-                    if (x - 1 >= 0) newLeft = x - 1;
-                    if (y + 1 <= 7) newUp = y + 1;
-                    if (x + 1 <= 7) newRight = x + 1;
-                    if (y - 1 >= 0) newDown = y - 1;
+                    if (x - 1 >= 0) { newDownLeftX = x - 1; newUpLeftX = x - 1; }
+                    if (y + 1 <= 7) { newUpLeftY = y + 1; newUpRightY = y + 1; }
+                    if (x + 1 <= 7) { newDownRightX = x + 1; newUpRightX = x + 1; }
+                    if (y - 1 >= 0) { newDownLeftY = y + 1; newDownRightY = y + 1; }
 
                     //TODO: Add code for interacting with other Pieces
                 }
                 
                 // the move locations have been figured out by this point. update the valid movements for each piece
-                board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.UP_LEFT, newLeft, newUp);
-                board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.UP_RIGHT, newRight, newUp);
-                board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.DOWN_RIGHT, newRight, newDown); //the negative numbers indicate there is no valid movement on the board in this direction
-                board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.DOWN_LEFT, newLeft, newDown);
+                board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.UP_LEFT, newUpLeftX, newUpLeftY);
+                board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.UP_RIGHT, newUpRightX, newUpRightY);
+                board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.DOWN_RIGHT, newDownRightX, newDownRightY); //the negative numbers indicate there is no valid movement on the board in this direction
+                board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.DOWN_LEFT, newDownLeftX, newDownLeftY);
             }
             
         }// end setValidMovements function
