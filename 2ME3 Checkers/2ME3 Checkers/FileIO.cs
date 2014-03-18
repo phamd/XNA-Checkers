@@ -14,9 +14,18 @@ namespace _2ME3_Checkers
         {
         }
 
-        public void save(Board board)
+        public void save(Board board, Game1.PLAYER_TURN turn)
         {
             string saveText = "";
+            switch (turn)
+            {
+                case (Game1.PLAYER_TURN.PLAYER_1):
+                    saveText += "BLACK\n";
+                    break;
+                case (Game1.PLAYER_TURN.PLAYER_2):
+                    saveText += "WHITE\n";
+                    break;
+            }
             int jAdjusted = 0;  //adding one to index j for board index
 
             try
@@ -79,7 +88,7 @@ namespace _2ME3_Checkers
                         {
                             saveText += "W";
                         }
-                        else
+                        else if (board.getPiece(i,j).getOwner() == Piece.player.BLACK)
                         {
                             saveText += "B";
                         }
@@ -99,17 +108,18 @@ namespace _2ME3_Checkers
             Console.WriteLine("Game Saved!");
         }
 
-        public string load(Board board)
+        public string[] load(Board board)
         {
-            if (File.Exists(@path + "/SavedGame.txt"))
+
+            if ((File.Exists(@path + "/SavedGame.txt")))
             {
-                return System.IO.File.ReadAllText(@path + "/SavedGame.txt");
+                String[] loaddata = System.IO.File.ReadAllText(@path + "/SavedGame.txt").Split();
+                return loaddata;
             }
             else
             {
-                Console.WriteLine("Save File Does Not Exist!");
-                return "no save file";
-            }
+                throw new Exception("No Save Game!");
+            }    
         }
     }
 }

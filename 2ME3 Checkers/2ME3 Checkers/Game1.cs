@@ -22,9 +22,9 @@ namespace _2ME3_Checkers
         /// <summary>
         /// Variable declarations
         /// </summary>
-        private enum STATE { MENU, SETUP, PLAYING }; // The three major states of the game
+        private enum STATE { MENU, SETUP, PLAYING, LOAD }; // The three major states of the game
         private STATE currentState = STATE.MENU; // The variable to track which state is currently active
-        private enum PLAYER_TURN { PLAYER_1, PLAYER_2, AI }; // Each game will have two of these possible players. The AI is currently unused, and is for assignment 3
+        public enum PLAYER_TURN { PLAYER_1, PLAYER_2, AI }; // Each game will have two of these possible players. The AI is currently unused, and is for assignment 3
         private PLAYER_TURN currentPlayerTurn = PLAYER_TURN.PLAYER_1; 
         private KeyboardState keyState;
         private string input;
@@ -257,10 +257,7 @@ namespace _2ME3_Checkers
                     }
                     if (clickable_LoadButton.IsIntersected(mousePos))
                     {
-                        currentState = STATE.SETUP;
-                        takeInput(fileIO.load(board));
-                        setValidMovements(board);
-                        Console.WriteLine("Game Loaded!");
+                        currentState = STATE.LOAD;
                     }
                 }
                 if (currentState == STATE.PLAYING)
@@ -268,7 +265,7 @@ namespace _2ME3_Checkers
                     if (clickable_MenuButton.IsIntersected(mousePos))
                         currentState = STATE.MENU;
                     if (clickable_SaveButton.IsIntersected(mousePos))
-                        fileIO.save(board);
+                        fileIO.save(board, currentPlayerTurn); 
                 }    
             }
 
@@ -307,6 +304,33 @@ namespace _2ME3_Checkers
                 
                 if(input == null)
                     takeInput();
+            }
+
+            else if (currentState == STATE.LOAD)
+            {
+                pieceList.Clear(); // clear the board first
+                piecesCreated = false; // reset pieces
+                
+                try {
+                    string[] tempIO = fileIO.load(board);
+                    board.setUpBoard(tempIO[1]);
+                    if (tempIO[0] == "WHITE")
+                    {
+                        currentPlayerTurn = PLAYER_TURN.PLAYER_2;
+                    }
+                    else if (tempIO[1] == "BLACK")
+                    {
+                        currentPlayerTurn = PLAYER_TURN.PLAYER_1;
+                    }
+                    Console.WriteLine("Game Loaded!");
+                    currentState = STATE.PLAYING;
+                } 
+                catch 
+                {
+                    Console.WriteLine("No Save Game!");
+                    currentState = STATE.MENU;
+                } 
+                 
             }
 
             else if (currentState == STATE.PLAYING)
