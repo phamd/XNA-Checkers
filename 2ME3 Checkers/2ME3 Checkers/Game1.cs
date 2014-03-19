@@ -503,6 +503,11 @@ namespace _2ME3_Checkers
                             {
                                 if (newUpLeftX - 1 >= 0) newUpLeftX = newUpLeftX - 1;
                                 if (newUpLeftY + 1 <= 7) newUpLeftY += 1;
+                                if (board.getPiece(newUpLeftX, newUpLeftY) != null)
+                                {
+                                    newUpLeftX = -99;
+                                    newUpLeftY = -99;
+                                }
                             }
                         }
                         if (newUpRightX >=0 && newUpRightY >= 0 && board.getPiece(newUpRightX, newUpRightY) != null)
@@ -516,6 +521,11 @@ namespace _2ME3_Checkers
                             {
                                 if (newUpRightX + 1 <= 7) newUpRightX = newUpRightX + 1;
                                 if (newUpRightY + 1 <= 7) newUpRightY += 1;
+                                if (board.getPiece(newUpRightX, newUpRightY) != null)
+                                {
+                                    newUpRightX = -99;
+                                    newUpRightY = -99;
+                                }
                             }
                         }
 
@@ -539,6 +549,11 @@ namespace _2ME3_Checkers
                             {
                                 if (newDownLeftX - 1 >= 0) newDownLeftX = newDownLeftX - 1;
                                 if (newDownLeftY - 1 >= 0) newDownLeftY--;
+                                if (board.getPiece(newDownLeftX, newDownLeftY) != null)
+                                {
+                                    newDownLeftX = -99;
+                                    newDownLeftY = -99;
+                                }
                             }
                         }
                         if (newDownRightX >= 0 && newDownRightY >= 0 && board.getPiece(newDownRightX, newDownRightY) != null)
@@ -552,6 +567,11 @@ namespace _2ME3_Checkers
                             {
                                 if (newDownRightX + 1 <= 7) newDownRightX = newDownRightX + 1;
                                 if (newDownRightY - 1 >= 0) newDownRightY--;
+                                if (board.getPiece(newDownRightX, newDownRightY) != null)
+                                {
+                                    newDownRightX = -99;
+                                    newDownRightY = -99;
+                                }
                             }
                         }
 
