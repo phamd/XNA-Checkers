@@ -201,6 +201,12 @@ namespace _2ME3_Checkers
             this.pieceArray[(int)originalLocation.X, (int)originalLocation.Y] = null;
         }
 
+        public void removePiece(int column, int row)
+        {
+            try { pieceArray[column, row] = null; }
+            catch { throw new Exception("Error: Trying to remove piece outside of array"); }
+        }
+
         /// <summary>
         /// Clears the board
         /// </summary>

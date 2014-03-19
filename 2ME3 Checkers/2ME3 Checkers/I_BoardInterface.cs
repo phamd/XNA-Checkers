@@ -16,6 +16,7 @@ namespace _2ME3_Checkers
         void placePiece(int column, int row, Piece piece); // place piece on board
         void movePiece(int fromCol, int fromRow, int toCol, int toRow); // move piece
         void movePiece(Vector2 originalLocation, Vector2 newLocation); // moving piece with vectors
+        void removePiece(int column, int row); //remove a piece
         void clear(); // removes all pieces from the board
     }
 }

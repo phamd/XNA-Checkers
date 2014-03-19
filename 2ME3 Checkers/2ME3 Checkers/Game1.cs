@@ -194,12 +194,18 @@ namespace _2ME3_Checkers
                         if ( (board.getPiece(mouseClickedPiece.getCoords()).getValidMovements()[i].col == mouseBoardPosition.X)
                             && (board.getPiece(mouseClickedPiece.getCoords()).getValidMovements()[i].row == mouseBoardPosition.Y) )
                         {
-                            Console.WriteLine("move ok. because " + board.getPiece(mouseClickedPiece.getCoords()).getValidMovements()[i].col + "=" + mouseBoardPosition.X + " and ");
+                            //Console.WriteLine("move ok. because " + board.getPiece(mouseClickedPiece.getCoords()).getValidMovements()[i].col + "=" + mouseBoardPosition.X + " and ");
                             Console.WriteLine(board.getPiece(mouseClickedPiece.getCoords()).getValidMovements()[i].row + "=" + mouseBoardPosition.Y + "/n");
 
                             board.movePiece(mouseClickedPiece.getCoords(), mouseBoardPosition); //Move the piece in the array to the spot where the mouse dropped it
-                            //setValidMovements(board, (int)mouseBoardPosition.X, (int)mouseBoardPosition.Y); //Update that piece's valid movements
-                            setValidMovements(board);
+                            //if the piece moved two x positions over that means it jumped. in this case remove the piece it jumped over
+                            if (Math.Abs(mouseClickedPiece.getCoords().X - mouseBoardPosition.X) == 2)
+                            {
+                                Math.Min((int)mouseClickedPiece.getCoords().X, (int)mouseBoardPosition.X);
+                                board.removePiece((Math.Min((int)mouseClickedPiece.getCoords().X, (int)mouseBoardPosition.X) + 1)
+                                    , (Math.Min((int)mouseClickedPiece.getCoords().Y, (int)mouseBoardPosition.Y) + 1));
+                            }
+                            setValidMovements(board); // update the whole board's valid movements to ensure every piece knows that piece moved
                             currentPlayerTurn = (currentPlayerTurn == Piece.PLAYER.BLACK)? Piece.PLAYER.WHITE : Piece.PLAYER.BLACK; //switch the turn
                         }
                     }
