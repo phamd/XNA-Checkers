@@ -205,7 +205,7 @@ namespace _2ME3_Checkers
                                 board.removePiece((Math.Min((int)mouseClickedPiece.getCoords().X, (int)mouseBoardPosition.X) + 1)
                                     , (Math.Min((int)mouseClickedPiece.getCoords().Y, (int)mouseBoardPosition.Y) + 1));
                             }
-                            setValidMovements(board); // update the whole board's valid movements to ensure every piece knows that piece moved
+                            //setValidMovements(board); // update the whole board's valid movements to ensure every piece knows that piece moved
                             currentPlayerTurn = (currentPlayerTurn == Piece.PLAYER.BLACK)? Piece.PLAYER.WHITE : Piece.PLAYER.BLACK; //switch the turn
                         }
                     }
@@ -215,7 +215,7 @@ namespace _2ME3_Checkers
                 // Trigger the redrawing of pieces when a piece is dropped since it may have moved.
                 pieceList.Clear(); // Clear the old locations of piece graphics.
                 piecesCreated = false; // Tells the system that we will need to remake pieces.
-
+                Console.WriteLine("recreate piecelist");
                 //Logic to corresspond the mouse X,Y coordinates with the board's index (0-7, 0-7)
                 
                 //Console.WriteLine(Math.Round( (mousePos.X - board_SquareSize) / board_SquareSize) + " " + Math.Round(Math.Abs(mousePos.Y / (board_SquareSize) - 8)));
@@ -247,14 +247,21 @@ namespace _2ME3_Checkers
                 if (currentState == STATE.MENU)
                 {
                     if (clickable_CustomButton.IsIntersected(mousePos))
+                    {
+                        pieceList.Clear(); // Clear the old locations of piece graphics.
+                        piecesCreated = false; // Tells the system that we will need to remake pieces.
                         currentState = STATE.SETUP;
+                    }
                     if (clickable_PlayButton.IsIntersected(mousePos))
                     {
-                        setValidMovements(board);
+                        pieceList.Clear(); // Clear the old locations of piece graphics.
+                        piecesCreated = false; // Tells the system that we will need to remake pieces.
                         currentState = STATE.PLAYING;
                     }
                     if (clickable_LoadButton.IsIntersected(mousePos))
                     {
+                        pieceList.Clear(); // Clear the old locations of piece graphics.
+                        piecesCreated = false; // Tells the system that we will need to remake pieces.
                         currentState = STATE.LOAD;
                     }
                 }
@@ -295,18 +302,12 @@ namespace _2ME3_Checkers
 
             else if (currentState == STATE.SETUP)
             {
-                pieceList.Clear(); // Clear the old locations of piece graphics.
-                piecesCreated = false; // Tells the system that we will need to remake pieces.
-                
                 if(input == null)
                     takeInput();
             }
 
             else if (currentState == STATE.LOAD)
             {
-                pieceList.Clear(); // Clear the old locations of piece graphics.
-                piecesCreated = false; // Tells the system that we will need to remake pieces.
-
                 try {
                     string[] tempIO = fileIO.load(board);
                     board.setUpBoard(tempIO[1]);
