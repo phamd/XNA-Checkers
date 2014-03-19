@@ -501,8 +501,10 @@ namespace _2ME3_Checkers
                             //there is a piece to jump
                             else if (board.getPiece(newUpLeftX, newUpLeftY).getOwner() == Piece.PLAYER.BLACK)
                             {
+                                //Calculate jump to location
                                 if (newUpLeftX - 1 >= 0) newUpLeftX = newUpLeftX - 1;
                                 if (newUpLeftY + 1 <= 7) newUpLeftY += 1;
+                                //if the landing space is non empty the jump isnt valid mark it as such
                                 if (board.getPiece(newUpLeftX, newUpLeftY) != null)
                                 {
                                     newUpLeftX = -99;
@@ -519,8 +521,10 @@ namespace _2ME3_Checkers
                             //there is a piece to jump
                             else if (board.getPiece(newUpRightX, newUpRightY).getOwner() == Piece.PLAYER.BLACK)
                             {
+                                //Calculate jump to location
                                 if (newUpRightX + 1 <= 7) newUpRightX = newUpRightX + 1;
                                 if (newUpRightY + 1 <= 7) newUpRightY += 1;
+                                //if the landing space is non empty the jump isnt valid mark it as such
                                 if (board.getPiece(newUpRightX, newUpRightY) != null)
                                 {
                                     newUpRightX = -99;
@@ -547,8 +551,10 @@ namespace _2ME3_Checkers
                             //there is a piece to jump
                             else if (board.getPiece(newDownLeftX, newDownLeftY).getOwner() == Piece.PLAYER.WHITE)
                             {
+                                //Calculate jump to location
                                 if (newDownLeftX - 1 >= 0) newDownLeftX = newDownLeftX - 1;
                                 if (newDownLeftY - 1 >= 0) newDownLeftY--;
+                                //if the landing space is non empty the jump isnt valid mark it as such
                                 if (board.getPiece(newDownLeftX, newDownLeftY) != null)
                                 {
                                     newDownLeftX = -99;
@@ -565,8 +571,10 @@ namespace _2ME3_Checkers
                             //there is a piece to jump
                             else if (board.getPiece(newDownRightX, newDownRightY).getOwner() == Piece.PLAYER.WHITE)
                             {
+                                //Calculate jump to location
                                 if (newDownRightX + 1 <= 7) newDownRightX = newDownRightX + 1;
                                 if (newDownRightY - 1 >= 0) newDownRightY--;
+                                //if the landing space is non empty the jump isnt valid mark it as such
                                 if (board.getPiece(newDownRightX, newDownRightY) != null)
                                 {
                                     newDownRightX = -99;
