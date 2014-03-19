@@ -24,14 +24,13 @@ namespace _2ME3_Checkers
         /// </summary>
         private enum STATE { MENU, SETUP, PLAYING, LOAD }; // The three major states of the game
         private STATE currentState = STATE.MENU; // The variable to track which state is currently active
-        public enum PLAYER_TURN { PLAYER_1, PLAYER_2, AI }; // Each game will have two of these possible players. The AI is currently unused, and is for assignment 3
+        public enum PLAYER_TURN { PLAYER_1, PLAYER_2 }; // Each game will have two of these possible players.
         private PLAYER_TURN currentPlayerTurn = PLAYER_TURN.PLAYER_1; 
         private KeyboardState keyState;
         private string input;
         private FileIO fileIO = new FileIO();
 
         
-
         private Board board = new Board();
 
         /// <summary>
@@ -339,7 +338,9 @@ namespace _2ME3_Checkers
                 clickable_MenuButton.Draw(spriteBatch);
                 clickable_SaveButton.Draw(spriteBatch);
 
-                // draw board
+                // Loops through each location of the board only once per frame.
+                // Inside the loop, the tile and piece is drawn at the same time.
+
                 for (int row = 7; row >= 0; row--) // drawing from bottom up; (since 0,0 is top left corner graphically)
                 {
                     for (int col = 0; col < 8; col++) // drawing from left to right first
@@ -354,18 +355,18 @@ namespace _2ME3_Checkers
                             tile = Board_SquareBlack;
                         }
 
-                        // draw tiles
+                        // Draw tile
                         spriteBatch.Draw(tile, new Vector2((GraphicsDevice.Viewport.Width - board_SquareSize * 8) / 2 + board_SquareSize * col, (GraphicsDevice.Viewport.Height - board_SquareSize * 8) / 2 + board_SquareSize * row), // center the board relative to window size
                                 null, Color.White, 0f, new Vector2(0, 0), board_squareScale, SpriteEffects.None, 0);
 
-                        // check if a piece belongs on the tile then draws it.
-                        if (piecesCreated == false) { // we only want to _create_ the pieces once // If we want to reset the board, set this to false
-                            if (board.getPiece(col, 7 - row) != null) // looks at the board array
+                        // Define each piece once by wrapping each piece in a class called View_Clickable 
+                        // for the system to apply additional methods.
+                        if (piecesCreated == false) {
+                            if (board.getPiece(col, 7 - row) != null) 
                             {
-                                // we wrap each piece in a class called View_Clickable so we can apply additional methods to them
                                 Texture2D pieceTexture;
                                 if (board.getPiece(col, 7 - row).getOwner() == Piece.player.BLACK) {
-                                    switch (board.getPiece(col, 7 - row).getType())
+                                    switch (board.getPiece(col, 7 - row).getType()) // Chose the texture required for which piece.
                                     {
                                         case (Piece.typeState.NORMAL):
                                             pieceTexture = Piece_BlackNormal;
@@ -374,7 +375,7 @@ namespace _2ME3_Checkers
                                             pieceTexture = Piece_BlackKing;
                                             break;
                                         default:
-                                            throw new Exception("No way");
+                                            throw new Exception("Error: Non existent piece type.");
                                     }
                                 }
                                 else if (board.getPiece(col, 7 - row).getOwner() == Piece.player.WHITE)
@@ -388,34 +389,37 @@ namespace _2ME3_Checkers
                                             pieceTexture = Piece_WhiteKing;
                                             break;
                                         default:
-                                            throw new Exception("No way");
+                                            throw new Exception("Error: Non existent piece type.");
                                     }
                                 }
                                 else
                                 {
-                                    throw new Exception("Error: Piece owned by someone not BLACK or WHITE!");
+                                    throw new Exception("Error: Piece owned by non existant player!");
                                 }
+
 
                                 // prepare a list of all pieces so we can draw them later
                                 pieceList.Add(new View_Clickable(pieceTexture, new Vector2((GraphicsDevice.Viewport.Width - board_SquareSize * 8) / 2 + board_SquareSize * col + board_SquareSize / 2 - Piece_BlackNormal.Width / 2,
-                                    (GraphicsDevice.Viewport.Height - board_SquareSize * 8) / 2 + board_SquareSize * row + board_SquareSize / 2 - Piece_BlackNormal.Height / 2), Color.White, 1f, col, 7-row)); // 32 offsets again, maybe put these into a variable
-                                //need to save coordinates when making Piece views to know where they are
+                                    (GraphicsDevice.Viewport.Height - board_SquareSize * 8) / 2 + board_SquareSize * row + board_SquareSize / 2 - Piece_BlackNormal.Height / 2), Color.White, 1f, col, 7 - row));
+                                // need to save coordinates when making Piece views to know where they are
+
+                                setValidMovements(board, col, 7 - row); // For effiency, the piece valid movements are updated within the same loop as drawing them.
                             }
                         }
                     }
                 }
+                piecesCreated = true; // Set true for the PLAYING state to not create brand new copies of pieces every frame.
+                input = null; // Reset the input once done with drawing all pieces.
 
-                // draw pieces
+                // Every frame, draw pieces.
                 foreach (View_Clickable sprite in pieceList) // we tell each piece to draw // actually, we can do this right after adding them to the list
                 {
                     sprite.Draw(spriteBatch);
                 }
-
-                piecesCreated = true; // We set true to tell the PLAYING state to not create brand new copies of our pieces every frame
-                input = null; // We reset the SETUP state so we can set up an new board
             } // END OF PLAYING STATE
 
-            spriteBatch.End(); // drawing goes before this line
+
+            spriteBatch.End(); // Drawing goes before this XNA line.
             base.Draw(gameTime);
         }
         /// <summary>
@@ -425,36 +429,25 @@ namespace _2ME3_Checkers
         /// </summary>
         void takeInput()
         {
-            input = "setup board"; // if the input is not null the function will not be called every frame
-            Console.WriteLine("Input a board in the format of A1=W,C1=W,E1=W,G1=WK,A7=B,B8=B");
-            Console.WriteLine("No more that 12 of each colour, and only place on solid squares");
+            input = "setup board"; // If the input is not null the function will not be called every frame.
+            Console.WriteLine("Input a board in the format of A1=W,C1=W,E1=W,G1=WK,A7=B,B8=B" + "\n" +
+                                "No more that 12 of each colour, and only place on solid squares");
             input = Console.ReadLine();
             //input = "A1=W,C1=W,E1=W,G1=WK,A7=B,B8=B"; // sample input
             try
             {
                 board.setUpBoard(input); // this construction is able to throw exceptions 
                 // the following code only runs if there were no exceptions above
-                Console.WriteLine("Setting up board: " + input);
-                Console.WriteLine("Enjoy your game");
+                Console.WriteLine("Setting up board: " + input + "\n" + "Enjoy your game");
                 currentState = STATE.PLAYING;
             }
             catch
             {
-                Console.WriteLine("Please format the input correctly");
-                Console.WriteLine();
+                Console.WriteLine("Please format the input correctly\n");
                 takeInput();
             }
         }
-        void takeInput(String input) {
-            if (input != "no save file") {
-                board.setUpBoard(input);
-                currentState = STATE.PLAYING;
-            }
-        }
 
-
-
-        //Sets the valid movements for a specific Piece
         
         /// <summary>
         /// Sets the valid movements for every Piece
