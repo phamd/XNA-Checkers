@@ -111,6 +111,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Board.cs" />
+    <Compile Include="FileIO.cs" />
+    <Compile Include="I_FileIOInterface.cs" />
     <Compile Include="I_BoardInterface.cs" />
     <Compile Include="I_PieceInterface.cs" />
     <Compile Include="Piece.cs" />

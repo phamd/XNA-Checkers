@@ -27,9 +27,9 @@ namespace _2ME3_Checkers
                 for (int row = 0; row < 8; row++)
                 {
                     if ((col % 2 == 0 && (row == 0 || row == 2)) || (col % 2 != 0 && row == 1)) // bottom player's area
-                        placePiece(col, row, new Piece(Piece.typeState.NORMAL, Piece.player.BLACK));
-                    else if ((col % 2 != 0 && (row == 5 || row == 7)) || (col % 2 == 0 && row == 6)) // top player's area
                         placePiece(col, row, new Piece(Piece.typeState.NORMAL, Piece.player.WHITE));
+                    else if ((col % 2 != 0 && (row == 5 || row == 7)) || (col % 2 == 0 && row == 6)) // top player's area
+                        placePiece(col, row, new Piece(Piece.typeState.NORMAL, Piece.player.BLACK));
                     else
                     {
                         // place nothing
@@ -64,7 +64,6 @@ namespace _2ME3_Checkers
             for (int i = 0; i < splitCommas.Length; i++)
             {
                 splitEquals = splitCommas[i].Split('='); // split "A1=W" on the equals sign
-                
                 if (splitEquals[0].Length != 2) throw new Exception(); // if left side is not "A1", but "A12" or "AA1" then error
                 coordRow = Convert.ToInt16(splitEquals[0].Substring(1, 1)); // convert the row number an int
                 // internally 0-7 instead of 1-8 so we subtract 1
@@ -200,6 +199,12 @@ namespace _2ME3_Checkers
             this.pieceArray[(int)newLocation.X, (int)newLocation.Y] = this.pieceArray[(int)originalLocation.X, (int)originalLocation.Y];
             // remove piece from previous location
             this.pieceArray[(int)originalLocation.X, (int)originalLocation.Y] = null;
+        }
+
+        public void removePiece(int column, int row)
+        {
+            try { pieceArray[column, row] = null; }
+            catch { throw new Exception("Error: Trying to remove piece outside of array"); }
         }
 
         /// <summary>
