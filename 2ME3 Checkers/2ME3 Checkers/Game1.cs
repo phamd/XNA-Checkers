@@ -24,8 +24,7 @@ namespace _2ME3_Checkers
         /// </summary>
         private enum STATE { MENU, SETUP, PLAYING, LOAD }; // The three major states of the game
         private STATE currentState = STATE.MENU; // The variable to track which state is currently active
-        public enum PLAYER_TURN { PLAYER_1, PLAYER_2 }; // Each game will have two of these possible players.
-        private PLAYER_TURN currentPlayerTurn = PLAYER_TURN.PLAYER_1; 
+        private Piece.PLAYER currentPlayerTurn = Piece.PLAYER.BLACK; // Start with BLACK going first
         private KeyboardState keyState;
         private string input;
         private FileIO fileIO = new FileIO();
@@ -168,9 +167,9 @@ namespace _2ME3_Checkers
                 currentState = STATE.PLAYING;
 
             if (keyState.IsKeyDown(Keys.B))
-                currentPlayerTurn = PLAYER_TURN.PLAYER_1;
+                currentPlayerTurn = Piece.PLAYER.BLACK;
             else if (keyState.IsKeyDown(Keys.W))
-                currentPlayerTurn = PLAYER_TURN.PLAYER_2;
+                currentPlayerTurn = Piece.PLAYER.WHITE;
 
             //TEMP
             else if (keyState.IsKeyDown(Keys.K))
@@ -201,46 +200,40 @@ namespace _2ME3_Checkers
                             board.movePiece(mouseClickedPiece.getCoords(), mouseBoardPosition); //Move the piece in the array to the spot where the mouse dropped it
                             //setValidMovements(board, (int)mouseBoardPosition.X, (int)mouseBoardPosition.Y); //Update that piece's valid movements
                             setValidMovements(board);
-                            currentPlayerTurn = (currentPlayerTurn == PLAYER_TURN.PLAYER_1)? PLAYER_TURN.PLAYER_2 : PLAYER_TURN.PLAYER_1; //switch the turn
+                            currentPlayerTurn = (currentPlayerTurn == Piece.PLAYER.BLACK)? Piece.PLAYER.WHITE : Piece.PLAYER.BLACK; //switch the turn
                         }
                     }
                 }
 
-
                 mouseClickedPiece = null;
+                // Trigger the redrawing of pieces when a piece is dropped since it may have moved.
+                pieceList.Clear(); // Clear the old locations of piece graphics.
+                piecesCreated = false; // Tells the system that we will need to remake pieces.
 
-                //Console.WriteLine("last sel piece was " + board.getPiece(
-                pieceList.Clear(); // clear the board first
-                piecesCreated = false;
                 //Logic to corresspond the mouse X,Y coordinates with the board's index (0-7, 0-7)
                 
                 //Console.WriteLine(Math.Round( (mousePos.X - board_SquareSize) / board_SquareSize) + " " + Math.Round(Math.Abs(mousePos.Y / (board_SquareSize) - 8)));
             }
 
-            // True if we pressed the mouse this frame.
+            // True if the mouse is pressed in the current frame.
             if (mouseStateCurrent.LeftButton == ButtonState.Pressed && mouseStatePrev.LeftButton == ButtonState.Released)
             {
-               
                 // Look through all pieces
                 foreach (View_Clickable thisPiece in pieceList)
                 {
-                    
-                    if (thisPiece.IsIntersected(mousePos)
-                       && 
-                        ((currentPlayerTurn == PLAYER_TURN.PLAYER_1 && board.getPiece((int)thisPiece.getCoords().X, (int)thisPiece.getCoords().Y).getOwner() == Piece.player.BLACK)
-                        || (currentPlayerTurn == PLAYER_TURN.PLAYER_2 && board.getPiece((int)thisPiece.getCoords().X, (int)thisPiece.getCoords().Y).getOwner() == Piece.player.WHITE))
-                        )// if we are clicking on the piece
-                    {
+                    // If the current player is clicking one of his own pieces.
+                    if (thisPiece.IsIntersected(mousePos) && (currentPlayerTurn == board.getPiece((int)thisPiece.getCoords().X, (int)thisPiece.getCoords().Y).getOwner()))
+                    { 
                         mouseClickedPiece = thisPiece;
                         mouseOffset = thisPiece.getPosition() - mousePos;
 
-                        //temporary console writign for testing
+                        // temporary console writing for testing
                         for (int i = 0; i < 4; i++)
                         {
                             Piece.validMovementsStruct vms = board.getPiece((int)thisPiece.getCoords().X, (int)thisPiece.getCoords().Y).getValidMovements()[i];
                             Console.WriteLine(vms.direction + " " + vms.col + " " + vms.row);
                         }
-                        break; // break so we can only pick up one piece at a time
+                        break; // Break to only pick up one piece at a time.
                     }
                 }
 
@@ -296,10 +289,8 @@ namespace _2ME3_Checkers
 
             else if (currentState == STATE.SETUP)
             {
-                // draw setup
-                // set up new board
-                pieceList.Clear(); // clear the board first
-                piecesCreated = false; // reset pieces
+                pieceList.Clear(); // Clear the old locations of piece graphics.
+                piecesCreated = false; // Tells the system that we will need to remake pieces.
                 
                 if(input == null)
                     takeInput();
@@ -307,19 +298,19 @@ namespace _2ME3_Checkers
 
             else if (currentState == STATE.LOAD)
             {
-                pieceList.Clear(); // clear the board first
-                piecesCreated = false; // reset pieces
-                
+                pieceList.Clear(); // Clear the old locations of piece graphics.
+                piecesCreated = false; // Tells the system that we will need to remake pieces.
+
                 try {
                     string[] tempIO = fileIO.load(board);
                     board.setUpBoard(tempIO[1]);
                     if (tempIO[0] == "WHITE")
                     {
-                        currentPlayerTurn = PLAYER_TURN.PLAYER_2;
+                        currentPlayerTurn = Piece.PLAYER.WHITE;
                     }
                     else if (tempIO[1] == "BLACK")
                     {
-                        currentPlayerTurn = PLAYER_TURN.PLAYER_1;
+                        currentPlayerTurn = Piece.PLAYER.BLACK;
                     }
                     Console.WriteLine("Game Loaded!");
                     currentState = STATE.PLAYING;
@@ -365,27 +356,27 @@ namespace _2ME3_Checkers
                             if (board.getPiece(col, 7 - row) != null) 
                             {
                                 Texture2D pieceTexture;
-                                if (board.getPiece(col, 7 - row).getOwner() == Piece.player.BLACK) {
+                                if (board.getPiece(col, 7 - row).getOwner() == Piece.PLAYER.BLACK) {
                                     switch (board.getPiece(col, 7 - row).getType()) // Chose the texture required for which piece.
                                     {
-                                        case (Piece.typeState.NORMAL):
+                                        case (Piece.TYPESTATE.NORMAL):
                                             pieceTexture = Piece_BlackNormal;
                                             break;
-                                        case (Piece.typeState.KING):
+                                        case (Piece.TYPESTATE.KING):
                                             pieceTexture = Piece_BlackKing;
                                             break;
                                         default:
                                             throw new Exception("Error: Non existent piece type.");
                                     }
                                 }
-                                else if (board.getPiece(col, 7 - row).getOwner() == Piece.player.WHITE)
+                                else if (board.getPiece(col, 7 - row).getOwner() == Piece.PLAYER.WHITE)
                                 {
                                     switch (board.getPiece(col, 7 - row).getType())
                                     {
-                                        case (Piece.typeState.NORMAL):
+                                        case (Piece.TYPESTATE.NORMAL):
                                             pieceTexture = Piece_WhiteNormal;
                                             break;
-                                        case (Piece.typeState.KING):
+                                        case (Piece.TYPESTATE.KING):
                                             pieceTexture = Piece_WhiteKing;
                                             break;
                                         default:
@@ -478,16 +469,16 @@ namespace _2ME3_Checkers
 
             if (board.getPiece(x, y) != null)
             {
-                // logic to king pieces
-                if (((y == 7 && board.getPiece(x, y).getOwner() == Piece.player.WHITE) || (y == 0 && board.getPiece(x, y).getOwner() == Piece.player.BLACK)) && board.getPiece(x, y).getType() == Piece.typeState.NORMAL)
+                // logic to king (verb) pieces
+                if (((y == 7 && board.getPiece(x, y).getOwner() == Piece.PLAYER.WHITE) || (y == 0 && board.getPiece(x, y).getOwner() == Piece.PLAYER.BLACK)) && board.getPiece(x, y).getType() == Piece.TYPESTATE.NORMAL)
                 {
-                    board.getPiece(x, y).setType(Piece.typeState.KING);
+                    board.getPiece(x, y).setType(Piece.TYPESTATE.KING);
                 }
 
                 // valid movements logic
-                if (board.getPiece(x, y).getType() == Piece.typeState.NORMAL)
+                if (board.getPiece(x, y).getType() == Piece.TYPESTATE.NORMAL)
                 {
-                    if (board.getPiece(x, y).getOwner() == Piece.player.WHITE)
+                    if (board.getPiece(x, y).getOwner() == Piece.PLAYER.WHITE)
                     {
                         if (x - 1 >= 0) newUpLeftX = x - 1;
                         if (y + 1 <= 7) { newUpLeftY = y + 1; newUpRightY = y + 1; }
@@ -497,12 +488,12 @@ namespace _2ME3_Checkers
                         //if the newUp/newLeft etc variables are positive, then they have valid values by this point
                         if (newUpLeftX >= 0 && newUpLeftY >= 0 && board.getPiece(newUpLeftX, newUpLeftY) != null)
                         {
-                            if (board.getPiece(newUpLeftX, newUpLeftY).getOwner() == Piece.player.WHITE)
+                            if (board.getPiece(newUpLeftX, newUpLeftY).getOwner() == Piece.PLAYER.WHITE)
                             {
                                 newUpLeftX = -99;
                             }
                             //there is a piece to jump
-                            else if (board.getPiece(newUpLeftX, newUpLeftY).getOwner() == Piece.player.BLACK)
+                            else if (board.getPiece(newUpLeftX, newUpLeftY).getOwner() == Piece.PLAYER.BLACK)
                             {
                                 if (newUpLeftX - 1 >= 0) newUpLeftX = newUpLeftX - 1;
                                 if (newUpLeftY + 1 <= 7) newUpLeftY += 1;
@@ -510,12 +501,12 @@ namespace _2ME3_Checkers
                         }
                         if (newUpRightX >=0 && newUpRightY >= 0 && board.getPiece(newUpRightX, newUpRightY) != null)
                         {
-                            if (board.getPiece(newUpRightX, newUpRightY).getOwner() == Piece.player.WHITE)
+                            if (board.getPiece(newUpRightX, newUpRightY).getOwner() == Piece.PLAYER.WHITE)
                             {
                                 newUpRightX = -99;
                             }
                             //there is a piece to jump
-                            else if (board.getPiece(newUpRightX, newUpRightY).getOwner() == Piece.player.BLACK)
+                            else if (board.getPiece(newUpRightX, newUpRightY).getOwner() == Piece.PLAYER.BLACK)
                             {
                                 if (newUpRightX + 1 <= 7) newUpRightX = newUpRightX + 1;
                                 if (newUpRightY + 1 <= 7) newUpRightY += 1;
@@ -523,7 +514,7 @@ namespace _2ME3_Checkers
                         }
 
                     }
-                    else if (board.getPiece(x, y).getOwner() == Piece.player.BLACK)
+                    else if (board.getPiece(x, y).getOwner() == Piece.PLAYER.BLACK)
                     {
                         if (x - 1 >= 0) newDownLeftX = x - 1;
                         if (x + 1 <= 7) newDownRightX = x + 1;
@@ -533,12 +524,12 @@ namespace _2ME3_Checkers
                         //if the newUp/newLeft etc variables are positive, then they have valid values by this point
                         if (newDownLeftX >= 0 && newDownLeftY >= 0 && board.getPiece(newDownLeftX, newDownLeftY) != null)
                         {
-                            if (board.getPiece(newDownLeftX, newDownLeftY).getOwner() == Piece.player.BLACK)
+                            if (board.getPiece(newDownLeftX, newDownLeftY).getOwner() == Piece.PLAYER.BLACK)
                             {
                                 newDownLeftX = -99;
                             }
                             //there is a piece to jump
-                            else if (board.getPiece(newDownLeftX, newDownLeftY).getOwner() == Piece.player.WHITE)
+                            else if (board.getPiece(newDownLeftX, newDownLeftY).getOwner() == Piece.PLAYER.WHITE)
                             {
                                 if (newDownLeftX - 1 >= 0) newDownLeftX = newDownLeftX - 1;
                                 if (newDownLeftY - 1 >= 0) newDownLeftY--;
@@ -546,12 +537,12 @@ namespace _2ME3_Checkers
                         }
                         if (newDownRightX >= 0 && newDownRightY >= 0 && board.getPiece(newDownRightX, newDownRightY) != null)
                         {
-                            if (board.getPiece(newDownRightX, newDownRightY).getOwner() == Piece.player.BLACK)
+                            if (board.getPiece(newDownRightX, newDownRightY).getOwner() == Piece.PLAYER.BLACK)
                             {
                                 newDownRightX = -99;
                             }
                             //there is a piece to jump
-                            else if (board.getPiece(newDownRightX, newDownRightY).getOwner() == Piece.player.WHITE)
+                            else if (board.getPiece(newDownRightX, newDownRightY).getOwner() == Piece.PLAYER.WHITE)
                             {
                                 if (newDownRightX + 1 <= 7) newDownRightX = newDownRightX + 1;
                                 if (newDownRightY - 1 >= 0) newDownRightY--;
@@ -560,7 +551,7 @@ namespace _2ME3_Checkers
 
                     }
                 }
-                else if (board.getPiece(x, y).getType() == Piece.typeState.KING)
+                else if (board.getPiece(x, y).getType() == Piece.TYPESTATE.KING)
                 {
                     if (x - 1 >= 0) { newDownLeftX = x - 1; newUpLeftX = x - 1; }
                     if (y + 1 <= 7) { newUpLeftY = y + 1; newUpRightY = y + 1; }

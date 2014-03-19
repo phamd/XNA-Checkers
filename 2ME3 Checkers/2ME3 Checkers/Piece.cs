@@ -8,8 +8,10 @@ namespace _2ME3_Checkers
     class Piece : I_PieceInterface
     {
         //variable declarations
-        public enum typeState { NORMAL, KING }; // enums are public so the other classes can know the allowed values.
-        private typeState pieceType;
+        public enum TYPESTATE { NORMAL, KING }; // enums are public so the other classes can know the allowed values.
+        private TYPESTATE pieceType;
+        public enum PLAYER { BLACK, WHITE };
+        private PLAYER owner;
 
         //This struct contains all the info needed for a valid move location
         public struct validMovementsStruct {
@@ -27,16 +29,13 @@ namespace _2ME3_Checkers
         //list of all the valid movements
         private validMovementsStruct[] validMovementsArray = new validMovementsStruct[4];
 
-        public enum player { BLACK, WHITE }; 
-        private player owner;
-
         // The 4 ways a piece can move
         public enum validMoveDirection { UP_LEFT, UP_RIGHT, DOWN_LEFT, DOWN_RIGHT }  //Currently unused //Can refactor the setValidMovements function to take this as a param
         
 
         // CONSTRUCTORS
 
-        public Piece(typeState pieceType, player owner)
+        public Piece(TYPESTATE pieceType, PLAYER owner)
         {
             this.pieceType = pieceType;
             this.owner = owner;
@@ -49,8 +48,8 @@ namespace _2ME3_Checkers
         // METHODS
 
         //getters
-        public typeState getType() { return pieceType; }
-        public player getOwner() { return this.owner; }
+        public TYPESTATE getType() { return pieceType; }
+        public PLAYER getOwner() { return this.owner; }
         public validMovementsStruct[] getValidMovements()
         {
             return validMovementsArray;
@@ -58,7 +57,7 @@ namespace _2ME3_Checkers
        
 
         //setters
-        public void setType(typeState newType) { this.pieceType = newType; } // king piece vs normal piece
+        public void setType(TYPESTATE newType) { this.pieceType = newType; } // king piece vs normal piece
 
         //Sets the places that is valid for the piece to move to
         public void setValidMovements(validMoveDirection direction, int col, int row)

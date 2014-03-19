@@ -9,13 +9,13 @@ namespace _2ME3_Checkers
     {
         
         //getters
-        Piece.typeState getType(); // can't define enums in interfaces, so we put it in Pieces.cs
-        Piece.player getOwner();
+        Piece.TYPESTATE getType(); // can't define enums in interfaces, so we put it in Pieces.cs
+        Piece.PLAYER getOwner();
         Piece.validMovementsStruct[] getValidMovements(); // returns the list of valid movement structs
 
 
         //setters
-        void setType(Piece.typeState newType); // king piece vs normal piece
+        void setType(Piece.TYPESTATE newType); // king piece vs normal piece
         void setValidMovements(Piece.validMoveDirection direction, int col, int row); 
 
     }

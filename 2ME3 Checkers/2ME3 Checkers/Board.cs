@@ -26,10 +26,10 @@ namespace _2ME3_Checkers
             {
                 for (int row = 0; row < 8; row++)
                 {
-                    if ((col % 2 == 0 && (row == 0 || row == 2)) || (col % 2 != 0 && row == 1)) // bottom player's area
-                        placePiece(col, row, new Piece(Piece.typeState.NORMAL, Piece.player.WHITE));
-                    else if ((col % 2 != 0 && (row == 5 || row == 7)) || (col % 2 == 0 && row == 6)) // top player's area
-                        placePiece(col, row, new Piece(Piece.typeState.NORMAL, Piece.player.BLACK));
+                    if ((col % 2 == 0 && (row == 0 || row == 2)) || (col % 2 != 0 && row == 1)) // bottom PLAYER's area
+                        placePiece(col, row, new Piece(Piece.TYPESTATE.NORMAL, Piece.PLAYER.WHITE));
+                    else if ((col % 2 != 0 && (row == 5 || row == 7)) || (col % 2 == 0 && row == 6)) // top PLAYER's area
+                        placePiece(col, row, new Piece(Piece.TYPESTATE.NORMAL, Piece.PLAYER.BLACK));
                     else
                     {
                         // place nothing
@@ -59,8 +59,8 @@ namespace _2ME3_Checkers
             int coordCol;
             int coordRow;
 
-            Piece.player player;
-            Piece.typeState type;
+            Piece.PLAYER player;
+            Piece.TYPESTATE type;
             for (int i = 0; i < splitCommas.Length; i++)
             {
                 splitEquals = splitCommas[i].Split('='); // split "A1=W" on the equals sign
@@ -102,23 +102,23 @@ namespace _2ME3_Checkers
                 switch (splitEquals[1].ToUpper()) // the right side of the equal sign in A1=W
                 {
                     case ("B"):
-                        player = Piece.player.BLACK;
-                        type = Piece.typeState.NORMAL;
+                        player = Piece.PLAYER.BLACK;
+                        type = Piece.TYPESTATE.NORMAL;
                         numBlackPieces++;
                         break;
                     case ("W"):
-                        player = Piece.player.WHITE;
-                        type = Piece.typeState.NORMAL;
+                        player = Piece.PLAYER.WHITE;
+                        type = Piece.TYPESTATE.NORMAL;
                         numWhitePieces++;
                         break;
                     case ("BK"):
-                        player = Piece.player.BLACK;
-                        type = Piece.typeState.KING;
+                        player = Piece.PLAYER.BLACK;
+                        type = Piece.TYPESTATE.KING;
                         numBlackPieces++;
                         break;
                     case ("WK"):
-                        player = Piece.player.WHITE;
-                        type = Piece.typeState.KING;
+                        player = Piece.PLAYER.WHITE;
+                        type = Piece.TYPESTATE.KING;
                         numWhitePieces++;
                         break;
                     default:

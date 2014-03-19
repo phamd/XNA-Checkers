@@ -14,15 +14,15 @@ namespace _2ME3_Checkers
         {
         }
 
-        public void save(Board board, Game1.PLAYER_TURN turn)
+        public void save(Board board, Piece.PLAYER turn)
         {
             string saveText = "";
             switch (turn)
             {
-                case (Game1.PLAYER_TURN.PLAYER_1):
+                case (Piece.PLAYER.BLACK):
                     saveText += "BLACK\n";
                     break;
-                case (Game1.PLAYER_TURN.PLAYER_2):
+                case (Piece.PLAYER.WHITE):
                     saveText += "WHITE\n";
                     break;
             }
@@ -84,17 +84,17 @@ namespace _2ME3_Checkers
                         saveText += jAdjusted.ToString() + "=";
 
                         //Saving Colour
-                        if (board.getPiece(i, j).getOwner() == Piece.player.WHITE)
+                        if (board.getPiece(i, j).getOwner() == Piece.PLAYER.WHITE)
                         {
                             saveText += "W";
                         }
-                        else if (board.getPiece(i,j).getOwner() == Piece.player.BLACK)
+                        else if (board.getPiece(i,j).getOwner() == Piece.PLAYER.BLACK)
                         {
                             saveText += "B";
                         }
 
                         //Saving Piece Type
-                        if (board.getPiece(i, j).getType() == Piece.typeState.KING)
+                        if (board.getPiece(i, j).getType() == Piece.TYPESTATE.KING)
                         {
                             saveText += "K";
                         }
