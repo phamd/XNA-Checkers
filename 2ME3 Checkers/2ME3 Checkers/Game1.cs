@@ -205,7 +205,7 @@ namespace _2ME3_Checkers
                                 board.removePiece((Math.Min((int)mouseClickedPiece.getCoords().X, (int)mouseBoardPosition.X) + 1)
                                     , (Math.Min((int)mouseClickedPiece.getCoords().Y, (int)mouseBoardPosition.Y) + 1));
                             }
-                            //setValidMovements(board); // update the whole board's valid movements to ensure every piece knows that piece moved
+                            setValidMovements(board); // update the whole board's valid movements to ensure every piece knows that piece moved
                             currentPlayerTurn = (currentPlayerTurn == Piece.PLAYER.BLACK)? Piece.PLAYER.WHITE : Piece.PLAYER.BLACK; //switch the turn
                         }
                     }
@@ -469,10 +469,10 @@ namespace _2ME3_Checkers
         void setValidMovements(Board board, int x, int y)
         {
             // the valid movements are a combination of an x direction and a y direction. initialized to a flag of an unreachable location
-            int newUpLeftX = -99, newUpLeftY = -99; 
-            int newUpRightX = -99, newUpRightY = -99; 
+            int newUpLeftX = -99, newUpLeftY = -99;
+            int newUpRightX = -99, newUpRightY = -99;
             int newDownRightX = -99, newDownRightY = -99;
-            int newDownLeftX = -99, newDownLeftY = -99; 
+            int newDownLeftX = -99, newDownLeftY = -99;
 
             if (board.getPiece(x, y) != null)
             {
@@ -483,126 +483,120 @@ namespace _2ME3_Checkers
                 }
 
                 // valid movements logic
-                if (board.getPiece(x, y).getType() == Piece.TYPESTATE.NORMAL)
-                {
-                    if (board.getPiece(x, y).getOwner() == Piece.PLAYER.WHITE)
-                    {
-                        if (x - 1 >= 0) newUpLeftX = x - 1;
-                        if (y + 1 <= 7) { newUpLeftY = y + 1; newUpRightY = y + 1; }
-                        if (x + 1 <= 7) newUpRightX = x + 1;
 
-                        //check to prevent capturing own pieces
-                        //if the newUp/newLeft etc variables are positive, then they have valid values by this point
-                        if (newUpLeftX >= 0 && newUpLeftY >= 0 && board.getPiece(newUpLeftX, newUpLeftY) != null)
+                // if you are a white piece, or black king. (this is upwards movement, only these types of pieces can move up)
+                if ((board.getPiece(x, y).getOwner() == Piece.PLAYER.WHITE)
+                    || (board.getPiece(x, y).getType() == Piece.TYPESTATE.KING && board.getPiece(x, y).getOwner() == Piece.PLAYER.BLACK))
+                {
+                    if (x - 1 >= 0) newUpLeftX = x - 1;
+                    if (y + 1 <= 7) { newUpLeftY = y + 1; newUpRightY = y + 1; }
+                    if (x + 1 <= 7) newUpRightX = x + 1;
+
+                    //check to prevent capturing own pieces
+                    //if the newUp/newLeft etc variables are positive, then they have valid values by this point
+                    if (newUpLeftX >= 0 && newUpLeftY >= 0 && board.getPiece(newUpLeftX, newUpLeftY) != null)
+                    {
+                        if ((board.getPiece(newUpLeftX, newUpLeftY).getOwner() == Piece.PLAYER.WHITE && board.getPiece(x, y).getOwner() == Piece.PLAYER.WHITE)
+                            || (board.getPiece(newUpLeftX, newUpLeftY).getOwner() == Piece.PLAYER.BLACK && board.getPiece(x, y).getOwner() == Piece.PLAYER.BLACK))
                         {
-                            if (board.getPiece(newUpLeftX, newUpLeftY).getOwner() == Piece.PLAYER.WHITE)
+                            newUpLeftX = -99;
+                        }
+                        //there is a piece to jump
+                        else if ((board.getPiece(newUpLeftX, newUpLeftY).getOwner() == Piece.PLAYER.BLACK && board.getPiece(x, y).getOwner() == Piece.PLAYER.WHITE)
+                            || (board.getPiece(newUpLeftX, newUpLeftY).getOwner() == Piece.PLAYER.WHITE && board.getPiece(x, y).getOwner() == Piece.PLAYER.BLACK))
+                        {
+                            //Calculate jump to location
+                            if (newUpLeftX - 1 >= 0) newUpLeftX = newUpLeftX - 1;
+                            if (newUpLeftY + 1 <= 7) newUpLeftY += 1;
+                            //if the landing space is non empty the jump isnt valid mark it as such
+                            if (board.getPiece(newUpLeftX, newUpLeftY) != null)
                             {
                                 newUpLeftX = -99;
-                            }
-                            //there is a piece to jump
-                            else if (board.getPiece(newUpLeftX, newUpLeftY).getOwner() == Piece.PLAYER.BLACK)
-                            {
-                                //Calculate jump to location
-                                if (newUpLeftX - 1 >= 0) newUpLeftX = newUpLeftX - 1;
-                                if (newUpLeftY + 1 <= 7) newUpLeftY += 1;
-                                //if the landing space is non empty the jump isnt valid mark it as such
-                                if (board.getPiece(newUpLeftX, newUpLeftY) != null)
-                                {
-                                    newUpLeftX = -99;
-                                    newUpLeftY = -99;
-                                }
+                                newUpLeftY = -99;
                             }
                         }
-                        if (newUpRightX >=0 && newUpRightY >= 0 && board.getPiece(newUpRightX, newUpRightY) != null)
+                    }
+                    if (newUpRightX >= 0 && newUpRightY >= 0 && board.getPiece(newUpRightX, newUpRightY) != null)
+                    {
+                        if (board.getPiece(x, y).getOwner() == board.getPiece(newUpRightX, newUpRightY).getOwner())
                         {
-                            if (board.getPiece(newUpRightX, newUpRightY).getOwner() == Piece.PLAYER.WHITE)
+                            newUpRightX = -99;
+                        }
+                        //there is a piece to jump
+                        else if (board.getPiece(x, y).getOwner() != board.getPiece(newUpRightX, newUpRightY).getOwner())
+                        {
+                            //Calculate jump to location
+                            if (newUpRightX + 1 <= 7) newUpRightX = newUpRightX + 1;
+                            if (newUpRightY + 1 <= 7) newUpRightY += 1;
+                            //if the landing space is non empty the jump isnt valid mark it as such
+                            if (board.getPiece(newUpRightX, newUpRightY) != null)
                             {
                                 newUpRightX = -99;
-                            }
-                            //there is a piece to jump
-                            else if (board.getPiece(newUpRightX, newUpRightY).getOwner() == Piece.PLAYER.BLACK)
-                            {
-                                //Calculate jump to location
-                                if (newUpRightX + 1 <= 7) newUpRightX = newUpRightX + 1;
-                                if (newUpRightY + 1 <= 7) newUpRightY += 1;
-                                //if the landing space is non empty the jump isnt valid mark it as such
-                                if (board.getPiece(newUpRightX, newUpRightY) != null)
-                                {
-                                    newUpRightX = -99;
-                                    newUpRightY = -99;
-                                }
+                                newUpRightY = -99;
                             }
                         }
-
                     }
-                    else if (board.getPiece(x, y).getOwner() == Piece.PLAYER.BLACK)
-                    {
-                        if (x - 1 >= 0) newDownLeftX = x - 1;
-                        if (x + 1 <= 7) newDownRightX = x + 1;
-                        if (y - 1 >= 0) { newDownRightY = y - 1; newDownLeftY = y - 1; }
+                }
+                // if you are a black piece, or white king. (this is downwards movement, only these types of pieces can move down)
+                // kings will have their movements set by the logic of the above if statement combined with this one. Normal Pieces just use one or the other
+                if ((board.getPiece(x, y).getOwner() == Piece.PLAYER.BLACK)
+                    || (board.getPiece(x, y).getOwner() == Piece.PLAYER.WHITE && board.getPiece(x, y).getType() == Piece.TYPESTATE.KING))
+                {
+                    if (x - 1 >= 0) newDownLeftX = x - 1;
+                    if (x + 1 <= 7) newDownRightX = x + 1;
+                    if (y - 1 >= 0) { newDownRightY = y - 1; newDownLeftY = y - 1; }
 
-                        //check to prevent capturing own pieces
-                        //if the newUp/newLeft etc variables are positive, then they have valid values by this point
-                        if (newDownLeftX >= 0 && newDownLeftY >= 0 && board.getPiece(newDownLeftX, newDownLeftY) != null)
+                    //check to prevent capturing own pieces
+                    //if the newUp/newLeft etc variables are positive, then they have valid values by this point
+                    if (newDownLeftX >= 0 && newDownLeftY >= 0 && board.getPiece(newDownLeftX, newDownLeftY) != null)
+                    {
+                        if (board.getPiece(x, y).getOwner() == board.getPiece(newDownLeftX, newDownLeftY).getOwner())
                         {
-                            if (board.getPiece(newDownLeftX, newDownLeftY).getOwner() == Piece.PLAYER.BLACK)
+                            newDownLeftX = -99;
+                        }
+                        //there is a piece to jump
+                        else if (board.getPiece(x, y).getOwner() != board.getPiece(newDownLeftX, newDownLeftY).getOwner())
+                        {
+                            //Calculate jump to location
+                            if (newDownLeftX - 1 >= 0) newDownLeftX = newDownLeftX - 1;
+                            if (newDownLeftY - 1 >= 0) newDownLeftY--;
+                            //if the landing space is non empty the jump isnt valid mark it as such
+                            if (board.getPiece(newDownLeftX, newDownLeftY) != null)
                             {
                                 newDownLeftX = -99;
-                            }
-                            //there is a piece to jump
-                            else if (board.getPiece(newDownLeftX, newDownLeftY).getOwner() == Piece.PLAYER.WHITE)
-                            {
-                                //Calculate jump to location
-                                if (newDownLeftX - 1 >= 0) newDownLeftX = newDownLeftX - 1;
-                                if (newDownLeftY - 1 >= 0) newDownLeftY--;
-                                //if the landing space is non empty the jump isnt valid mark it as such
-                                if (board.getPiece(newDownLeftX, newDownLeftY) != null)
-                                {
-                                    newDownLeftX = -99;
-                                    newDownLeftY = -99;
-                                }
+                                newDownLeftY = -99;
                             }
                         }
-                        if (newDownRightX >= 0 && newDownRightY >= 0 && board.getPiece(newDownRightX, newDownRightY) != null)
+                    }
+                    if (newDownRightX >= 0 && newDownRightY >= 0 && board.getPiece(newDownRightX, newDownRightY) != null)
+                    {
+                        if (board.getPiece(x, y).getOwner() == board.getPiece(newDownRightX, newDownRightY).getOwner())
                         {
-                            if (board.getPiece(newDownRightX, newDownRightY).getOwner() == Piece.PLAYER.BLACK)
+                            newDownRightX = -99;
+                        }
+                        //there is a piece to jump
+                        else if (board.getPiece(x, y).getOwner() != board.getPiece(newDownRightX, newDownRightY).getOwner())
+                        {
+                            //Calculate jump to location
+                            if (newDownRightX + 1 <= 7) newDownRightX = newDownRightX + 1;
+                            if (newDownRightY - 1 >= 0) newDownRightY--;
+                            //if the landing space is non empty the jump isnt valid mark it as such
+                            if (board.getPiece(newDownRightX, newDownRightY) != null)
                             {
                                 newDownRightX = -99;
-                            }
-                            //there is a piece to jump
-                            else if (board.getPiece(newDownRightX, newDownRightY).getOwner() == Piece.PLAYER.WHITE)
-                            {
-                                //Calculate jump to location
-                                if (newDownRightX + 1 <= 7) newDownRightX = newDownRightX + 1;
-                                if (newDownRightY - 1 >= 0) newDownRightY--;
-                                //if the landing space is non empty the jump isnt valid mark it as such
-                                if (board.getPiece(newDownRightX, newDownRightY) != null)
-                                {
-                                    newDownRightX = -99;
-                                    newDownRightY = -99;
-                                }
+                                newDownRightY = -99;
                             }
                         }
-
                     }
                 }
-                else if (board.getPiece(x, y).getType() == Piece.TYPESTATE.KING)
-                {
-                    if (x - 1 >= 0) { newDownLeftX = x - 1; newUpLeftX = x - 1; }
-                    if (y + 1 <= 7) { newUpLeftY = y + 1; newUpRightY = y + 1; }
-                    if (x + 1 <= 7) { newDownRightX = x + 1; newUpRightX = x + 1; }
-                    if (y - 1 >= 0) { newDownLeftY = y + 1; newDownRightY = y + 1; }
 
-                    //TODO: Add code for interacting with other Pieces
-                }
-                
                 // the move locations have been figured out by this point. update the valid movements for each piece
                 board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.UP_LEFT, newUpLeftX, newUpLeftY);
                 board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.UP_RIGHT, newUpRightX, newUpRightY);
                 board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.DOWN_RIGHT, newDownRightX, newDownRightY); //the negative numbers indicate there is no valid movement on the board in this direction
                 board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.DOWN_LEFT, newDownLeftX, newDownLeftY);
             }
-            
+
         }// end setValidMovements function
         
     }
