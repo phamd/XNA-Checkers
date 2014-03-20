@@ -455,7 +455,7 @@ namespace _2ME3_Checkers
         /// </summary>
         /// 
 
-        void setValidMovements(Board board)
+        public void setValidMovements(Board board)
         {
             for (int col = 0; col < 8; col++)
             {
