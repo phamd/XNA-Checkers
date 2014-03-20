@@ -466,7 +466,7 @@ namespace _2ME3_Checkers
             }
         }
 
-        void setValidMovements(Board board, int x, int y)
+        public void setValidMovements(Board board, int x, int y)
         {
             // the valid movements are a combination of an x direction and a y direction. initialized to a flag of an unreachable location
             int newUpLeftX = -99, newUpLeftY = -99;

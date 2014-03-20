@@ -25,6 +25,10 @@ namespace _2ME3_Checkers
                 this.col = col; 
                 this.row = row;
             }
+            public override String ToString()
+            {
+                return this.col + "," + this.row;
+            }
         };
         //list of all the valid movements
         private validMovementsStruct[] validMovementsArray = new validMovementsStruct[4];
