@@ -194,8 +194,8 @@ namespace _2ME3_Checkers
                         if ( (board.getPiece(mouseClickedPiece.getCoords()).getValidMovements()[i].col == mouseBoardPosition.X)
                             && (board.getPiece(mouseClickedPiece.getCoords()).getValidMovements()[i].row == mouseBoardPosition.Y) )
                         {
-                            //Console.WriteLine("move ok. because " + board.getPiece(mouseClickedPiece.getCoords()).getValidMovements()[i].col + "=" + mouseBoardPosition.X + " and ");
-                            Console.WriteLine(board.getPiece(mouseClickedPiece.getCoords()).getValidMovements()[i].row + "=" + mouseBoardPosition.Y + "/n");
+                            //Debug: Console.WriteLine("move ok. because " + board.getPiece(mouseClickedPiece.getCoords()).getValidMovements()[i].col + "=" + mouseBoardPosition.X + " and ");
+                            //Debug: Console.WriteLine(board.getPiece(mouseClickedPiece.getCoords()).getValidMovements()[i].row + "=" + mouseBoardPosition.Y + "/n");
 
                             board.movePiece(mouseClickedPiece.getCoords(), mouseBoardPosition); //Move the piece in the array to the spot where the mouse dropped it
                             //if the piece moved two x positions over that means it jumped. in this case remove the piece it jumped over
@@ -215,7 +215,7 @@ namespace _2ME3_Checkers
                 // Trigger the redrawing of pieces when a piece is dropped since it may have moved.
                 pieceList.Clear(); // Clear the old locations of piece graphics.
                 piecesCreated = false; // Tells the system that we will need to remake pieces.
-                Console.WriteLine("recreate piecelist");
+                
                 //Logic to corresspond the mouse X,Y coordinates with the board's index (0-7, 0-7)
                 
                 //Console.WriteLine(Math.Round( (mousePos.X - board_SquareSize) / board_SquareSize) + " " + Math.Round(Math.Abs(mousePos.Y / (board_SquareSize) - 8)));
@@ -234,11 +234,12 @@ namespace _2ME3_Checkers
                         mouseOffset = thisPiece.getPosition() - mousePos;
 
                         // temporary console writing for testing
+                        /*
                         for (int i = 0; i < 4; i++)
                         {
                             Piece.validMovementsStruct vms = board.getPiece((int)thisPiece.getCoords().X, (int)thisPiece.getCoords().Y).getValidMovements()[i];
                             Console.WriteLine(vms.direction + " " + vms.col + " " + vms.row);
-                        }
+                        }*/
                         break; // Break to only pick up one piece at a time.
                     }
                 }
