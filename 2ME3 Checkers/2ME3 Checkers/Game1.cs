@@ -316,16 +316,20 @@ namespace _2ME3_Checkers
                     {
                         currentPlayerTurn = Piece.PLAYER.WHITE;
                     }
-                    else if (tempIO[1] == "BLACK")
+                    else if (tempIO[0] == "BLACK")
                     {
                         currentPlayerTurn = Piece.PLAYER.BLACK;
+                    }
+                    else
+                    {
+                        throw new Exception("Error with saved player's turn.");
                     }
                     Console.WriteLine("Game Loaded!");
                     currentState = STATE.PLAYING;
                 } 
-                catch 
+                catch (Exception e)
                 {
-                    Console.WriteLine("No Save Game!");
+                    Console.WriteLine("Load error: " + e.Message);
                     currentState = STATE.MENU;
                 } 
                  

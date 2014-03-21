@@ -96,7 +96,7 @@ namespace _2ME3_Checkers
                         break;
                     default:
                         //if the input isn't recognized, then throw an exception
-                        throw new Exception("Input Error");
+                        throw new Exception("Board input format error");
                 }
 
                 switch (splitEquals[1].ToUpper()) // the right side of the equal sign in A1=W
@@ -123,7 +123,7 @@ namespace _2ME3_Checkers
                         break;
                     default:
                         //if the input isn't recognized, then throw an exception
-                        throw new Exception("Input Error");
+                        throw new Exception("Board input format error");
                 }
  
                 placePiece(coordCol, coordRow, new Piece(type, player)); // place the piece with the parsed information
