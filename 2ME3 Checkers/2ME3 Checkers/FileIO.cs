@@ -30,18 +30,19 @@ namespace _2ME3_Checkers
 
             try
             {
-                if (Directory.Exists(path))
-                {
-                    Console.WriteLine("Folder already exists");
-                }
-                else
+                if (!Directory.Exists(path))
                 {
                     DirectoryInfo directory = Directory.CreateDirectory(path);
                 }
             }
             catch (Exception e)
             {
-                Console.WriteLine("Save Unsuccessful " + e);
+                Console.WriteLine("Save Unsuccessful " + e.Message);
+            }
+
+            if (board.getPieceArray().Length == 0)
+            {
+                saveText = ","; // If the user is saving an empty board
             }
 
             for (int i = 0; i < board.getPieceArray().Length / 8; i++)
@@ -103,7 +104,7 @@ namespace _2ME3_Checkers
                     }
                 }
             }
-            saveText = saveText.Substring(0, saveText.Length - 1); //Get rid of trailing comma
+            saveText = saveText.TrimEnd(','); //Get rid of trailing comma
             System.IO.File.WriteAllText(@path + "/SavedGame.txt", saveText); //write to file
             Console.WriteLine("Game Saved!");
         }

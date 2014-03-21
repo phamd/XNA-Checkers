@@ -312,11 +312,11 @@ namespace _2ME3_Checkers
                 try {
                     string[] tempIO = fileIO.load(board);
                     board.setUpBoard(tempIO[1]);
-                    if (tempIO[0] == "WHITE")
+                    if (tempIO[0].ToUpper() == "WHITE")
                     {
                         currentPlayerTurn = Piece.PLAYER.WHITE;
                     }
-                    else if (tempIO[0] == "BLACK")
+                    else if (tempIO[0].ToUpper() == "BLACK")
                     {
                         currentPlayerTurn = Piece.PLAYER.BLACK;
                     }

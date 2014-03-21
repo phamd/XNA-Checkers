@@ -54,6 +54,8 @@ namespace _2ME3_Checkers
             clear(); // we assume the user will setup the board all at once in one line
                      // we can later give the option to allow the user to set up the board one piece at a time.
 
+            if (input == "") return; // if input was empty board, no pieces to place
+
             string[] splitCommas = input.Split(','); // splits "A1=W,C1=W" on the comma
             string[] splitEquals;
             int coordCol;
@@ -64,7 +66,7 @@ namespace _2ME3_Checkers
             for (int i = 0; i < splitCommas.Length; i++)
             {
                 splitEquals = splitCommas[i].Split('='); // split "A1=W" on the equals sign
-                if (splitEquals[0].Length != 2) throw new Exception("Input Error"); // if left side is not "A1", but "A12" or "AA1" then error
+                if (splitEquals[0].Length != 2) throw new Exception("Board input format error"); // if left side is not "A1", but "A12" or "AA1" then error
                 coordRow = Convert.ToInt16(splitEquals[0].Substring(1, 1)); // convert the row number an int
                 // internally 0-7 instead of 1-8 so we subtract 1
                 coordRow -= 1;
