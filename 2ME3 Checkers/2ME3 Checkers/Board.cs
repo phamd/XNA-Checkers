@@ -12,6 +12,8 @@ namespace _2ME3_Checkers
         private Piece[,] pieceArray = new Piece[8,8];
         private int numWhitePieces = 0;
         private int numBlackPieces = 0;
+        private Piece jumpingPiece = null; // This variable saves the Piece that is currently jumping
+        private int jumpAvailable = 0; // Whether a jump can be made and by which player. 0 is null, 1 is white, 2 is black
         //Constructors
 
         /// <summary>
@@ -53,8 +55,6 @@ namespace _2ME3_Checkers
             numWhitePieces = 0;
             clear(); // we assume the user will setup the board all at once in one line
                      // we can later give the option to allow the user to set up the board one piece at a time.
-
-            if (input == "") return; // if input was empty board, no pieces to place
 
             string[] splitCommas = input.Split(','); // splits "A1=W,C1=W" on the comma
             string[] splitEquals;
@@ -98,7 +98,7 @@ namespace _2ME3_Checkers
                         break;
                     default:
                         //if the input isn't recognized, then throw an exception
-                        throw new Exception("Board input format error");
+                        throw new Exception("Input Error");
                 }
 
                 switch (splitEquals[1].ToUpper()) // the right side of the equal sign in A1=W
@@ -125,7 +125,7 @@ namespace _2ME3_Checkers
                         break;
                     default:
                         //if the input isn't recognized, then throw an exception
-                        throw new Exception("Board input format error");
+                        throw new Exception("Input Error");
                 }
  
                 placePiece(coordCol, coordRow, new Piece(type, player)); // place the piece with the parsed information
@@ -152,6 +152,25 @@ namespace _2ME3_Checkers
         public Piece[,] getPieceArray()
         {
             return pieceArray;
+        }
+
+        public Piece getJumpingPiece()
+        {
+            return jumpingPiece;
+        }
+
+        public void setJumpingPiece(Piece newJumpingPiece)
+        {
+            jumpingPiece = newJumpingPiece;
+        }
+
+        public void setJumpAvailable(int jumpAvailability)
+        {
+            jumpAvailable = jumpAvailability;
+        }
+        public int getJumpAvailable()
+        {
+            return jumpAvailable;
         }
 
         /// <summary>

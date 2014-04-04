@@ -40,11 +40,6 @@ namespace _2ME3_Checkers
                 Console.WriteLine("Save Unsuccessful " + e.Message);
             }
 
-            if (board.getPieceArray().Length == 0)
-            {
-                saveText = ","; // If the user is saving an empty board
-            }
-
             for (int i = 0; i < board.getPieceArray().Length / 8; i++)
             {
                 for (int j = 0; j < board.getPieceArray().Length / 8; j++)
@@ -104,7 +99,7 @@ namespace _2ME3_Checkers
                     }
                 }
             }
-            saveText = saveText.TrimEnd(','); //Get rid of trailing comma
+            saveText = saveText.TrimEnd(','); //Get rid of trailing comma 
             System.IO.File.WriteAllText(@path + "/SavedGame.txt", saveText); //write to file
             Console.WriteLine("Game Saved!");
         }

@@ -24,7 +24,8 @@ namespace _2ME3_Checkers
         /// </summary>
         private enum STATE { MENU, SETUP, PLAYING, LOAD }; // The three major states of the game
         private STATE currentState = STATE.MENU; // The variable to track which state is currently active
-        private Piece.PLAYER currentPlayerTurn = Piece.PLAYER.BLACK; // Start with BLACK going first
+        private Piece.PLAYER currentPlayerTurn = Piece.PLAYER.WHITE; // Start with WHITE going first
+        private Piece.PLAYER lastPlayerTurn = Piece.PLAYER.BLACK; // The previous turn. this is saved because sometimes the same player can go multiple times
         private KeyboardState keyState;
         private string input;
         private FileIO fileIO = new FileIO();
@@ -173,7 +174,12 @@ namespace _2ME3_Checkers
 
             //TEMP
             else if (keyState.IsKeyDown(Keys.K))
-                setValidMovements(board);
+            {
+                
+                Console.WriteLine(currentPlayerTurn);
+                Console.WriteLine("jump available: " + board.getJumpAvailable() + " jump piece set: " + (board.getJumpingPiece() != null));                                                                                                                                                                                                                                                                                                                                                                                                                                                
+                
+            }
 
             // Mouse Update Stuff
             mouseStatePrev = mouseStateCurrent;
@@ -183,8 +189,10 @@ namespace _2ME3_Checkers
                 , (float) Math.Round(Math.Abs(mousePos.Y / (board_SquareSize) - 8))); // this is where the mouse is looking on the board ie (0-7), (0-7)
             
             // Drop piece if mouse button is up
-            if (mouseStateCurrent.LeftButton == ButtonState.Released && mouseClickedPiece != null)
+            if ((mouseStateCurrent.LeftButton == ButtonState.Released && mouseClickedPiece != null))
             {
+                //update the last person to have a turn
+                lastPlayerTurn = currentPlayerTurn;
                 // there are 4 possible directions of movement
                 for(int i = 0; i < 4; i++) {
                     //need a this conditional because board.getPiece() can return null if there is no Piece there
@@ -194,31 +202,115 @@ namespace _2ME3_Checkers
                         if ( (board.getPiece(mouseClickedPiece.getCoords()).getValidMovements()[i].col == mouseBoardPosition.X)
                             && (board.getPiece(mouseClickedPiece.getCoords()).getValidMovements()[i].row == mouseBoardPosition.Y) )
                         {
-                            //Debug: Console.WriteLine("move ok. because " + board.getPiece(mouseClickedPiece.getCoords()).getValidMovements()[i].col + "=" + mouseBoardPosition.X + " and ");
-                            //Debug: Console.WriteLine(board.getPiece(mouseClickedPiece.getCoords()).getValidMovements()[i].row + "=" + mouseBoardPosition.Y + "/n");
+                            ///~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                            ///Case 1: Jump Available && Jump Piece Set
+                            ///~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                            //if there is a jump available and the jumping piece is set check if that piece can continue jumping and jump with it, else end the turn
+                            if ( ((board.getJumpAvailable() == 1 && currentPlayerTurn == Piece.PLAYER.WHITE)
+                                || (board.getJumpAvailable() == 2 && currentPlayerTurn == Piece.PLAYER.BLACK)) 
+                                && board.getJumpingPiece() != null)
+                            {
+                                Console.WriteLine(currentPlayerTurn+" Case 1: Jump Available && Jump Piece Set");
+                                //if the jumping piece can't continue end the turn
+                                if (!board.getJumpingPiece().canJump())
+                                {
+                                    currentPlayerTurn = (currentPlayerTurn == Piece.PLAYER.BLACK) ? Piece.PLAYER.WHITE : Piece.PLAYER.BLACK; //switch the turn
+                                    board.setJumpingPiece(null);
+                                    board.setJumpAvailable(0);
+                                }
+                                else
+                                {
+                                    //if you are selecting the jumping piece and you are attempting a jump then jump
+                                    if (board.getPiece(mouseClickedPiece.getCoords()) == board.getJumpingPiece() && (Math.Abs(mouseClickedPiece.getCoords().X - mouseBoardPosition.X) == 2))
+                                    {
+                                        board.movePiece(mouseClickedPiece.getCoords(), mouseBoardPosition); //Move the piece in the array to the spot where the mouse dropped it
+                                        board.setJumpingPiece(board.getPiece(mouseBoardPosition));
+                                        //remove the piece that got jumped
+                                        board.removePiece((Math.Min((int)mouseClickedPiece.getCoords().X, (int)mouseBoardPosition.X) + 1)
+                                        , (Math.Min((int)mouseClickedPiece.getCoords().Y, (int)mouseBoardPosition.Y) + 1));
+                                    }
+                                }
+                            }
+                            ///~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                            ///Case 2: Jump Available && Jump Piece NOT Set
+                            ///~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                            //if there is a jump available and there is no piece currently jumping then make the jump and set which piece is jumping
+                            else if (((board.getJumpAvailable() == 1 && currentPlayerTurn == Piece.PLAYER.WHITE)
+                                || (board.getJumpAvailable() == 2 && currentPlayerTurn == Piece.PLAYER.BLACK)) 
+                                && board.getJumpingPiece() == null)
+                            {
+                                Console.WriteLine(currentPlayerTurn + "Case 2: Jump Available && Jump Piece NOT Set");
+                                //if you can jump with the selected piece and you are actually attempting to move far enough to make a jump
+                                if ((board.getPiece(mouseClickedPiece.getCoords()).canJump()) && (Math.Abs(mouseClickedPiece.getCoords().X - mouseBoardPosition.X) == 2))
+                                {
+                                    board.movePiece(mouseClickedPiece.getCoords(), mouseBoardPosition); //Move the piece in the array to the spot where the mouse dropped it
+                                    board.setJumpingPiece(board.getPiece(mouseBoardPosition));
+                                    //remove the piece that got jumped
+                                    board.removePiece((Math.Min((int)mouseClickedPiece.getCoords().X, (int)mouseBoardPosition.X) + 1)
+                                    , (Math.Min((int)mouseClickedPiece.getCoords().Y, (int)mouseBoardPosition.Y) + 1));
+                                    Console.WriteLine(currentPlayerTurn+" "+board.getJumpAvailable());
+                                    setValidMovements(board); // set the valid movements again to see if there is another jump possible after doing a jump
+                                    Console.WriteLine(currentPlayerTurn + " " + board.getJumpAvailable());
+                                }
+                            }
+                            ///~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                            ///Case 3: Jump NOT Available && Jump Piece NOT Set
+                            ///~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                            //if there is no jump available and no piece has jumped yet then move normally (not jumping) and change the turn
+                            else if ((!(board.getJumpAvailable() == 1 && currentPlayerTurn == Piece.PLAYER.WHITE)
+                                || !(board.getJumpAvailable() == 2 && currentPlayerTurn == Piece.PLAYER.BLACK))
+                                && board.getJumpingPiece() == null)
+                            {
+                                Console.WriteLine(currentPlayerTurn + "Case 3: Jump NOT Available && Jump Piece NOT Set");
+                                board.movePiece(mouseClickedPiece.getCoords(), mouseBoardPosition); //Move the piece in the array to the spot where the mouse dropped it
+                                currentPlayerTurn = (currentPlayerTurn == Piece.PLAYER.BLACK) ? Piece.PLAYER.WHITE : Piece.PLAYER.BLACK; //switch the turn
+                                board.setJumpAvailable(0);
+                                board.setJumpingPiece(null);
+                            }
+                            
+                            
 
-                            board.movePiece(mouseClickedPiece.getCoords(), mouseBoardPosition); //Move the piece in the array to the spot where the mouse dropped it
-                            //if the piece moved two x positions over that means it jumped. in this case remove the piece it jumped over
+                            
+                            /*
+                            //if the piece moved two x positions over that means it jumped.
                             if (Math.Abs(mouseClickedPiece.getCoords().X - mouseBoardPosition.X) == 2)
                             {
+                                // Tell the board which piece is jumping
+                                board.setJumpingPiece(board.getPiece((int) mouseBoardPosition.X, (int)mouseBoardPosition.Y));
+                                // remove the piece it jumped over
                                 Math.Min((int)mouseClickedPiece.getCoords().X, (int)mouseBoardPosition.X);
                                 board.removePiece((Math.Min((int)mouseClickedPiece.getCoords().X, (int)mouseBoardPosition.X) + 1)
                                     , (Math.Min((int)mouseClickedPiece.getCoords().Y, (int)mouseBoardPosition.Y) + 1));
-                            }
+                            }*/
+
+
                             setValidMovements(board); // update the whole board's valid movements to ensure every piece knows that piece moved
-                            currentPlayerTurn = (currentPlayerTurn == Piece.PLAYER.BLACK)? Piece.PLAYER.WHITE : Piece.PLAYER.BLACK; //switch the turn
+                            //currentPlayerTurn = (currentPlayerTurn == Piece.PLAYER.BLACK)? Piece.PLAYER.WHITE : Piece.PLAYER.BLACK; //switch the turn
                         }
                     }
-                }
+                }//end 4 direction for loop
 
                 mouseClickedPiece = null;
                 // Trigger the redrawing of pieces when a piece is dropped since it may have moved.
                 pieceList.Clear(); // Clear the old locations of piece graphics.
                 piecesCreated = false; // Tells the system that we will need to remake pieces.
-                
+                //Console.WriteLine("recreate piecelist");
                 //Logic to corresspond the mouse X,Y coordinates with the board's index (0-7, 0-7)
                 
                 //Console.WriteLine(Math.Round( (mousePos.X - board_SquareSize) / board_SquareSize) + " " + Math.Round(Math.Abs(mousePos.Y / (board_SquareSize) - 8)));
+            }//end mouse release
+            ///~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            ///Case 4: Jump NOT Available && Jump Piece Set
+            ///~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            //if you already jumped and you can't jump anymore, your turn is over
+            if ((!(board.getJumpAvailable() == 1 && currentPlayerTurn == Piece.PLAYER.WHITE)
+                && !(board.getJumpAvailable() == 2 && currentPlayerTurn == Piece.PLAYER.BLACK))
+                && board.getJumpingPiece() != null)
+            {
+                Console.WriteLine(currentPlayerTurn + "Case 4: Jump NOT Available && Jump Piece Set");
+                currentPlayerTurn = (currentPlayerTurn == Piece.PLAYER.BLACK) ? Piece.PLAYER.WHITE : Piece.PLAYER.BLACK; //switch the turn
+                board.setJumpingPiece(null);
+                board.setJumpAvailable(0);
             }
 
             // True if the mouse is pressed in the current frame.
@@ -234,12 +326,11 @@ namespace _2ME3_Checkers
                         mouseOffset = thisPiece.getPosition() - mousePos;
 
                         // temporary console writing for testing
-                        /*
                         for (int i = 0; i < 4; i++)
                         {
                             Piece.validMovementsStruct vms = board.getPiece((int)thisPiece.getCoords().X, (int)thisPiece.getCoords().Y).getValidMovements()[i];
                             Console.WriteLine(vms.direction + " " + vms.col + " " + vms.row);
-                        }*/
+                        }
                         break; // Break to only pick up one piece at a time.
                     }
                 }
@@ -312,21 +403,17 @@ namespace _2ME3_Checkers
                 try {
                     string[] tempIO = fileIO.load(board);
                     board.setUpBoard(tempIO[1]);
-                    if (tempIO[0].ToUpper() == "WHITE")
+                    if (tempIO[0] == "WHITE")
                     {
                         currentPlayerTurn = Piece.PLAYER.WHITE;
                     }
-                    else if (tempIO[0].ToUpper() == "BLACK")
+                    else if (tempIO[0] == "BLACK")
                     {
                         currentPlayerTurn = Piece.PLAYER.BLACK;
                     }
-                    else
-                    {
-                        throw new Exception("Error with saved player's turn.");
-                    }
                     Console.WriteLine("Game Loaded!");
                     currentState = STATE.PLAYING;
-                } 
+                }
                 catch (Exception e)
                 {
                     Console.WriteLine("Load error: " + e.Message);
@@ -462,6 +549,7 @@ namespace _2ME3_Checkers
 
         public void setValidMovements(Board board)
         {
+            board.setJumpAvailable(0);
             for (int col = 0; col < 8; col++)
             {
                 for (int row = 0; row < 8; row++)
@@ -478,6 +566,10 @@ namespace _2ME3_Checkers
             int newUpRightX = -99, newUpRightY = -99;
             int newDownRightX = -99, newDownRightY = -99;
             int newDownLeftX = -99, newDownLeftY = -99;
+
+            // Whether the current movement is a jump
+            bool newUpLeftIsAJump = false, newUpRightIsAJump = false, newDownRightIsAJump = false, newDownLeftIsAJump = false;
+
 
             if (board.getPiece(x, y) != null)
             {
@@ -510,15 +602,23 @@ namespace _2ME3_Checkers
                         else if ((board.getPiece(newUpLeftX, newUpLeftY).getOwner() == Piece.PLAYER.BLACK && board.getPiece(x, y).getOwner() == Piece.PLAYER.WHITE)
                             || (board.getPiece(newUpLeftX, newUpLeftY).getOwner() == Piece.PLAYER.WHITE && board.getPiece(x, y).getOwner() == Piece.PLAYER.BLACK))
                         {
-                            //Calculate jump to location
-                            if (newUpLeftX - 1 >= 0) newUpLeftX = newUpLeftX - 1;
-                            if (newUpLeftY + 1 <= 7) newUpLeftY += 1;
+                            //Calculate jump to location if it is reachable
+                            if (newUpLeftX - 1 >= 0 && newUpLeftY + 1 <= 7 && board.getPiece(newUpLeftX - 1, newUpLeftY + 1) == null)
+                            {
+                                newUpLeftX --;
+                                newUpLeftY ++;
+                                newUpLeftIsAJump = true;
+                                //set the jump availibility. player 1 is white, player 2 is black
+                                if(board.getPiece(x, y).getOwner() == Piece.PLAYER.WHITE) board.setJumpAvailable(1);
+                                else board.setJumpAvailable(2);
+                            }
                             //if the landing space is non empty the jump isnt valid mark it as such
-                            if (board.getPiece(newUpLeftX, newUpLeftY) != null)
+                            else
                             {
                                 newUpLeftX = -99;
                                 newUpLeftY = -99;
                             }
+                            
                         }
                     }
                     if (newUpRightX >= 0 && newUpRightY >= 0 && board.getPiece(newUpRightX, newUpRightY) != null)
@@ -531,10 +631,17 @@ namespace _2ME3_Checkers
                         else if (board.getPiece(x, y).getOwner() != board.getPiece(newUpRightX, newUpRightY).getOwner())
                         {
                             //Calculate jump to location
-                            if (newUpRightX + 1 <= 7) newUpRightX = newUpRightX + 1;
-                            if (newUpRightY + 1 <= 7) newUpRightY += 1;
+                            if (newUpRightX + 1 <= 7 && newUpRightY + 1 <= 7 && board.getPiece(newUpRightX + 1, newUpRightY + 1) == null)
+                            {
+                                newUpRightX ++;
+                                newUpRightY ++;
+                                newUpRightIsAJump = true;
+                                //set the jump availibility. player 1 is white, player 2 is black
+                                if (board.getPiece(x, y).getOwner() == Piece.PLAYER.WHITE) board.setJumpAvailable(1);
+                                else board.setJumpAvailable(2);
+                            }
                             //if the landing space is non empty the jump isnt valid mark it as such
-                            if (board.getPiece(newUpRightX, newUpRightY) != null)
+                            else 
                             {
                                 newUpRightX = -99;
                                 newUpRightY = -99;
@@ -563,10 +670,17 @@ namespace _2ME3_Checkers
                         else if (board.getPiece(x, y).getOwner() != board.getPiece(newDownLeftX, newDownLeftY).getOwner())
                         {
                             //Calculate jump to location
-                            if (newDownLeftX - 1 >= 0) newDownLeftX = newDownLeftX - 1;
-                            if (newDownLeftY - 1 >= 0) newDownLeftY--;
+                            if (newDownLeftX - 1 >= 0 && newDownLeftY - 1 >= 0 && board.getPiece(newDownLeftX - 1, newDownLeftY - 1) == null)
+                            {
+                                newDownLeftX--;
+                                newDownLeftY--;
+                                newDownLeftIsAJump = true;
+                                //set the jump availibility. player 1 is white, player 2 is black
+                                if (board.getPiece(x, y).getOwner() == Piece.PLAYER.WHITE) board.setJumpAvailable(1);
+                                else board.setJumpAvailable(2);
+                            }
                             //if the landing space is non empty the jump isnt valid mark it as such
-                            if (board.getPiece(newDownLeftX, newDownLeftY) != null)
+                            else
                             {
                                 newDownLeftX = -99;
                                 newDownLeftY = -99;
@@ -583,10 +697,17 @@ namespace _2ME3_Checkers
                         else if (board.getPiece(x, y).getOwner() != board.getPiece(newDownRightX, newDownRightY).getOwner())
                         {
                             //Calculate jump to location
-                            if (newDownRightX + 1 <= 7) newDownRightX = newDownRightX + 1;
-                            if (newDownRightY - 1 >= 0) newDownRightY--;
+                            if (newDownRightX + 1 <= 7 && newDownRightY - 1 >= 0 && board.getPiece(newDownRightX + 1, newDownRightY - 1) == null)
+                            {
+                                newDownRightX++;
+                                newDownRightY--;
+                                newDownRightIsAJump = true;
+                                //set the jump availibility. player 1 is white, player 2 is black
+                                if (board.getPiece(x, y).getOwner() == Piece.PLAYER.WHITE) board.setJumpAvailable(1);
+                                else board.setJumpAvailable(2);
+                            }
                             //if the landing space is non empty the jump isnt valid mark it as such
-                            if (board.getPiece(newDownRightX, newDownRightY) != null)
+                            else
                             {
                                 newDownRightX = -99;
                                 newDownRightY = -99;
@@ -596,10 +717,10 @@ namespace _2ME3_Checkers
                 }
 
                 // the move locations have been figured out by this point. update the valid movements for each piece
-                board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.UP_LEFT, newUpLeftX, newUpLeftY);
-                board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.UP_RIGHT, newUpRightX, newUpRightY);
-                board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.DOWN_RIGHT, newDownRightX, newDownRightY); //the negative numbers indicate there is no valid movement on the board in this direction
-                board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.DOWN_LEFT, newDownLeftX, newDownLeftY);
+                board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.UP_LEFT, newUpLeftX, newUpLeftY, newUpLeftIsAJump);
+                board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.UP_RIGHT, newUpRightX, newUpRightY, newUpRightIsAJump);
+                board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.DOWN_RIGHT, newDownRightX, newDownRightY, newDownRightIsAJump); //the negative numbers indicate there is no valid movement on the board in this direction
+                board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.DOWN_LEFT, newDownLeftX, newDownLeftY, newDownLeftIsAJump);
             }
 
         }// end setValidMovements function
