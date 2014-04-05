@@ -258,7 +258,7 @@ namespace _2ME3_Checkers
                             ///~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                             //if there is no jump available and no piece has jumped yet then move normally (not jumping) and change the turn
                             else if ((!(board.getJumpAvailable() == 1 && currentPlayerTurn == Piece.PLAYER.WHITE)
-                                || !(board.getJumpAvailable() == 2 && currentPlayerTurn == Piece.PLAYER.BLACK))
+                                && !(board.getJumpAvailable() == 2 && currentPlayerTurn == Piece.PLAYER.BLACK))
                                 && board.getJumpingPiece() == null)
                             {
                                 Console.WriteLine(currentPlayerTurn + "Case 3: Jump NOT Available && Jump Piece NOT Set");
@@ -270,8 +270,14 @@ namespace _2ME3_Checkers
                             
                             
 
-                            
-                            /*
+                            ///TEMPORARY FIX
+                            ///XxxXXxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+                            ///Hack fix for pieces not being removed after being jumped.
+                            ///Idk why they aren't clearing but this will clear them if the logic missed them
+                            ///BELIEF: Somehow jump moves are being handled by Case 3 incorrectly. 
+                            ///It thinks there is no jump available when there is.
+                            ///TODO: Make the right case accept the jumps to make sure they clear
+                            ///XxxXXxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
                             //if the piece moved two x positions over that means it jumped.
                             if (Math.Abs(mouseClickedPiece.getCoords().X - mouseBoardPosition.X) == 2)
                             {
@@ -281,7 +287,7 @@ namespace _2ME3_Checkers
                                 Math.Min((int)mouseClickedPiece.getCoords().X, (int)mouseBoardPosition.X);
                                 board.removePiece((Math.Min((int)mouseClickedPiece.getCoords().X, (int)mouseBoardPosition.X) + 1)
                                     , (Math.Min((int)mouseClickedPiece.getCoords().Y, (int)mouseBoardPosition.Y) + 1));
-                            }*/
+                            }
 
 
                             setValidMovements(board); // update the whole board's valid movements to ensure every piece knows that piece moved
