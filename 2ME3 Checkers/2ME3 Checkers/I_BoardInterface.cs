@@ -16,8 +16,9 @@ namespace _2ME3_Checkers
         Piece getJumpingPiece(); //returns the piece that is currently jumping.
         void setJumpingPiece(Piece newJumpingPiece); //set the piece that is currently jumping 
 
-        void setJumpAvailable(int jumpAvailability); //sets a true or false boolean for if there is a jump on the board
-        int getJumpAvailable(); //returns whether a jump is on the board
+        void setJumpAvailable(Piece.PLAYER colour, bool jumpAvailability); //sets a true or false boolean for if there is a jump on the board
+        bool getJumpAvailable(Piece.PLAYER colour); //returns whether a jump is on the board
+        bool[] getJumpAvailable(); // returns the jump availibity boolean array
 
         int getNumPieces(Piece.PLAYER colour); //returns the number of pieces of a specified colour
 

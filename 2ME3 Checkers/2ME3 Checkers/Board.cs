@@ -14,7 +14,7 @@ namespace _2ME3_Checkers
         private int numBlackPieces = 0;
         private int numPieces = 0; // Number of pieces of a specified colour
         private Piece jumpingPiece = null; // This variable saves the Piece that is currently jumping
-        private int jumpAvailable = 0; // Whether a jump can be made and by which player. 0 is null, 1 is white, 2 is black
+        private bool[] jumpAvailable = new bool [2]; // Whether a jump can be made and by which player. index 0 is white, index 1 is black. The array instances are boolean
         //Constructors
 
         /// <summary>
@@ -164,14 +164,28 @@ namespace _2ME3_Checkers
         {
             jumpingPiece = newJumpingPiece;
         }
-
-        public void setJumpAvailable(int jumpAvailability)
+        //Sets whether a jump is available for the indicated player
+        public void setJumpAvailable(Piece.PLAYER colour, bool jumpAvailability)
         {
-            jumpAvailable = jumpAvailability;
+            if(colour == Piece.PLAYER.WHITE)
+                this.jumpAvailable[0] = jumpAvailability;
+            else if (colour == Piece.PLAYER.BLACK)
+                this.jumpAvailable[1] = jumpAvailability;
         }
-        public int getJumpAvailable()
+        //Gets whether a jump is available for the indicated player
+        public bool getJumpAvailable(Piece.PLAYER colour)
         {
-            return jumpAvailable;
+            if (colour == Piece.PLAYER.WHITE)
+                return this.jumpAvailable[0];
+            else if (colour == Piece.PLAYER.BLACK)
+                return jumpAvailable[1];
+            else
+                throw new Exception("Trying to return if jumps are available for an unknown player");
+        }
+        //Gets whether a jump is available for both players
+        public bool[] getJumpAvailable()
+        {
+            return this.jumpAvailable;
         }
         //returns the number of specified colour pieces on the board
         public int getNumPieces(Piece.PLAYER colour)
