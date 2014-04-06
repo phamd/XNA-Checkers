@@ -12,6 +12,7 @@ namespace _2ME3_Checkers
         private Piece[,] pieceArray = new Piece[8,8];
         private int numWhitePieces = 0;
         private int numBlackPieces = 0;
+        private int numPieces = 0; // Number of pieces of a specified colour
         private Piece jumpingPiece = null; // This variable saves the Piece that is currently jumping
         private int jumpAvailable = 0; // Whether a jump can be made and by which player. 0 is null, 1 is white, 2 is black
         //Constructors
@@ -171,6 +172,34 @@ namespace _2ME3_Checkers
         public int getJumpAvailable()
         {
             return jumpAvailable;
+        }
+        //returns the number of specified colour pieces on the board
+        public int getNumPieces(Piece.PLAYER colour)
+        {
+            numPieces = 0; //initialize that amount to 0
+            int t_numOtherPieces = 0; //temp var for the number of pieces not specified
+            //add one for each instance found in the array
+            for (int i = 0; i < Math.Sqrt(pieceArray.Length); i++)
+            {
+                for (int j = 0; j < Math.Sqrt(pieceArray.Length); j++)
+                {
+                    if (pieceArray[i, j] != null)
+                    {
+                        try
+                        {
+                            if (pieceArray[i, j].getOwner() == colour)
+                                numPieces++;
+                            if (pieceArray[i, j].getOwner() != colour)
+                                t_numOtherPieces++;
+                        }
+                        catch { };
+                    }
+                }
+            }
+            if (!(numPieces == 0 && t_numOtherPieces == 0))
+                return numPieces;
+            else
+                return -99;
         }
 
         /// <summary>

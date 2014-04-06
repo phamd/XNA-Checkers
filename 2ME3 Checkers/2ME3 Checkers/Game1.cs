@@ -175,7 +175,7 @@ namespace _2ME3_Checkers
             //TEMP
             else if (keyState.IsKeyDown(Keys.K))
             {
-                
+                Console.WriteLine(board.getNumPieces(Piece.PLAYER.BLACK));
                 Console.WriteLine(currentPlayerTurn);
                 Console.WriteLine("jump available: " + board.getJumpAvailable() + " jump piece set: " + (board.getJumpingPiece() != null));                                                                                                                                                                                                                                                                                                                                                                                                                                                
                 
@@ -276,6 +276,9 @@ namespace _2ME3_Checkers
                             ///Idk why they aren't clearing but this will clear them if the logic missed them
                             ///BELIEF: Somehow jump moves are being handled by Case 3 incorrectly. 
                             ///It thinks there is no jump available when there is.
+                            ///REASON: Jump available is stored as a single value even though
+                            ///there are two jumps available at once. eg white might have a jump
+                            ///but it records jump available as being for black
                             ///TODO: Make the right case accept the jumps to make sure they clear
                             ///XxxXXxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
                             //if the piece moved two x positions over that means it jumped.
@@ -287,6 +290,7 @@ namespace _2ME3_Checkers
                                 Math.Min((int)mouseClickedPiece.getCoords().X, (int)mouseBoardPosition.X);
                                 board.removePiece((Math.Min((int)mouseClickedPiece.getCoords().X, (int)mouseBoardPosition.X) + 1)
                                     , (Math.Min((int)mouseClickedPiece.getCoords().Y, (int)mouseBoardPosition.Y) + 1));
+                                
                             }
 
 
@@ -576,6 +580,11 @@ namespace _2ME3_Checkers
             // Whether the current movement is a jump
             bool newUpLeftIsAJump = false, newUpRightIsAJump = false, newDownRightIsAJump = false, newDownLeftIsAJump = false;
 
+            // check if game is over
+            if (board.getNumPieces(Piece.PLAYER.BLACK) == 0)
+                win(Piece.PLAYER.WHITE);
+            else if (board.getNumPieces(Piece.PLAYER.WHITE) == 0)
+                win(Piece.PLAYER.BLACK);
 
             if (board.getPiece(x, y) != null)
             {
@@ -728,9 +737,18 @@ namespace _2ME3_Checkers
                 board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.DOWN_RIGHT, newDownRightX, newDownRightY, newDownRightIsAJump); //the negative numbers indicate there is no valid movement on the board in this direction
                 board.getPiece(x, y).setValidMovements(Piece.validMoveDirection.DOWN_LEFT, newDownLeftX, newDownLeftY, newDownLeftIsAJump);
             }
-
         }// end setValidMovements function
-        
+
+        /// <summary>
+        /// This function is called to say when the game has been won
+        /// </summary>
+        /// <param name="winner">This is the player that won</param>
+        void win(Piece.PLAYER winner)
+        {
+            board.clear();
+            Console.WriteLine(winner + " wins.");
+            currentState = STATE.MENU;
+        }
     }
     
 }
