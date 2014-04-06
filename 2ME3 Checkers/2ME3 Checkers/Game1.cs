@@ -79,7 +79,7 @@ namespace _2ME3_Checkers
 
         //Timer information
         private static System.Timers.Timer moveTimer; //The turn timer
-        private static double turnTime = 10000; //10 seconds to make your turn
+        private static double turnTime = 30000; //30 seconds to make your turn
 
         public Game1()
         {
@@ -107,6 +107,7 @@ namespace _2ME3_Checkers
             base.Initialize();
             Console.Title = "Checkers Console";
             Console.WriteLine("Welcome to Checkers");
+            Console.WriteLine("The move timer is set to " + turnTime/1000 + " seconds");
         }
 
         /// <summary>
