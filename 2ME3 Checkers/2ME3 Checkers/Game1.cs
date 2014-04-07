@@ -194,27 +194,27 @@ namespace _2ME3_Checkers
             }*/
 
             // Mouse Update Stuff
+
+
             mouseStatePrev = mouseStateCurrent;
 
+            // if it's the AI's turn, we emulate piece movement internally
             if (currentPlayerTurn == aiPlayer && pieceList.Count() != 0)
             {
-
                 Random r = new Random();
-                int rInt = r.Next(0, pieceList.Count() - 1);
-                View_Clickable thisPiece = pieceList.ElementAt(rInt);
+                int randomPiece = r.Next(0, pieceList.Count());
+                View_Clickable thisPiece = pieceList.ElementAt(randomPiece);
                 if (currentPlayerTurn == board.getPiece((int)thisPiece.getCoords().X, (int)thisPiece.getCoords().Y).getOwner()) // if piece belongs to AI
-                {
+                { // Picks a random legal movement
                     mouseClickedPiece = thisPiece;
-                    int[] randomDropLocations = { 1 * board_SquareSize, -1 * board_SquareSize, 2 * board_SquareSize, -2 * board_SquareSize };
-                    int[] randomDropLocation = { 1, -1, 2, -2 };
-                    //mousePos = new Vector2(board_SquareSize*thisPiece.getCoords().X + randomDropLocations[r.Next(0, randomDropLocations.Count() - 1)], board_SquareSize*thisPiece.getCoords().Y + randomDropLocations[r.Next(0, randomDropLocations.Count() - 1)]);
                     Piece.validMovementsStruct[] validMoves = board.getPiece(thisPiece.getCoords()).getValidMovements();
-                    //validMoves
-                    mouseBoardPosition = new Vector2(thisPiece.getCoords().X + randomDropLocation[r.Next(0, randomDropLocation.Count() - 1)],
-                        thisPiece.getCoords().Y + randomDropLocation[r.Next(0, randomDropLocation.Count() - 1)]);
+                    Piece.validMovementsStruct randomMovement = validMoves[r.Next(0,4)];
+                    if (!(randomMovement.col == -99 || randomMovement.row == -99))
+                        mouseBoardPosition = new Vector2(randomMovement.col, randomMovement.row);
                 }
+                mouseStateCurrent = new MouseState(0,0,0,ButtonState.Released,ButtonState.Released,ButtonState.Released,ButtonState.Released,ButtonState.Released);
             }
-            else
+            else // Player mouse clicks
             {
                 mouseStateCurrent = Mouse.GetState();
                 mousePos = new Vector2(mouseStateCurrent.X, mouseStateCurrent.Y);
@@ -327,8 +327,8 @@ namespace _2ME3_Checkers
                 changeTurn();
             }
 
-            // True if the mouse is pressed in the current frame.
-            if (mouseStateCurrent.LeftButton == ButtonState.Pressed && mouseStatePrev.LeftButton == ButtonState.Released)
+            // True if the mouse is pressed in the current frame. // Allow clicking pieces if it isn't AI's turn.
+            if (mouseStateCurrent.LeftButton == ButtonState.Pressed && mouseStatePrev.LeftButton == ButtonState.Released && aiPlayer != currentPlayerTurn)
             {
                 // Look through all pieces
                 foreach (View_Clickable thisPiece in pieceList)
@@ -749,11 +749,11 @@ namespace _2ME3_Checkers
         private void moveTimerTick(object source, ElapsedEventArgs e)
         {
             //Console.WriteLine("The Elapsed event was raised at {0}", e.SignalTime);
-            Console.WriteLine("TIME UP!");
+           /* Console.WriteLine("TIME UP!");
             if (currentPlayerTurn == Piece.PLAYER.WHITE)
                 win(Piece.PLAYER.BLACK);
             if (currentPlayerTurn == Piece.PLAYER.BLACK)
-                win(Piece.PLAYER.WHITE);
+                win(Piece.PLAYER.WHITE);*/
         }
 
         //The overhead that needs to happen each time the turn changes
@@ -777,6 +777,7 @@ namespace _2ME3_Checkers
             board.clear();
             board = new Board();
             Console.WriteLine(winner + " wins.");
+            currentPlayerTurn = Piece.PLAYER.BLACK;
             currentState = STATE.MENU;
         }
     }
