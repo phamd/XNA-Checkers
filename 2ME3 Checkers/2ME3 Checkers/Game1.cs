@@ -742,6 +742,7 @@ namespace _2ME3_Checkers
         void win(Piece.PLAYER winner)
         {
             board.clear();
+            board = new Board();
             Console.WriteLine(winner + " wins.");
             currentState = STATE.MENU;
         }
