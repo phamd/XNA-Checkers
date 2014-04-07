@@ -154,7 +154,7 @@ namespace _2ME3_Checkers
         {
             return pieceArray;
         }
-
+        // the piece that is currently jumping
         public Piece getJumpingPiece()
         {
             return jumpingPiece;
@@ -192,6 +192,8 @@ namespace _2ME3_Checkers
         {
             numPieces = 0; //initialize that amount to 0
             int t_numOtherPieces = 0; //temp var for the number of pieces not specified
+            // the number of other pieces is checked because if both are 0, the board is empty
+
             //add one for each instance found in the array
             for (int i = 0; i < Math.Sqrt(pieceArray.Length); i++)
             {
@@ -239,7 +241,7 @@ namespace _2ME3_Checkers
                 Console.WriteLine("Invalid placement. Only place on solid board squares");
                 throw new Exception();
             }
-
+            // The tests all passed. Add the piece to the array
             pieceArray[column, row] = piece;
         }
 
@@ -248,7 +250,7 @@ namespace _2ME3_Checkers
         /// </summary>
         public void movePiece(int fromCol, int fromRow, int toCol, int toRow)
         {
-            // check if movement is legal
+            // check if movement is legal is done before this function is called
 
             // put piece into new location
             this.pieceArray[toCol, toRow] = this.pieceArray[fromCol, fromRow];
@@ -257,7 +259,7 @@ namespace _2ME3_Checkers
         }
         public void movePiece(Vector2 originalLocation, Vector2 newLocation)
         {
-            // check if movement is legal
+            // check if movement is legal is done before this function is called
 
             // put piece into new location
             this.pieceArray[(int)newLocation.X, (int)newLocation.Y] = this.pieceArray[(int)originalLocation.X, (int)originalLocation.Y];

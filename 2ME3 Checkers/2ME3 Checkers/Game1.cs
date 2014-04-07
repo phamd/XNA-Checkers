@@ -184,14 +184,6 @@ namespace _2ME3_Checkers
             //Only run the timer if you are in playing mode
             moveTimer.Enabled = (currentState == STATE.PLAYING) ? true : false;
 
-            //TEMP
-            /*else if (keyState.IsKeyDown(Keys.K))
-            {
-                Console.WriteLine(board.getNumPieces(Piece.PLAYER.BLACK));
-                Console.WriteLine(currentPlayerTurn);
-                Console.WriteLine("jump available: " + board.getJumpAvailable()[0] + " " + board.getJumpAvailable()[1] + " jump piece set: " + (board.getJumpingPiece() != null));  
-            }*/
-
             // Mouse Update Stuff
             mouseStatePrev = mouseStateCurrent;
             mouseStateCurrent = Mouse.GetState();
@@ -283,10 +275,6 @@ namespace _2ME3_Checkers
                 // Trigger the redrawing of pieces when a piece is dropped since it may have moved.
                 pieceList.Clear(); // Clear the old locations of piece graphics.
                 piecesCreated = false; // Tells the system that we will need to remake pieces.
-                //Console.WriteLine("recreate piecelist");
-                //Logic to corresspond the mouse X,Y coordinates with the board's index (0-7, 0-7)
-                
-                //Console.WriteLine(Math.Round( (mousePos.X - board_SquareSize) / board_SquareSize) + " " + Math.Round(Math.Abs(mousePos.Y / (board_SquareSize) - 8)));
             }//end mouse release
             ///~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             ///Case 4: Jump NOT Available && Jump Piece Set
@@ -312,12 +300,6 @@ namespace _2ME3_Checkers
                         mouseClickedPiece = thisPiece;
                         mouseOffset = thisPiece.getPosition() - mousePos;
 
-                        // temporary console writing for testing
-                        /*for (int i = 0; i < 4; i++)
-                        {
-                            Piece.validMovementsStruct vms = board.getPiece((int)thisPiece.getCoords().X, (int)thisPiece.getCoords().Y).getValidMovements()[i];
-                            Console.WriteLine(vms.direction + " " + vms.col + " " + vms.row);
-                        }*/
                         break; // Break to only pick up one piece at a time.
                     }
                 }
@@ -745,9 +727,9 @@ namespace _2ME3_Checkers
         void win(Piece.PLAYER winner)
         {
             board.clear();
-            board = new Board();
+            board = new Board(); //reset the board
             Console.WriteLine(winner + " wins.");
-            currentState = STATE.MENU;
+            currentState = STATE.MENU; //go to the menu
         }
     }
     
