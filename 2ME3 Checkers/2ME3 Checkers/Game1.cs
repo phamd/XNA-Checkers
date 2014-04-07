@@ -101,7 +101,7 @@ namespace _2ME3_Checkers
             moveTimer = new System.Timers.Timer(turnTime);
             moveTimer.Elapsed += new ElapsedEventHandler(moveTimerTick); //moveTimerTick() is called after the turnTime. It means a player timed out
             moveTimer.Interval = turnTime;
-            moveTimer.Enabled = true;
+            moveTimer.Enabled = false;
 
             this.IsMouseVisible = true;
             base.Initialize();
@@ -180,6 +180,9 @@ namespace _2ME3_Checkers
                 currentPlayerTurn = Piece.PLAYER.BLACK;
             else if (keyState.IsKeyDown(Keys.W))
                 currentPlayerTurn = Piece.PLAYER.WHITE;
+
+            //Only run the timer if you are in playing mode
+            moveTimer.Enabled = (currentState == STATE.PLAYING) ? true : false;
 
             //TEMP
             /*else if (keyState.IsKeyDown(Keys.K))
@@ -347,7 +350,7 @@ namespace _2ME3_Checkers
                         currentState = STATE.MENU;
                     if (clickable_SaveButton.IsIntersected(mousePos))
                         fileIO.save(board, currentPlayerTurn); 
-                }    
+                }
             }
 
             // If we haven't released the mouse, continue updating the position of the piece (for dragging).
