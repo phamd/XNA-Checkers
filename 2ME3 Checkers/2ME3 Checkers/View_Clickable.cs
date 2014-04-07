@@ -94,6 +94,9 @@ namespace _2ME3_Checkers
         {
             return boardCoords;
         }
-        
+        public void setTexture(Texture2D texture)
+        {
+            this.texture = texture;
+        }
     }
 }

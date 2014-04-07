@@ -25,7 +25,7 @@ namespace _2ME3_Checkers
         /// </summary>
         private enum STATE { MENU, SETUP, PLAYING, LOAD, PLAYING_MODESELECT }; // The major states of the game
         private STATE currentState = STATE.MENU; // The variable to track which state is currently active
-        private Piece.PLAYER currentPlayerTurn = Piece.PLAYER.WHITE; // Start with BLACK going first
+        private Piece.PLAYER currentPlayerTurn = Piece.PLAYER.WHITE; // Start with WHITE going first
         private Piece.PLAYER lastPlayerTurn = Piece.PLAYER.BLACK; // The previous turn. this is saved because sometimes the same player can go multiple times
         private bool aiEnabled = false;
         private Piece.PLAYER aiPlayer = Piece.PLAYER.BLACK; // initalized when the player picks to play against an AI 
@@ -55,6 +55,10 @@ namespace _2ME3_Checkers
         private Texture2D Playing_ButtonMenu;
         private Texture2D Play_1v1;
         private Texture2D Play_1vAI;
+        private Texture2D Play_AsWhite;
+        private Texture2D Play_AsBlack;
+        private Texture2D Play_AsWhite_Selected;
+        private Texture2D Play_AsBlack_Selected;
 
         // buttons
         private View_Clickable clickable_PlayButton;
@@ -64,8 +68,9 @@ namespace _2ME3_Checkers
         private View_Clickable clickable_SaveButton;
         private View_Clickable clickable_Play_1v1;
         private View_Clickable clickable_Play_1vAI;
+        private View_Clickable clickable_Play_AsWhite;
+        private View_Clickable clickable_Play_AsBlack;
 
-       
         private List<View_Clickable> pieceList = new List<View_Clickable>(); // list of pieces
 
         private bool piecesCreated = false;
@@ -139,6 +144,10 @@ namespace _2ME3_Checkers
             Playing_ButtonSave = this.Content.Load<Texture2D>("textures/Playing_ButtonSave");
             Play_1v1 = this.Content.Load<Texture2D>("textures/Play_1v1");
             Play_1vAI = this.Content.Load<Texture2D>("textures/Play_1vAI");
+            Play_AsWhite = this.Content.Load<Texture2D>("textures/Play_AsWhite");
+            Play_AsBlack = this.Content.Load<Texture2D>("textures/Play_AsBlack");
+            Play_AsWhite_Selected = this.Content.Load<Texture2D>("textures/Play_AsWhite_Selected");
+            Play_AsBlack_Selected = this.Content.Load<Texture2D>("textures/Play_AsBlack_Selected");
 
             // Buttons
             clickable_PlayButton = new View_Clickable(Menu_ButtonPlay, new Vector2(GraphicsDevice.Viewport.Width / 2 - Menu_ButtonPlay.Width / 2,
@@ -151,10 +160,16 @@ namespace _2ME3_Checkers
                 GraphicsDevice.Viewport.Height - Menu_ButtonCustom.Height * 0.3f), Color.White, 0.3f);            // create setup button
             clickable_SaveButton = new View_Clickable(Playing_ButtonSave, new Vector2(GraphicsDevice.Viewport.Width - Menu_ButtonCustom.Width,
                 GraphicsDevice.Viewport.Height - Menu_ButtonCustom.Height * 0.3f), Color.White, 0.3f); //create save button
+
             clickable_Play_1v1 = new View_Clickable(Play_1v1, new Vector2(GraphicsDevice.Viewport.Width / 2 - Menu_ButtonCustom.Width / 2,
                 GraphicsDevice.Viewport.Height * 4 / 9), Color.White, 1f);
             clickable_Play_1vAI = new View_Clickable(Play_1vAI, new Vector2(GraphicsDevice.Viewport.Width / 2 - Menu_ButtonCustom.Width / 2,
                 GraphicsDevice.Viewport.Height * 6 / 9), Color.White, 1f);
+            clickable_Play_AsWhite = new View_Clickable(Play_AsWhite_Selected, new Vector2(GraphicsDevice.Viewport.Width * 3 / 9,
+                GraphicsDevice.Viewport.Height * 2 / 9), Color.White, 1f);
+            clickable_Play_AsBlack = new View_Clickable(Play_AsBlack, new Vector2(GraphicsDevice.Viewport.Width * 5 / 9,
+                GraphicsDevice.Viewport.Height * 2 / 9), Color.White, 1f);
+
             base.LoadContent();
         }
 
@@ -394,6 +409,18 @@ namespace _2ME3_Checkers
                         aiEnabled = true;
                         currentState = STATE.PLAYING;
                     }
+                    if (clickable_Play_AsBlack.IsIntersected(mousePos))
+                    {
+                        aiPlayer = Piece.PLAYER.WHITE;
+                        clickable_Play_AsWhite.setTexture(Play_AsWhite);
+                        clickable_Play_AsBlack.setTexture(Play_AsBlack_Selected);
+                    }
+                    if (clickable_Play_AsWhite.IsIntersected(mousePos))
+                    {
+                        aiPlayer = Piece.PLAYER.BLACK;
+                        clickable_Play_AsWhite.setTexture(Play_AsWhite_Selected);
+                        clickable_Play_AsBlack.setTexture(Play_AsBlack);
+                    }
                 }
 
                 if (currentState == STATE.PLAYING)
@@ -466,6 +493,8 @@ namespace _2ME3_Checkers
             {
                 clickable_Play_1v1.Draw(spriteBatch);
                 clickable_Play_1vAI.Draw(spriteBatch);
+                clickable_Play_AsWhite.Draw(spriteBatch);
+                clickable_Play_AsBlack.Draw(spriteBatch);
             }
 
             else if (currentState == STATE.PLAYING)
