@@ -51,6 +51,8 @@ namespace _2ME3_Checkers
         private Texture2D Menu_ButtonLoad;
         private Texture2D Playing_ButtonSave;
         private Texture2D Playing_ButtonMenu;
+        private Texture2D Play_1v1;
+        private Texture2D Play_1vAI;
 
         // buttons
         private View_Clickable clickable_PlayButton;
@@ -58,7 +60,10 @@ namespace _2ME3_Checkers
         private View_Clickable clickable_MenuButton;
         private View_Clickable clickable_LoadButton;
         private View_Clickable clickable_SaveButton;
+        private View_Clickable clickable_Play_1v1;
+        private View_Clickable clickable_Play_1vAI;
 
+       
         private List<View_Clickable> pieceList = new List<View_Clickable>(); // list of pieces
 
         private bool piecesCreated = false;
@@ -130,7 +135,9 @@ namespace _2ME3_Checkers
             Menu_ButtonLoad = this.Content.Load<Texture2D>("textures/Menu_ButtonLoad");
             Playing_ButtonMenu = this.Content.Load<Texture2D>("textures/Playing_ButtonMenu");
             Playing_ButtonSave = this.Content.Load<Texture2D>("textures/Playing_ButtonSave");
-            
+            Play_1v1 = this.Content.Load<Texture2D>("textures/Play_1v1");
+            Play_1vAI = this.Content.Load<Texture2D>("textures/Play_1vAI");
+
             // Buttons
             clickable_PlayButton = new View_Clickable(Menu_ButtonPlay, new Vector2(GraphicsDevice.Viewport.Width / 2 - Menu_ButtonPlay.Width / 2,
                 GraphicsDevice.Viewport.Height * 1 / 9), Color.White, 1f);             // create play button
@@ -142,7 +149,10 @@ namespace _2ME3_Checkers
                 GraphicsDevice.Viewport.Height - Menu_ButtonCustom.Height*0.3f), Color.White, 0.3f);            // create setup button
             clickable_SaveButton = new View_Clickable(Playing_ButtonSave, new Vector2(GraphicsDevice.Viewport.Width - Menu_ButtonCustom.Width,
                 GraphicsDevice.Viewport.Height - Menu_ButtonCustom.Height * 0.3f), Color.White, 0.3f); //create save button
-
+            clickable_Play_1v1 = new View_Clickable(Play_1v1, new Vector2(GraphicsDevice.Viewport.Width / 2 - Menu_ButtonCustom.Width / 2,
+                GraphicsDevice.Viewport.Height * 1 / 9), Color.White, 1f);
+            clickable_Play_1vAI = new View_Clickable(Play_1vAI, new Vector2(GraphicsDevice.Viewport.Width / 2 - Menu_ButtonCustom.Width / 2,
+                GraphicsDevice.Viewport.Height * 3 / 9), Color.White, 1f);
             base.LoadContent();
         }
 
@@ -324,6 +334,18 @@ namespace _2ME3_Checkers
                         pieceList.Clear(); // Clear the old locations of piece graphics.
                         piecesCreated = false; // Tells the system that we will need to remake pieces.
                         currentState = STATE.LOAD;
+                    }
+                    if (clickable_Play_1v1.IsIntersected(mousePos))
+                    {
+                        pieceList.Clear(); // Clear the old locations of piece graphics.
+                        piecesCreated = false; // Tells the system that we will need to remake pieces.
+                        currentState = STATE.PLAYING;
+                    }
+                    if (clickable_Play_1vAI.IsIntersected(mousePos))
+                    {
+                        pieceList.Clear(); // Clear the old locations of piece graphics.
+                        piecesCreated = false; // Tells the system that we will need to remake pieces.
+                        currentState = STATE.PLAYING;
                     }
                 }
                 if (currentState == STATE.PLAYING)
