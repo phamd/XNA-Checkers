@@ -16,8 +16,8 @@ namespace _2ME3_Checkers
     /// 2ME3 Checkers
     /// General todo: black and white are spawning on the wrong side of the board
     /// </summary>
-    
-    
+
+
     public class Game1 : Microsoft.Xna.Framework.Game
     {
         /// <summary>
@@ -25,13 +25,14 @@ namespace _2ME3_Checkers
         /// </summary>
         private enum STATE { MENU, SETUP, PLAYING, LOAD }; // The three major states of the game
         private STATE currentState = STATE.MENU; // The variable to track which state is currently active
-        private Piece.PLAYER currentPlayerTurn = Piece.PLAYER.WHITE; // Start with WHITE going first
-        private Piece.PLAYER lastPlayerTurn = Piece.PLAYER.BLACK; // The previous turn. this is saved because sometimes the same player can go multiple times
+        private Piece.PLAYER currentPlayerTurn = Piece.PLAYER.BLACK; // Start with BLACK going first
+        private Piece.PLAYER lastPlayerTurn = Piece.PLAYER.WHITE; // The previous turn. this is saved because sometimes the same player can go multiple times
+        private Piece.PLAYER aiPlayer = Piece.PLAYER.WHITE; //TESTING DONT ASSIGN ANYTHING HERE// initalized when the player picks to play against an AI 
         private KeyboardState keyState;
         private string input;
         private FileIO fileIO = new FileIO();
 
-        
+
         private Board board = new Board();
 
         /// <summary>
@@ -107,7 +108,7 @@ namespace _2ME3_Checkers
             base.Initialize();
             Console.Title = "Checkers Console";
             Console.WriteLine("Welcome to Checkers");
-            Console.WriteLine("The move timer is set to " + turnTime/1000 + " seconds");
+            Console.WriteLine("The move timer is set to " + turnTime / 1000 + " seconds");
         }
 
         /// <summary>
@@ -119,7 +120,7 @@ namespace _2ME3_Checkers
             spriteBatch = new SpriteBatch(GraphicsDevice);// SpriteBatch draw textures.
 
             Board_SquareBlack = this.Content.Load<Texture2D>("textures/Board_SquareBlack"); // make sure these two squares are the same pixel size
-            Board_SquareWhite = this.Content.Load<Texture2D>("textures/Board_SquareWhite"); 
+            Board_SquareWhite = this.Content.Load<Texture2D>("textures/Board_SquareWhite");
             board_squareScale = board_SquareSize / Board_SquareBlack.Height; // calculate the percent scaling we need to get the right square size
             Piece_BlackNormal = this.Content.Load<Texture2D>("textures/Piece_BlackNormal");
             Piece_WhiteNormal = this.Content.Load<Texture2D>("textures/Piece_WhiteNormal");
@@ -130,7 +131,7 @@ namespace _2ME3_Checkers
             Menu_ButtonLoad = this.Content.Load<Texture2D>("textures/Menu_ButtonLoad");
             Playing_ButtonMenu = this.Content.Load<Texture2D>("textures/Playing_ButtonMenu");
             Playing_ButtonSave = this.Content.Load<Texture2D>("textures/Playing_ButtonSave");
-            
+
             // Buttons
             clickable_PlayButton = new View_Clickable(Menu_ButtonPlay, new Vector2(GraphicsDevice.Viewport.Width / 2 - Menu_ButtonPlay.Width / 2,
                 GraphicsDevice.Viewport.Height * 1 / 9), Color.White, 1f);             // create play button
@@ -138,8 +139,8 @@ namespace _2ME3_Checkers
                 GraphicsDevice.Viewport.Height * 3 / 9), Color.White, 1f);            // create setup button
             clickable_LoadButton = new View_Clickable(Menu_ButtonLoad, new Vector2(GraphicsDevice.Viewport.Width / 2 - Menu_ButtonLoad.Width / 2,
                 GraphicsDevice.Viewport.Height * 5 / 9), Color.White, 1f); //create load button
-            clickable_MenuButton = new View_Clickable(Playing_ButtonMenu, new Vector2(GraphicsDevice.Viewport.Width - Menu_ButtonCustom.Width*0.3f,
-                GraphicsDevice.Viewport.Height - Menu_ButtonCustom.Height*0.3f), Color.White, 0.3f);            // create setup button
+            clickable_MenuButton = new View_Clickable(Playing_ButtonMenu, new Vector2(GraphicsDevice.Viewport.Width - Menu_ButtonCustom.Width * 0.3f,
+                GraphicsDevice.Viewport.Height - Menu_ButtonCustom.Height * 0.3f), Color.White, 0.3f);            // create setup button
             clickable_SaveButton = new View_Clickable(Playing_ButtonSave, new Vector2(GraphicsDevice.Viewport.Width - Menu_ButtonCustom.Width,
                 GraphicsDevice.Viewport.Height - Menu_ButtonCustom.Height * 0.3f), Color.White, 0.3f); //create save button
 
@@ -184,33 +185,67 @@ namespace _2ME3_Checkers
             //Only run the timer if you are in playing mode
             moveTimer.Enabled = (currentState == STATE.PLAYING) ? true : false;
 
+            //TEMP
+            /*else if (keyState.IsKeyDown(Keys.K))
+            {
+                Console.WriteLine(board.getNumPieces(Piece.PLAYER.BLACK));
+                Console.WriteLine(currentPlayerTurn);
+                Console.WriteLine("jump available: " + board.getJumpAvailable()[0] + " " + board.getJumpAvailable()[1] + " jump piece set: " + (board.getJumpingPiece() != null));  
+            }*/
+
             // Mouse Update Stuff
             mouseStatePrev = mouseStateCurrent;
-            mouseStateCurrent = Mouse.GetState();
-            mousePos = new Vector2(mouseStateCurrent.X, mouseStateCurrent.Y);
-            mouseBoardPosition = new Vector2((float) Math.Round( (mousePos.X - board_SquareSize) / board_SquareSize) 
-                , (float) Math.Round(Math.Abs(mousePos.Y / (board_SquareSize) - 8))); // this is where the mouse is looking on the board ie (0-7), (0-7)
-            
+
+            if (currentPlayerTurn == aiPlayer && pieceList.Count() != 0)
+            {
+
+                Random r = new Random();
+                int rInt = r.Next(0, pieceList.Count() - 1);
+                View_Clickable thisPiece = pieceList.ElementAt(rInt);
+                if (currentPlayerTurn == board.getPiece((int)thisPiece.getCoords().X, (int)thisPiece.getCoords().Y).getOwner()) // if piece belongs to AI
+                {
+                    mouseClickedPiece = thisPiece;
+                    int[] randomDropLocations = { 1 * board_SquareSize, -1 * board_SquareSize, 2 * board_SquareSize, -2 * board_SquareSize };
+                    int[] randomDropLocation = { 1, -1, 2, -2 };
+                    //mousePos = new Vector2(board_SquareSize*thisPiece.getCoords().X + randomDropLocations[r.Next(0, randomDropLocations.Count() - 1)], board_SquareSize*thisPiece.getCoords().Y + randomDropLocations[r.Next(0, randomDropLocations.Count() - 1)]);
+                    Piece.validMovementsStruct[] validMoves = board.getPiece(thisPiece.getCoords()).getValidMovements();
+                    //validMoves
+                    mouseBoardPosition = new Vector2(thisPiece.getCoords().X + randomDropLocation[r.Next(0, randomDropLocation.Count() - 1)],
+                        thisPiece.getCoords().Y + randomDropLocation[r.Next(0, randomDropLocation.Count() - 1)]);
+                }
+            }
+            else
+            {
+                mouseStateCurrent = Mouse.GetState();
+                mousePos = new Vector2(mouseStateCurrent.X, mouseStateCurrent.Y);
+                mouseBoardPosition = new Vector2((float)Math.Round((mousePos.X - board_SquareSize) / board_SquareSize)
+                    , (float)Math.Round(Math.Abs(mousePos.Y / (board_SquareSize) - 8))); // this is where the mouse is looking on the board ie (0-7), (0-7)
+
+            }
+
+
+
             // Drop piece if mouse button is up
             if ((mouseStateCurrent.LeftButton == ButtonState.Released && mouseClickedPiece != null))
             {
                 //update the last person to have a turn
                 lastPlayerTurn = currentPlayerTurn;
                 // there are 4 possible directions of movement
-                for(int i = 0; i < 4; i++) {
+                for (int i = 0; i < 4; i++)
+                {
                     //need a this conditional because board.getPiece() can return null if there is no Piece there
-                    if(board.getPiece(mouseClickedPiece.getCoords()) != null)
+                    if (board.getPiece(mouseClickedPiece.getCoords()) != null)
                     {
                         //if the place where the mouse is releasing the piece is a valid move for the piece 
-                        if ( (board.getPiece(mouseClickedPiece.getCoords()).getValidMovements()[i].col == mouseBoardPosition.X)
-                            && (board.getPiece(mouseClickedPiece.getCoords()).getValidMovements()[i].row == mouseBoardPosition.Y) )
+                        if ((board.getPiece(mouseClickedPiece.getCoords()).getValidMovements()[i].col == mouseBoardPosition.X)
+                            && (board.getPiece(mouseClickedPiece.getCoords()).getValidMovements()[i].row == mouseBoardPosition.Y))
                         {
                             ///~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                             ///Case 1: Jump Available && Jump Piece Set
                             ///~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                             //if there is a jump available and the jumping piece is set check if that piece can continue jumping and jump with it, else end the turn
-                            if ( ((board.getJumpAvailable(Piece.PLAYER.WHITE) && currentPlayerTurn == Piece.PLAYER.WHITE)
-                                || (board.getJumpAvailable(Piece.PLAYER.BLACK) && currentPlayerTurn == Piece.PLAYER.BLACK)) 
+                            if (((board.getJumpAvailable(Piece.PLAYER.WHITE) && currentPlayerTurn == Piece.PLAYER.WHITE)
+                                || (board.getJumpAvailable(Piece.PLAYER.BLACK) && currentPlayerTurn == Piece.PLAYER.BLACK))
                                 && board.getJumpingPiece() != null)
                             {
                                 //Console.WriteLine(currentPlayerTurn+" Case 1: Jump Available && Jump Piece Set");
@@ -237,7 +272,7 @@ namespace _2ME3_Checkers
                             ///~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                             //if there is a jump available and there is no piece currently jumping then make the jump and set which piece is jumping
                             else if (((board.getJumpAvailable(Piece.PLAYER.WHITE) && currentPlayerTurn == Piece.PLAYER.WHITE)
-                                || (board.getJumpAvailable(Piece.PLAYER.BLACK) && currentPlayerTurn == Piece.PLAYER.BLACK)) 
+                                || (board.getJumpAvailable(Piece.PLAYER.BLACK) && currentPlayerTurn == Piece.PLAYER.BLACK))
                                 && board.getJumpingPiece() == null)
                             {
                                 //Console.WriteLine(currentPlayerTurn + "Case 2: Jump Available && Jump Piece NOT Set");
@@ -275,6 +310,10 @@ namespace _2ME3_Checkers
                 // Trigger the redrawing of pieces when a piece is dropped since it may have moved.
                 pieceList.Clear(); // Clear the old locations of piece graphics.
                 piecesCreated = false; // Tells the system that we will need to remake pieces.
+                //Console.WriteLine("recreate piecelist");
+                //Logic to corresspond the mouse X,Y coordinates with the board's index (0-7, 0-7)
+
+                //Console.WriteLine(Math.Round( (mousePos.X - board_SquareSize) / board_SquareSize) + " " + Math.Round(Math.Abs(mousePos.Y / (board_SquareSize) - 8)));
             }//end mouse release
             ///~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             ///Case 4: Jump NOT Available && Jump Piece Set
@@ -296,10 +335,16 @@ namespace _2ME3_Checkers
                 {
                     // If the current player is clicking one of his own pieces.
                     if (thisPiece.IsIntersected(mousePos) && (currentPlayerTurn == board.getPiece((int)thisPiece.getCoords().X, (int)thisPiece.getCoords().Y).getOwner()))
-                    { 
+                    {
                         mouseClickedPiece = thisPiece;
                         mouseOffset = thisPiece.getPosition() - mousePos;
 
+                        // temporary console writing for testing
+                        /*for (int i = 0; i < 4; i++)
+                        {
+                            Piece.validMovementsStruct vms = board.getPiece((int)thisPiece.getCoords().X, (int)thisPiece.getCoords().Y).getValidMovements()[i];
+                            Console.WriteLine(vms.direction + " " + vms.col + " " + vms.row);
+                        }*/
                         break; // Break to only pick up one piece at a time.
                     }
                 }
@@ -331,7 +376,7 @@ namespace _2ME3_Checkers
                     if (clickable_MenuButton.IsIntersected(mousePos))
                         currentState = STATE.MENU;
                     if (clickable_SaveButton.IsIntersected(mousePos))
-                        fileIO.save(board, currentPlayerTurn); 
+                        fileIO.save(board, currentPlayerTurn);
                 }
             }
 
@@ -353,7 +398,7 @@ namespace _2ME3_Checkers
 
             spriteBatch.Begin(); // drawing goes after this line
 
-            if (currentState == STATE.MENU) 
+            if (currentState == STATE.MENU)
             {
                 // draw menu
                 clickable_PlayButton.Draw(spriteBatch);
@@ -363,13 +408,14 @@ namespace _2ME3_Checkers
 
             else if (currentState == STATE.SETUP)
             {
-                if(input == null)
+                if (input == null)
                     takeInput();
             }
 
             else if (currentState == STATE.LOAD)
             {
-                try {
+                try
+                {
                     string[] tempIO = fileIO.load(board);
                     board.setUpBoard(tempIO[1]);
                     if (tempIO[0] == "WHITE")
@@ -387,8 +433,8 @@ namespace _2ME3_Checkers
                 {
                     Console.WriteLine("Load error: " + e.Message);
                     currentState = STATE.MENU;
-                } 
-                 
+                }
+
             }
 
             else if (currentState == STATE.PLAYING)
@@ -420,11 +466,13 @@ namespace _2ME3_Checkers
 
                         // Define each piece once by wrapping each piece in a class called View_Clickable 
                         // for the system to apply additional methods.
-                        if (piecesCreated == false) {
-                            if (board.getPiece(col, 7 - row) != null) 
+                        if (piecesCreated == false)
+                        {
+                            if (board.getPiece(col, 7 - row) != null)
                             {
                                 Texture2D pieceTexture;
-                                if (board.getPiece(col, 7 - row).getOwner() == Piece.PLAYER.BLACK) {
+                                if (board.getPiece(col, 7 - row).getOwner() == Piece.PLAYER.BLACK)
+                                {
                                     switch (board.getPiece(col, 7 - row).getType()) // Chose the texture required for which piece.
                                     {
                                         case (Piece.TYPESTATE.NORMAL):
@@ -507,7 +555,7 @@ namespace _2ME3_Checkers
             }
         }
 
-        
+
         /// <summary>
         /// Sets the valid movements for every Piece
         /// Default constructor to set them for the entire board. The safe locations to move to are stored within the Pieces
@@ -518,7 +566,7 @@ namespace _2ME3_Checkers
 
         public void setValidMovements(Board board)
         {
-            board.setJumpAvailable(Piece.PLAYER.BLACK, false);board.setJumpAvailable(Piece.PLAYER.WHITE, false);;
+            board.setJumpAvailable(Piece.PLAYER.BLACK, false); board.setJumpAvailable(Piece.PLAYER.WHITE, false); ;
             for (int col = 0; col < 8; col++)
             {
                 for (int row = 0; row < 8; row++)
@@ -579,11 +627,11 @@ namespace _2ME3_Checkers
                             //Calculate jump to location if it is reachable
                             if (newUpLeftX - 1 >= 0 && newUpLeftY + 1 <= 7 && board.getPiece(newUpLeftX - 1, newUpLeftY + 1) == null)
                             {
-                                newUpLeftX --;
-                                newUpLeftY ++;
+                                newUpLeftX--;
+                                newUpLeftY++;
                                 newUpLeftIsAJump = true;
                                 //set the jump availibility. player 1 is white, player 2 is black
-                                if(board.getPiece(x, y).getOwner() == Piece.PLAYER.WHITE) board.setJumpAvailable(Piece.PLAYER.WHITE, true);
+                                if (board.getPiece(x, y).getOwner() == Piece.PLAYER.WHITE) board.setJumpAvailable(Piece.PLAYER.WHITE, true);
                                 else board.setJumpAvailable(Piece.PLAYER.BLACK, true);
                             }
                             //if the landing space is non empty the jump isnt valid mark it as such
@@ -606,15 +654,15 @@ namespace _2ME3_Checkers
                             //Calculate jump to location
                             if (newUpRightX + 1 <= 7 && newUpRightY + 1 <= 7 && board.getPiece(newUpRightX + 1, newUpRightY + 1) == null)
                             {
-                                newUpRightX ++;
-                                newUpRightY ++;
+                                newUpRightX++;
+                                newUpRightY++;
                                 newUpRightIsAJump = true;
                                 //set the jump availibility. player 1 is white, player 2 is black
                                 if (board.getPiece(x, y).getOwner() == Piece.PLAYER.WHITE) board.setJumpAvailable(Piece.PLAYER.WHITE, true);
                                 else board.setJumpAvailable(Piece.PLAYER.BLACK, true);
                             }
                             //if the landing space is non empty the jump isnt valid mark it as such
-                            else 
+                            else
                             {
                                 newUpRightX = -99;
                                 newUpRightY = -99;
@@ -713,7 +761,7 @@ namespace _2ME3_Checkers
         {
             currentPlayerTurn = (currentPlayerTurn == Piece.PLAYER.BLACK) ? Piece.PLAYER.WHITE : Piece.PLAYER.BLACK; //switch the turn
             board.setJumpingPiece(null);
-            board.setJumpAvailable(Piece.PLAYER.BLACK, false); 
+            board.setJumpAvailable(Piece.PLAYER.BLACK, false);
             board.setJumpAvailable(Piece.PLAYER.WHITE, false);
             //reset the timer
             moveTimer.Stop();
@@ -727,10 +775,10 @@ namespace _2ME3_Checkers
         void win(Piece.PLAYER winner)
         {
             board.clear();
-            board = new Board(); //reset the board
+            board = new Board();
             Console.WriteLine(winner + " wins.");
-            currentState = STATE.MENU; //go to the menu
+            currentState = STATE.MENU;
         }
     }
-    
+
 }
