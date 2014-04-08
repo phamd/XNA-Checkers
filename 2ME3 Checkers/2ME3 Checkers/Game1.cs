@@ -16,8 +16,6 @@ namespace _2ME3_Checkers
     /// 2ME3 Checkers
     /// General todo: black and white are spawning on the wrong side of the board
     /// </summary>
-
-
     public class Game1 : Microsoft.Xna.Framework.Game
     {
         /// <summary>
@@ -29,7 +27,6 @@ namespace _2ME3_Checkers
         private Piece.PLAYER lastPlayerTurn = Piece.PLAYER.BLACK; // The previous turn. this is saved because sometimes the same player can go multiple times
         private bool aiEnabled = false;
         private Piece.PLAYER aiPlayer = Piece.PLAYER.BLACK; // initalized when the player picks to play against an AI 
-        private KeyboardState keyState;
         private string input;
         private FileIO fileIO = new FileIO();
 
@@ -60,7 +57,6 @@ namespace _2ME3_Checkers
         private Texture2D Play_AsWhite_Selected;
         private Texture2D Play_AsBlack_Selected;
 
-        // buttons
         private View_Clickable clickable_PlayButton;
         private View_Clickable clickable_CustomButton;
         private View_Clickable clickable_MenuButton;
@@ -74,8 +70,6 @@ namespace _2ME3_Checkers
         private List<View_Clickable> pieceList = new List<View_Clickable>(); // list of pieces
 
         private bool piecesCreated = false;
-
-        // we can hard code these following two variables
         private const int board_SquareSize = 64; // pixel width to upscale to // keep it a multiple of the actual image
         private float board_squareScale;
 
@@ -96,7 +90,7 @@ namespace _2ME3_Checkers
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
-            graphics.PreferredBackBufferWidth = 600; // resolution isn't a big deal, since we can scale the game to the viewport
+            graphics.PreferredBackBufferWidth = 600;
             graphics.PreferredBackBufferHeight = 600;
             Content.RootDirectory = "Content";
             Window.Title = "Checkers";
@@ -130,7 +124,7 @@ namespace _2ME3_Checkers
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);// SpriteBatch draw textures.
 
-            Board_SquareBlack = this.Content.Load<Texture2D>("textures/Board_SquareBlack"); // make sure these two squares are the same pixel size
+            Board_SquareBlack = this.Content.Load<Texture2D>("textures/Board_SquareBlack");
             Board_SquareWhite = this.Content.Load<Texture2D>("textures/Board_SquareWhite");
             board_squareScale = board_SquareSize / Board_SquareBlack.Height; // calculate the percent scaling we need to get the right square size
             Piece_BlackNormal = this.Content.Load<Texture2D>("textures/Piece_BlackNormal");
@@ -151,15 +145,15 @@ namespace _2ME3_Checkers
 
             // Buttons
             clickable_PlayButton = new View_Clickable(Menu_ButtonPlay, new Vector2(GraphicsDevice.Viewport.Width / 2 - Menu_ButtonPlay.Width / 2,
-                GraphicsDevice.Viewport.Height * 1 / 9), Color.White, 1f);             // create play button
+                GraphicsDevice.Viewport.Height * 1 / 9), Color.White, 1f);
             clickable_CustomButton = new View_Clickable(Menu_ButtonCustom, new Vector2(GraphicsDevice.Viewport.Width / 2 - Menu_ButtonCustom.Width / 2,
-                GraphicsDevice.Viewport.Height * 3 / 9), Color.White, 1f);            // create setup button
+                GraphicsDevice.Viewport.Height * 3 / 9), Color.White, 1f);
             clickable_LoadButton = new View_Clickable(Menu_ButtonLoad, new Vector2(GraphicsDevice.Viewport.Width / 2 - Menu_ButtonLoad.Width / 2,
-                GraphicsDevice.Viewport.Height * 5 / 9), Color.White, 1f); //create load button
+                GraphicsDevice.Viewport.Height * 5 / 9), Color.White, 1f);
             clickable_MenuButton = new View_Clickable(Playing_ButtonMenu, new Vector2(GraphicsDevice.Viewport.Width - Menu_ButtonCustom.Width * 0.3f,
-                GraphicsDevice.Viewport.Height - Menu_ButtonCustom.Height * 0.3f), Color.White, 0.3f);            // create setup button
+                GraphicsDevice.Viewport.Height - Menu_ButtonCustom.Height * 0.3f), Color.White, 0.3f);
             clickable_SaveButton = new View_Clickable(Playing_ButtonSave, new Vector2(GraphicsDevice.Viewport.Width - Menu_ButtonCustom.Width,
-                GraphicsDevice.Viewport.Height - Menu_ButtonCustom.Height * 0.3f), Color.White, 0.3f); //create save button
+                GraphicsDevice.Viewport.Height - Menu_ButtonCustom.Height * 0.3f), Color.White, 0.3f);
 
             clickable_Play_1v1 = new View_Clickable(Play_1v1, new Vector2(GraphicsDevice.Viewport.Width / 2 - Menu_ButtonCustom.Width / 2,
                 GraphicsDevice.Viewport.Height * 4 / 9), Color.White, 1f);
@@ -190,188 +184,8 @@ namespace _2ME3_Checkers
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            // Allows the game to exit
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
-                this.Exit();
-
-            // Change state using the keyboard
-            keyState = Keyboard.GetState();
-            if (keyState.IsKeyDown(Keys.M))
-                currentState = STATE.MENU;
-            else if (keyState.IsKeyDown(Keys.S))
-                currentState = STATE.SETUP;
-            else if (keyState.IsKeyDown(Keys.P))
-                currentState = STATE.PLAYING;
-
-            if (keyState.IsKeyDown(Keys.B))
-                currentPlayerTurn = Piece.PLAYER.BLACK;
-            else if (keyState.IsKeyDown(Keys.W))
-                currentPlayerTurn = Piece.PLAYER.WHITE;
-
-            //Only run the timer if you are in playing mode
-            moveTimer.Enabled = (currentState == STATE.PLAYING) ? true : false;
-
-            //TEMP
-            /*else if (keyState.IsKeyDown(Keys.K))
+            if (mouseStateCurrent.LeftButton == ButtonState.Pressed && mouseStatePrev.LeftButton == ButtonState.Released)
             {
-                Console.WriteLine(board.getNumPieces(Piece.PLAYER.BLACK));
-                Console.WriteLine(currentPlayerTurn);
-                Console.WriteLine("jump available: " + board.getJumpAvailable()[0] + " " + board.getJumpAvailable()[1] + " jump piece set: " + (board.getJumpingPiece() != null));  
-            }*/
-
-            // Mouse Update Stuff
-            mouseStatePrev = mouseStateCurrent;
-
-            // if it's the AI's turn, we emulate piece movement internally
-            if (aiEnabled && currentPlayerTurn == aiPlayer && pieceList.Count() != 0)
-            {
-                Random r = new Random();
-                int randomPiece = r.Next(0, pieceList.Count());
-                View_Clickable thisPiece = pieceList.ElementAt(randomPiece);
-                if (currentPlayerTurn == board.getPiece((int)thisPiece.getCoords().X, (int)thisPiece.getCoords().Y).getOwner()) // if piece belongs to AI
-                { // Picks a random legal movement
-                    mouseClickedPiece = thisPiece;
-                    Piece.validMovementsStruct[] validMoves = board.getPiece(thisPiece.getCoords()).getValidMovements();
-                    Piece.validMovementsStruct randomMovement = validMoves[r.Next(0,4)];
-                    if (!(randomMovement.col == -99 || randomMovement.row == -99))
-                        mouseBoardPosition = new Vector2(randomMovement.col, randomMovement.row);
-                }
-                mouseStateCurrent = new MouseState(0,0,0,ButtonState.Released,ButtonState.Released,ButtonState.Released,ButtonState.Released,ButtonState.Released);
-            }
-            else // Player mouse clicks
-            {
-
-                mouseStateCurrent = Mouse.GetState();
-                mousePos = new Vector2(mouseStateCurrent.X, mouseStateCurrent.Y);
-                mouseBoardPosition = new Vector2((float)Math.Round((mousePos.X - board_SquareSize) / board_SquareSize)
-                    , (float)Math.Round(Math.Abs(mousePos.Y / (board_SquareSize) - 8))); // this is where the mouse is looking on the board ie (0-7), (0-7)
-
-            }
-
-            // Drop piece if mouse button is up
-            if ((mouseStateCurrent.LeftButton == ButtonState.Released && mouseClickedPiece != null))
-            {
-                //update the last person to have a turn
-                lastPlayerTurn = currentPlayerTurn;
-                // there are 4 possible directions of movement
-                for (int i = 0; i < 4; i++)
-                {
-                    //need a this conditional because board.getPiece() can return null if there is no Piece there
-                    if (board.getPiece(mouseClickedPiece.getCoords()) != null)
-                    {
-                        //if the place where the mouse is releasing the piece is a valid move for the piece 
-                        if ((board.getPiece(mouseClickedPiece.getCoords()).getValidMovements()[i].col == mouseBoardPosition.X)
-                            && (board.getPiece(mouseClickedPiece.getCoords()).getValidMovements()[i].row == mouseBoardPosition.Y))
-                        {
-                            ///~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                            ///Case 1: Jump Available && Jump Piece Set
-                            ///~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                            //if there is a jump available and the jumping piece is set check if that piece can continue jumping and jump with it, else end the turn
-                            if (((board.getJumpAvailable(Piece.PLAYER.WHITE) && currentPlayerTurn == Piece.PLAYER.WHITE)
-                                || (board.getJumpAvailable(Piece.PLAYER.BLACK) && currentPlayerTurn == Piece.PLAYER.BLACK))
-                                && board.getJumpingPiece() != null)
-                            {
-                                //Console.WriteLine(currentPlayerTurn+" Case 1: Jump Available && Jump Piece Set");
-                                //if the jumping piece can't continue end the turn
-                                if (!board.getJumpingPiece().canJump())
-                                {
-                                    changeTurn();
-                                }
-                                else
-                                {
-                                    //if you are selecting the jumping piece and you are attempting a jump then jump
-                                    if (board.getPiece(mouseClickedPiece.getCoords()) == board.getJumpingPiece() && (Math.Abs(mouseClickedPiece.getCoords().X - mouseBoardPosition.X) == 2))
-                                    {
-                                        board.movePiece(mouseClickedPiece.getCoords(), mouseBoardPosition); //Move the piece in the array to the spot where the mouse dropped it
-                                        board.setJumpingPiece(board.getPiece(mouseBoardPosition));
-                                        //remove the piece that got jumped
-                                        board.removePiece((Math.Min((int)mouseClickedPiece.getCoords().X, (int)mouseBoardPosition.X) + 1)
-                                        , (Math.Min((int)mouseClickedPiece.getCoords().Y, (int)mouseBoardPosition.Y) + 1));
-                                    }
-                                }
-                            }
-                            ///~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                            ///Case 2: Jump Available && Jump Piece NOT Set
-                            ///~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                            //if there is a jump available and there is no piece currently jumping then make the jump and set which piece is jumping
-                            else if (((board.getJumpAvailable(Piece.PLAYER.WHITE) && currentPlayerTurn == Piece.PLAYER.WHITE)
-                                || (board.getJumpAvailable(Piece.PLAYER.BLACK) && currentPlayerTurn == Piece.PLAYER.BLACK))
-                                && board.getJumpingPiece() == null)
-                            {
-                                //Console.WriteLine(currentPlayerTurn + "Case 2: Jump Available && Jump Piece NOT Set");
-                                //if you can jump with the selected piece and you are actually attempting to move far enough to make a jump
-                                if ((board.getPiece(mouseClickedPiece.getCoords()).canJump()) && (Math.Abs(mouseClickedPiece.getCoords().X - mouseBoardPosition.X) == 2))
-                                {
-                                    board.movePiece(mouseClickedPiece.getCoords(), mouseBoardPosition); //Move the piece in the array to the spot where the mouse dropped it
-                                    board.setJumpingPiece(board.getPiece(mouseBoardPosition));
-                                    //remove the piece that got jumped
-                                    board.removePiece((Math.Min((int)mouseClickedPiece.getCoords().X, (int)mouseBoardPosition.X) + 1)
-                                    , (Math.Min((int)mouseClickedPiece.getCoords().Y, (int)mouseBoardPosition.Y) + 1));
-                                    //Console.WriteLine(currentPlayerTurn + " " + board.getJumpAvailable()[0] + " " + board.getJumpAvailable()[1]);
-                                    setValidMovements(board); // set the valid movements again to see if there is another jump possible after doing a jump
-                                    //Console.WriteLine(currentPlayerTurn + " " + board.getJumpAvailable()[0] + " " + board.getJumpAvailable()[1]);
-                                }
-                            }
-                            ///~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                            ///Case 3: Jump NOT Available && Jump Piece NOT Set
-                            ///~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                            //if there is no jump available and no piece has jumped yet then move normally (not jumping) and change the turn
-                            else if ((!(board.getJumpAvailable(Piece.PLAYER.WHITE) && currentPlayerTurn == Piece.PLAYER.WHITE)
-                                && !(board.getJumpAvailable(Piece.PLAYER.BLACK) && currentPlayerTurn == Piece.PLAYER.BLACK))
-                                && board.getJumpingPiece() == null)
-                            {
-                                //Console.WriteLine(currentPlayerTurn + "Case 3: Jump NOT Available && Jump Piece NOT Set");
-                                board.movePiece(mouseClickedPiece.getCoords(), mouseBoardPosition); //Move the piece in the array to the spot where the mouse dropped it
-                                changeTurn();
-                            }
-                            setValidMovements(board); // update the whole board's valid movements to ensure every piece knows that piece moved
-                        }
-                    }
-                }//end 4 direction for loop
-
-                mouseClickedPiece = null;
-                // Trigger the redrawing of pieces when a piece is dropped since it may have moved.
-                pieceList.Clear(); // Clear the old locations of piece graphics.
-                piecesCreated = false; // Tells the system that we will need to remake pieces.
-                //Console.WriteLine("recreate piecelist");
-                //Logic to corresspond the mouse X,Y coordinates with the board's index (0-7, 0-7)
-
-                //Console.WriteLine(Math.Round( (mousePos.X - board_SquareSize) / board_SquareSize) + " " + Math.Round(Math.Abs(mousePos.Y / (board_SquareSize) - 8)));
-            }//end mouse release
-            ///~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            ///Case 4: Jump NOT Available && Jump Piece Set
-            ///~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            //if you already jumped and you can't jump anymore, your turn is over
-            if ((!(board.getJumpAvailable(Piece.PLAYER.WHITE) && currentPlayerTurn == Piece.PLAYER.WHITE)
-                && !(board.getJumpAvailable(Piece.PLAYER.BLACK) && currentPlayerTurn == Piece.PLAYER.BLACK))
-                && board.getJumpingPiece() != null)
-            {
-                //Console.WriteLine(currentPlayerTurn + "Case 4: Jump NOT Available && Jump Piece Set");
-                changeTurn();
-            }
-
-            // True if the mouse is pressed in the current frame. // Allow clicking pieces if it isn't AI's turn.
-            if (mouseStateCurrent.LeftButton == ButtonState.Pressed && mouseStatePrev.LeftButton == ButtonState.Released && !(aiEnabled && aiPlayer == currentPlayerTurn))
-            {
-                // Look through all pieces
-                foreach (View_Clickable thisPiece in pieceList)
-                {
-                    // If the current player is clicking one of his own pieces.
-                    if (thisPiece.IsIntersected(mousePos) && (currentPlayerTurn == board.getPiece((int)thisPiece.getCoords().X, (int)thisPiece.getCoords().Y).getOwner()))
-                    {
-                        mouseClickedPiece = thisPiece;
-                        mouseOffset = thisPiece.getPosition() - mousePos;
-
-                        // temporary console writing for testing
-                        /*for (int i = 0; i < 4; i++)
-                        {
-                            Piece.validMovementsStruct vms = board.getPiece((int)thisPiece.getCoords().X, (int)thisPiece.getCoords().Y).getValidMovements()[i];
-                            Console.WriteLine(vms.direction + " " + vms.col + " " + vms.row);
-                        }*/
-                        break; // Break to only pick up one piece at a time.
-                    }
-                }
-
                 // MENU buttons events to switch between states
                 if (currentState == STATE.MENU)
                 {
@@ -381,19 +195,18 @@ namespace _2ME3_Checkers
                         piecesCreated = false; // Tells the system that we will need to remake pieces.
                         currentState = STATE.SETUP;
                     }
-                    if (clickable_PlayButton.IsIntersected(mousePos))
+                    else if (clickable_PlayButton.IsIntersected(mousePos))
                     {
                         currentState = STATE.PLAYING_MODESELECT;
                     }
-                    if (clickable_LoadButton.IsIntersected(mousePos))
+                    else if (clickable_LoadButton.IsIntersected(mousePos))
                     {
                         pieceList.Clear(); // Clear the old locations of piece graphics.
                         piecesCreated = false; // Tells the system that we will need to remake pieces.
                         currentState = STATE.LOAD;
                     }
                 }
-
-                if (currentState == STATE.PLAYING_MODESELECT)
+                else if (currentState == STATE.PLAYING_MODESELECT)
                 {
                     if (clickable_Play_1v1.IsIntersected(mousePos))
                     {
@@ -402,39 +215,181 @@ namespace _2ME3_Checkers
                         aiEnabled = false;
                         currentState = STATE.PLAYING;
                     }
-                    if (clickable_Play_1vAI.IsIntersected(mousePos))
+                    else if (clickable_Play_1vAI.IsIntersected(mousePos))
                     {
                         pieceList.Clear(); // Clear the old locations of piece graphics.
                         piecesCreated = false; // Tells the system that we will need to remake pieces.
                         aiEnabled = true;
                         currentState = STATE.PLAYING;
                     }
-                    if (clickable_Play_AsBlack.IsIntersected(mousePos))
+                    else if (clickable_Play_AsBlack.IsIntersected(mousePos))
                     {
                         aiPlayer = Piece.PLAYER.WHITE;
                         clickable_Play_AsWhite.setTexture(Play_AsWhite);
                         clickable_Play_AsBlack.setTexture(Play_AsBlack_Selected);
+                        currentState = STATE.PLAYING_MODESELECT;
                     }
-                    if (clickable_Play_AsWhite.IsIntersected(mousePos))
+                    else if (clickable_Play_AsWhite.IsIntersected(mousePos))
                     {
                         aiPlayer = Piece.PLAYER.BLACK;
                         clickable_Play_AsWhite.setTexture(Play_AsWhite_Selected);
                         clickable_Play_AsBlack.setTexture(Play_AsBlack);
+                        currentState = STATE.PLAYING_MODESELECT;
                     }
                 }
-
-                if (currentState == STATE.PLAYING)
+                else if (currentState == STATE.PLAYING)
                 {
                     if (clickable_MenuButton.IsIntersected(mousePos))
                         currentState = STATE.MENU;
-                    if (clickable_SaveButton.IsIntersected(mousePos))
+                    else if (clickable_SaveButton.IsIntersected(mousePos))
                         fileIO.save(board, currentPlayerTurn);
                 }
             }
 
-            // If we haven't released the mouse, continue updating the position of the piece (for dragging).
-            if (mouseClickedPiece != null) mouseClickedPiece.setPosition(mousePos + mouseOffset);
+            //Only run the timer if you are in playing mode
+            moveTimer.Enabled = (currentState == STATE.PLAYING) ? true : false;
 
+            // Mouse Update Stuff
+            mouseStatePrev = mouseStateCurrent;
+            mouseStateCurrent = Mouse.GetState();
+            mousePos = new Vector2(mouseStateCurrent.X, mouseStateCurrent.Y);
+
+            if (currentState == STATE.PLAYING)
+            {
+                // if it's the AI's turn, we emulate piece movement internally
+                if (aiEnabled && currentPlayerTurn == aiPlayer && pieceList.Count() != 0)
+                {
+                    Random r = new Random();
+                    int randomPiece = r.Next(0, pieceList.Count());
+                    View_Clickable thisPiece = pieceList.ElementAt(randomPiece);
+                    if (currentPlayerTurn == board.getPiece((int)thisPiece.getCoords().X, (int)thisPiece.getCoords().Y).getOwner()) // if piece belongs to AI
+                    { // Picks a random legal movement
+                        mouseClickedPiece = thisPiece;
+                        Piece.validMovementsStruct[] validMoves = board.getPiece(thisPiece.getCoords()).getValidMovements();
+                        Piece.validMovementsStruct randomMovement = validMoves[r.Next(0, 4)];
+                        if (!(randomMovement.col == -99 || randomMovement.row == -99))
+                            mouseBoardPosition = new Vector2(randomMovement.col, randomMovement.row);
+                    }
+                    mouseStateCurrent = new MouseState(0, 0, 0, ButtonState.Released, ButtonState.Released, ButtonState.Released, ButtonState.Released, ButtonState.Released);
+                }
+                else // Player mouse clicks
+                {
+                    mouseBoardPosition = new Vector2((float)Math.Round((mousePos.X - board_SquareSize) / board_SquareSize)
+                        , (float)Math.Round(Math.Abs(mousePos.Y / (board_SquareSize) - 8))); // this is where the mouse is looking on the board ie (0-7), (0-7)
+                }
+
+                // If a held piece was dropped
+                if ((mouseStateCurrent.LeftButton == ButtonState.Released && mouseClickedPiece != null))
+                {
+                    //update the last person to have a turn
+                    lastPlayerTurn = currentPlayerTurn;
+                    // there are 4 possible directions of movement
+                    for (int i = 0; i < 4; i++)
+                    {
+                        //need a this conditional because board.getPiece() can return null if there is no Piece there
+                        if (board.getPiece(mouseClickedPiece.getCoords()) != null)
+                        {
+                            //if the place where the mouse is releasing the piece is a valid move for the piece 
+                            if ((board.getPiece(mouseClickedPiece.getCoords()).getValidMovements()[i].col == mouseBoardPosition.X)
+                                && (board.getPiece(mouseClickedPiece.getCoords()).getValidMovements()[i].row == mouseBoardPosition.Y))
+                            {
+                                ///~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                                ///Case 1: Jump Available && Jump Piece Set
+                                ///~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                                //if there is a jump available and the jumping piece is set check if that piece can continue jumping and jump with it, else end the turn
+                                if (((board.getJumpAvailable(Piece.PLAYER.WHITE) && currentPlayerTurn == Piece.PLAYER.WHITE)
+                                    || (board.getJumpAvailable(Piece.PLAYER.BLACK) && currentPlayerTurn == Piece.PLAYER.BLACK))
+                                    && board.getJumpingPiece() != null)
+                                {
+                                    //if the jumping piece can't continue end the turn
+                                    if (!board.getJumpingPiece().canJump())
+                                    {
+                                        changeTurn();
+                                    }
+                                    else
+                                    {
+                                        //if you are selecting the jumping piece and you are attempting a jump then jump
+                                        if (board.getPiece(mouseClickedPiece.getCoords()) == board.getJumpingPiece() && (Math.Abs(mouseClickedPiece.getCoords().X - mouseBoardPosition.X) == 2))
+                                        {
+                                            board.movePiece(mouseClickedPiece.getCoords(), mouseBoardPosition); //Move the piece in the array to the spot where the mouse dropped it
+                                            board.setJumpingPiece(board.getPiece(mouseBoardPosition));
+                                            //remove the piece that got jumped
+                                            board.removePiece((Math.Min((int)mouseClickedPiece.getCoords().X, (int)mouseBoardPosition.X) + 1)
+                                            , (Math.Min((int)mouseClickedPiece.getCoords().Y, (int)mouseBoardPosition.Y) + 1));
+                                        }
+                                    }
+                                }
+                                ///~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                                ///Case 2: Jump Available && Jump Piece NOT Set
+                                ///~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                                //if there is a jump available and there is no piece currently jumping then make the jump and set which piece is jumping
+                                else if (((board.getJumpAvailable(Piece.PLAYER.WHITE) && currentPlayerTurn == Piece.PLAYER.WHITE)
+                                    || (board.getJumpAvailable(Piece.PLAYER.BLACK) && currentPlayerTurn == Piece.PLAYER.BLACK))
+                                    && board.getJumpingPiece() == null)
+                                {
+                                    //if you can jump with the selected piece and you are actually attempting to move far enough to make a jump
+                                    if ((board.getPiece(mouseClickedPiece.getCoords()).canJump()) && (Math.Abs(mouseClickedPiece.getCoords().X - mouseBoardPosition.X) == 2))
+                                    {
+                                        board.movePiece(mouseClickedPiece.getCoords(), mouseBoardPosition); //Move the piece in the array to the spot where the mouse dropped it
+                                        board.setJumpingPiece(board.getPiece(mouseBoardPosition));
+                                        //remove the piece that got jumped
+                                        board.removePiece((Math.Min((int)mouseClickedPiece.getCoords().X, (int)mouseBoardPosition.X) + 1)
+                                        , (Math.Min((int)mouseClickedPiece.getCoords().Y, (int)mouseBoardPosition.Y) + 1));
+                                        setValidMovements(board); // set the valid movements again to see if there is another jump possible after doing a jump
+                                    }
+                                }
+                                ///~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                                ///Case 3: Jump NOT Available && Jump Piece NOT Set
+                                ///~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                                //if there is no jump available and no piece has jumped yet then move normally (not jumping) and change the turn
+                                else if ((!(board.getJumpAvailable(Piece.PLAYER.WHITE) && currentPlayerTurn == Piece.PLAYER.WHITE)
+                                    && !(board.getJumpAvailable(Piece.PLAYER.BLACK) && currentPlayerTurn == Piece.PLAYER.BLACK))
+                                    && board.getJumpingPiece() == null)
+                                {
+                                    board.movePiece(mouseClickedPiece.getCoords(), mouseBoardPosition); //Move the piece in the array to the spot where the mouse dropped it
+                                    changeTurn();
+                                }
+                                setValidMovements(board); // update the whole board's valid movements to ensure every piece knows that piece moved
+                            }
+                        }
+                    }//end 4 direction for loop
+
+                    mouseClickedPiece = null;
+                    // Trigger the redrawing of pieces when a piece is dropped since it may have moved.
+                    pieceList.Clear(); // Clear the old locations of piece graphics.
+                    piecesCreated = false; // Tells the system that we will need to remake pieces.
+                    //Logic to corresspond the mouse X,Y coordinates with the board's index (0-7, 0-7)
+                }//end mouse release
+
+                ///~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                ///Case 4: Jump NOT Available && Jump Piece Set
+                ///~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                //if you already jumped and you can't jump anymore, your turn is over
+                if ((!(board.getJumpAvailable(Piece.PLAYER.WHITE) && currentPlayerTurn == Piece.PLAYER.WHITE)
+                    && !(board.getJumpAvailable(Piece.PLAYER.BLACK) && currentPlayerTurn == Piece.PLAYER.BLACK))
+                    && board.getJumpingPiece() != null)
+                {
+                    changeTurn();
+                }
+
+                // True if the mouse is pressed in the current frame. // Disallow clicking pieces if AI's turn.
+                if (mouseStateCurrent.LeftButton == ButtonState.Pressed && mouseStatePrev.LeftButton == ButtonState.Released && !(aiEnabled && aiPlayer == currentPlayerTurn))
+                {
+                    // Look through all pieces
+                    foreach (View_Clickable thisPiece in pieceList)
+                    {
+                        // If the current player is clicking one of his own pieces.
+                        if (thisPiece.IsIntersected(mousePos) && (currentPlayerTurn == board.getPiece((int)thisPiece.getCoords().X, (int)thisPiece.getCoords().Y).getOwner()))
+                        {
+                            mouseClickedPiece = thisPiece;
+                            mouseOffset = thisPiece.getPosition() - mousePos;
+                            break; // Break to only pick up one piece at a time.
+                        }
+                    }
+                }
+                // If we haven't released the mouse, continue updating the position of the piece (for dragging).
+                if (mouseClickedPiece != null) mouseClickedPiece.setPosition(mousePos + mouseOffset);
+            }
             base.Update(gameTime);
         }
 
@@ -564,7 +519,6 @@ namespace _2ME3_Checkers
                                     throw new Exception("Error: Piece owned by non existant player!");
                                 }
 
-
                                 // prepare a list of all pieces so we can draw them later
                                 pieceList.Add(new View_Clickable(pieceTexture, new Vector2((GraphicsDevice.Viewport.Width - board_SquareSize * 8) / 2 + board_SquareSize * col + board_SquareSize / 2 - Piece_BlackNormal.Width / 2,
                                     (GraphicsDevice.Viewport.Height - board_SquareSize * 8) / 2 + board_SquareSize * row + board_SquareSize / 2 - Piece_BlackNormal.Height / 2), Color.White, 1f, col, 7 - row));
@@ -623,7 +577,6 @@ namespace _2ME3_Checkers
         /// the default constructor allows for calling the function with no paramaters to set up the entire board
         /// </summary>
         /// 
-
         public void setValidMovements(Board board)
         {
             board.setJumpAvailable(Piece.PLAYER.BLACK, false); board.setJumpAvailable(Piece.PLAYER.WHITE, false); ;
@@ -808,12 +761,11 @@ namespace _2ME3_Checkers
         // when the timer is up end the game 
         private void moveTimerTick(object source, ElapsedEventArgs e)
         {
-            //Console.WriteLine("The Elapsed event was raised at {0}", e.SignalTime);
-           /* Console.WriteLine("TIME UP!");
-            if (currentPlayerTurn == Piece.PLAYER.WHITE)
-                win(Piece.PLAYER.BLACK);
-            if (currentPlayerTurn == Piece.PLAYER.BLACK)
-                win(Piece.PLAYER.WHITE);*/
+             Console.WriteLine("TIME UP!");
+             if (currentPlayerTurn == Piece.PLAYER.WHITE)
+                 win(Piece.PLAYER.BLACK);
+             if (currentPlayerTurn == Piece.PLAYER.BLACK)
+                 win(Piece.PLAYER.WHITE);
         }
 
         //The overhead that needs to happen each time the turn changes
