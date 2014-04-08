@@ -24,7 +24,6 @@ namespace _2ME3_Checkers
         private enum STATE { MENU, SETUP, PLAYING, LOAD, PLAYING_MODESELECT }; // The major states of the game
         private STATE currentState = STATE.MENU; // The variable to track which state is currently active
         private Piece.PLAYER currentPlayerTurn = Piece.PLAYER.WHITE; // Start with WHITE going first
-        private Piece.PLAYER lastPlayerTurn = Piece.PLAYER.BLACK; // The previous turn. this is saved because sometimes the same player can go multiple times
         private bool aiEnabled = false;
         private Piece.PLAYER aiPlayer = Piece.PLAYER.BLACK; // initalized when the player picks to play against an AI 
         private string input;
@@ -281,8 +280,6 @@ namespace _2ME3_Checkers
                 // If a held piece was dropped
                 if ((mouseStateCurrent.LeftButton == ButtonState.Released && mouseClickedPiece != null))
                 {
-                    //update the last person to have a turn
-                    lastPlayerTurn = currentPlayerTurn;
                     // there are 4 possible directions of movement
                     for (int i = 0; i < 4; i++)
                     {
@@ -789,7 +786,7 @@ namespace _2ME3_Checkers
             board.clear();
             board = new Board();
             Console.WriteLine(winner + " wins.");
-            currentPlayerTurn = Piece.PLAYER.BLACK;
+            currentPlayerTurn = Piece.PLAYER.WHITE;
             currentState = STATE.MENU;
         }
     }
