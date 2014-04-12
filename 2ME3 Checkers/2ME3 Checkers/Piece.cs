@@ -88,41 +88,5 @@ namespace _2ME3_Checkers
             else
                 throw new Exception("Error. Direction not handled"); 
         }
-
-        /*public static bool operator ==(Piece x, Piece y)
-        {
-
-            bool returnValue = true;
-            for (int i = 0; i < 4; i++)
-            {
-                try
-                {
-                    if ((x.getValidMovements()[i].col != y.getValidMovements()[i].col) || (x.getValidMovements()[i].row != y.getValidMovements()[i].row))
-                    {
-                        returnValue = false;
-                        break;
-                    }
-                }
-                catch { return false; }
-            }
-            return returnValue;
-        }
-        public static bool operator !=(Piece x, Piece y)
-        {
- 
-            bool returnValue = true;
-            try
-            {
-                for (int i = 0; i < 4; i++)
-                {
-                    if ((x.getValidMovements()[i].col == y.getValidMovements()[i].col) || (x.getValidMovements()[i].row == y.getValidMovements()[i].row))
-                    {
-                        returnValue = false;
-                    }
-                }
-            }
-            catch { return false; }
-            return returnValue;
-        }*/
     }
 }
