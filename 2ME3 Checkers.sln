@@ -5,14 +5,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "2ME3 Checkers", "2ME3 Check
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "2ME3 CheckersContent", "2ME3 Checkers\2ME3 CheckersContent\2ME3 CheckersContent.contentproj", "{979AABDC-66AD-4FAE-A315-EB34CBFCD26E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CheckersTesting", "CheckersTesting\CheckersTesting.csproj", "{8DE009DB-E525-4C17-A077-8E8E58DDAAA6}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{0C04DE0C-B6EF-48DF-B3F2-91D718B32CCE}"
 	ProjectSection(SolutionItems) = preProject
 		2ME3 Checkers.vsmdi = 2ME3 Checkers.vsmdi
 		Local.testsettings = Local.testsettings
 		TraceAndTestImpact.testsettings = TraceAndTestImpact.testsettings
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "2ME3 CheckersTesting", "2ME3 CheckersTesting\2ME3 CheckersTesting.csproj", "{8DE009DB-E525-4C17-A077-8E8E58DDAAA6}"
 EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
