@@ -789,7 +789,7 @@ namespace _2ME3_Checkers
             board.clear();
             board = new Board();
             Console.WriteLine(winner + " wins.");
-            currentPlayerTurn = Piece.PLAYER.BLACK;
+            currentPlayerTurn = Piece.PLAYER.WHITE;
             currentState = STATE.MENU;
         }
     }
