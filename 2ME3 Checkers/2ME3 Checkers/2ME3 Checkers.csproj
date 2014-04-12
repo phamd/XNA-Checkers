@@ -127,8 +127,9 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\2ME3 CheckersContent\2ME3 CheckersContent.contentproj">
-      <Name>_2ME3_CheckersContent</Name>
+      <Name>2ME3 CheckersContent %28Content%29</Name>
       <XnaReferenceType>Content</XnaReferenceType>
+      <Project>{979AABDC-66AD-4FAE-A315-EB34CBFCD26E}</Project>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
